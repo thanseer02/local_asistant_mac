@@ -23,14 +23,22 @@ Built with pure macOS system APIs (`notify(3)` via `libSystem` & `/usr/bin/say`)
 
 ## 📁 Project Structure
 
+## 📁 Project Architecture
+
 ```text
 MacAssistant/
-├── config.json           # User configuration (voice, delays, greetings, title)
-├── assistant.py          # Main daemon script & event listener
-├── README.md             # Documentation & operational guide
-├── voices.text           # Curated list of testable macOS voices
-├── venv/                 # Local Python virtual environment
-└── ~/Library/LaunchAgents/com.personal.macassistant.plist  # System service definition
+├── assistant.py                   # Clean CLI / LaunchAgent executable entry point
+├── config.json                    # Configuration (personas, timings, schedules)
+├── voices.text                    # Curated voice preview commands
+├── venv/                          # Python virtual environment
+│
+└── mac_assistant/                 # Core Architecture Package
+    ├── __init__.py                # Package root
+    ├── config_manager.py          # Hot-reloading & configuration parser
+    ├── voice_engine.py            # Marvel persona logic & speech synthesis
+    ├── event_listener.py          # macOS notify(3) low-level kernel listener
+    ├── scheduler.py               # Timed reminders & late-night rest monitor
+    └── daemon.py                  # Core event loop coordinating all layers
 ```
 
 ---

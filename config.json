@@ -5,6 +5,24 @@
   "user_name": "Sir",
   "login_delay_seconds": 2,
   "cooldown_seconds": 3,
+  "late_night_reminders": {
+    "enabled": true,
+    "start_hour": 22,
+    "end_hour": 5,
+    "interval_minutes": 30,
+    "friday_messages": [
+      "Sir, it's getting quite late. You've been working hard; please take a rest.",
+      "Sir, 30 minutes have passed. Remember to take a break and step away from the screen.",
+      "Sir, it's late. Sleep is essential for peak performance. Consider calling it a night.",
+      "Sir, quick check-in. Don't push yourself too hard tonight. Time for a short breather."
+    ],
+    "jarvis_messages": [
+      "Pardon the interruption. The hour is late, Sir. Might I strongly recommend taking a rest?",
+      "Another 30 minutes have elapsed, Sir. A brief respite would be prudent.",
+      "Human cognitive efficiency diminishes significantly at this hour. Please consider retiring for the evening, Sir.",
+      "Pardon me, Sir. It is well past conventional working hours. Shall we pause and resume tomorrow?"
+    ]
+  },
   "scheduled_reminders": [
     {
       "time": "11:00",
@@ -22,9 +40,9 @@
       "jarvis_message": "The time is 4:00 PM. A brief respite for afternoon tea would be advisable, Sir."
     },
     {
-      "time": "18:30",
-      "friday_message": "Sir, it's 6:30 PM. Time to wrap up for the day and head home! Great work today.",
-      "jarvis_message": "The time is 6:30 PM. All critical operations are secured. Shall we wrap up and head home, Sir?"
+      "time": "18:18",
+      "friday_message": "Sir, it's 6:18 PM. Time to wrap up for the day and head home! Great work today.",
+      "jarvis_message": "The time is 6:18 PM. All critical operations are secured. Shall we wrap up and head home, Sir?"
     }
   ],
   "personas": {
