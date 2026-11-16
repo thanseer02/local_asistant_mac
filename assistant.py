@@ -13,33 +13,34 @@ CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
 
 DEFAULT_CONFIG = {
     "voice": "Moira",
+    "speech_rate": 180,
+    "user_name": "Tanseer",
     "login_delay_seconds": 2,
     "cooldown_seconds": 3,
-    "user_title": "Sir",
     "greetings": {
         "morning": [
-            "Good morning, {title}. Welcome back! Wishing you a productive day ahead.",
-            "Good morning, {title}. Ready to tackle the day?",
-            "Rise and shine, {title}. Let's get things done today.",
-            "Good morning! Everything is primed and ready for you, {title}."
+            "Good morning, {name}! Hope you slept well. Ready to crush today?",
+            "Hey {name}, morning! Coffee in hand? Let's get things rolling.",
+            "Morning, {name}! Let's make today a great one.",
+            "Good morning! Great to see you back at it, {name}."
         ],
         "afternoon": [
-            "Good afternoon, {title}. I hope your day is progressing well.",
-            "Good afternoon, {title}. Welcome back to your workspace.",
-            "Hope you are having a productive afternoon, {title}.",
-            "Welcome back, {title}. Ready to dive back in?"
+            "Hey {name}, welcome back! How's your day going so far?",
+            "Good afternoon, {name}! Hope you're having a productive one.",
+            "Welcome back, {name}! Ready to dive back into things?",
+            "Hey {name}! Hope you took a quick breather. Let's keep the momentum going."
         ],
         "evening": [
-            "Good evening, {title}. Welcome back! Ready to continue where we left off?",
-            "Good evening, {title}. Hope you had a great day today.",
-            "Welcome back, {title}. Let's wrap up today's tasks smoothly.",
-            "Good evening, {title}. Systems are ready whenever you are."
+            "Good evening, {name}! Hope you had a solid day.",
+            "Hey {name}, welcome back! Ready to wrap up the day's work?",
+            "Good evening, {name}! Let's knock out whatever is left on your list.",
+            "Welcome back, {name}! Hope your evening is going well."
         ],
         "night": [
-            "Working late, {title}? I hope everything is going smoothly. Remember to take a break and get some rest.",
-            "Still up, {title}? Don't forget to take care of yourself.",
-            "Burning the midnight oil, {title}? Let me know if you need anything.",
-            "Late night session, {title}. Stay focused and rest when you can."
+            "Still up, {name}? Make sure not to push yourself too hard tonight.",
+            "Hey {name}, working late tonight? Remember to take a break and rest soon.",
+            "Late night grind, {name}? I'm right here with you. Don't forget to hydrate.",
+            "Working late, {name}? Hope things are going smoothly. Get some sleep when you can!"
         ]
     }
 }
@@ -66,7 +67,7 @@ def get_greeting(config, hour=None):
     if hour is None:
         hour = datetime.now().hour
 
-    title = config.get("user_title", "Sir")
+    name = config.get("user_name") or config.get("user_title", "Tanseer")
     greetings = config.get("greetings", DEFAULT_CONFIG["greetings"])
 
     if 5 <= hour < 12:
@@ -78,31 +79,36 @@ def get_greeting(config, hour=None):
     else:
         pool = greetings.get("night", DEFAULT_CONFIG["greetings"]["night"])
 
-    # If pool is a list, pick dynamically avoiding the immediate previous repeat
+    # If pool is a list, pick dynamically avoiding immediate repeat
     if isinstance(pool, list) and pool:
         candidates = [g for g in pool if g != _last_chosen_greeting] or pool
         chosen = random.choice(candidates)
         _last_chosen_greeting = chosen
-        return chosen.format(title=title)
+        return chosen.format(name=name, title=name)
     elif isinstance(pool, str):
-        return pool.format(title=title)
+        return pool.format(name=name, title=name)
 
-    return f"Welcome back, {title}."
+    return f"Welcome back, {name}!"
 
 def speak(message, config):
     voice = config.get("voice", "Moira")
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Speaking with voice '{voice}': {message}", flush=True)
-    subprocess.run(["/usr/bin/say", "-v", voice, message])
+    rate = str(config.get("speech_rate", 180))
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Speaking with voice '{voice}' (rate {rate}): {message}", flush=True)
+    subprocess.run(["/usr/bin/say", "-v", voice, "-r", rate, message])
 
 def listen_for_events():
     """
     Listens for macOS system notifications:
     - com.apple.screensaver.didstop: user dismissed screensaver
-    - com.apple.screenIsUnlocked: user unlocked the screen
+    - com.apple.screenIsUnlocked: screen unlocked (Touch ID / password)
+    - com.apple.sessionDidUnlock: user session unlocked
+    - com.apple.system.loginwindow.sessionDidUnlock: loginwindow session unlock
     """
     events = [
         b'com.apple.screensaver.didstop',
         b'com.apple.screenIsUnlocked',
+        b'com.apple.sessionDidUnlock',
+        b'com.apple.system.loginwindow.sessionDidUnlock',
     ]
 
     fd_map = {}
