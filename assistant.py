@@ -1,6 +1,7 @@
 import ctypes
 import json
 import os
+import random
 import select
 import subprocess
 import time
@@ -16,12 +17,35 @@ DEFAULT_CONFIG = {
     "cooldown_seconds": 3,
     "user_title": "Sir",
     "greetings": {
-        "morning": "Good morning, {title}. Welcome back! Wishing you a productive day ahead.",
-        "afternoon": "Good afternoon, {title}. I hope your day is progressing well.",
-        "evening": "Good evening, {title}. Welcome back! Ready to continue where we left off?",
-        "night": "Working late, {title}? I hope everything is going smoothly. Remember to take a break and get some rest."
+        "morning": [
+            "Good morning, {title}. Welcome back! Wishing you a productive day ahead.",
+            "Good morning, {title}. Ready to tackle the day?",
+            "Rise and shine, {title}. Let's get things done today.",
+            "Good morning! Everything is primed and ready for you, {title}."
+        ],
+        "afternoon": [
+            "Good afternoon, {title}. I hope your day is progressing well.",
+            "Good afternoon, {title}. Welcome back to your workspace.",
+            "Hope you are having a productive afternoon, {title}.",
+            "Welcome back, {title}. Ready to dive back in?"
+        ],
+        "evening": [
+            "Good evening, {title}. Welcome back! Ready to continue where we left off?",
+            "Good evening, {title}. Hope you had a great day today.",
+            "Welcome back, {title}. Let's wrap up today's tasks smoothly.",
+            "Good evening, {title}. Systems are ready whenever you are."
+        ],
+        "night": [
+            "Working late, {title}? I hope everything is going smoothly. Remember to take a break and get some rest.",
+            "Still up, {title}? Don't forget to take care of yourself.",
+            "Burning the midnight oil, {title}? Let me know if you need anything.",
+            "Late night session, {title}. Stay focused and rest when you can."
+        ]
     }
 }
+
+# Keep track of recent greeting to avoid back-to-back repeats
+_last_chosen_greeting = None
 
 def load_config():
     """Load settings from config.json, with automatic fallback to defaults."""
@@ -37,6 +61,8 @@ def load_config():
 lib = ctypes.cdll.LoadLibrary('/usr/lib/libSystem.B.dylib')
 
 def get_greeting(config, hour=None):
+    global _last_chosen_greeting
+
     if hour is None:
         hour = datetime.now().hour
 
@@ -44,15 +70,24 @@ def get_greeting(config, hour=None):
     greetings = config.get("greetings", DEFAULT_CONFIG["greetings"])
 
     if 5 <= hour < 12:
-        template = greetings.get("morning", DEFAULT_CONFIG["greetings"]["morning"])
+        pool = greetings.get("morning", DEFAULT_CONFIG["greetings"]["morning"])
     elif 12 <= hour < 17:
-        template = greetings.get("afternoon", DEFAULT_CONFIG["greetings"]["afternoon"])
+        pool = greetings.get("afternoon", DEFAULT_CONFIG["greetings"]["afternoon"])
     elif 17 <= hour < 21:
-        template = greetings.get("evening", DEFAULT_CONFIG["greetings"]["evening"])
+        pool = greetings.get("evening", DEFAULT_CONFIG["greetings"]["evening"])
     else:
-        template = greetings.get("night", DEFAULT_CONFIG["greetings"]["night"])
+        pool = greetings.get("night", DEFAULT_CONFIG["greetings"]["night"])
 
-    return template.format(title=title)
+    # If pool is a list, pick dynamically avoiding the immediate previous repeat
+    if isinstance(pool, list) and pool:
+        candidates = [g for g in pool if g != _last_chosen_greeting] or pool
+        chosen = random.choice(candidates)
+        _last_chosen_greeting = chosen
+        return chosen.format(title=title)
+    elif isinstance(pool, str):
+        return pool.format(title=title)
+
+    return f"Welcome back, {title}."
 
 def speak(message, config):
     voice = config.get("voice", "Moira")
