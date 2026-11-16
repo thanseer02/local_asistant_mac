@@ -1,15 +1,79 @@
-female
-# # Original Siri voice (US)
-# say -v "Samantha" "Good evening! Welcome back."
+# ==========================================
+# FEMALE VOICES (Ready to test)
+# ==========================================
 
-# # Australian English (Warm & Natural)
-# say -v "Karen" "Good evening! Welcome back."
+# Original Siri voice (US)
+say -v "Samantha" "Good evening, Sir. Welcome back!"
 
-# # Irish English (Clear & Melodic)
-# say -v "Moira" "Good evening! Welcome back."
+# Irish English (Clear & Melodic)
+say -v "Moira" "Good evening, Sir. Welcome back!"
 
-# # Indian English (Female)
-# say -v "Lekha" "Good evening! Welcome back."
+# Australian English (Warm & Natural)
+say -v "Karen" "Good evening, Sir. Welcome back!"
+
+# South African English
+say -v "Tessa" "Good evening, Sir. Welcome back!"
+
+# Indian English (Female)
+say -v "Lekha" "Good evening, Sir. Welcome back!"
+
+# US English (Casual)
+say -v "Kathy" "Good evening, Sir. Welcome back!"
 
 
-male 
+# ==========================================
+# MALE VOICES (Ready to test)
+# ==========================================
+
+# --- Natural / Human Male Voices ---
+
+# British English (Classic Jarvis / Butler Style - Most Popular)
+say -v "Daniel" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# Indian English (Clear & Professional)
+say -v "Rishi" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# American English (Deep Voice)
+say -v "Ralph" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# American English (Classic Macintosh Voice)
+say -v "Fred" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# American English (Youthful / Teen)
+say -v "Junior" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# French Accent Speaking English / French
+say -v "Thomas" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# Dutch Accent Speaking English / Dutch
+say -v "Xander" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+# Arabic Accent Speaking English / Arabic
+say -v "Majed" "Good evening, Sir. Welcome back! Ready to continue where we left off?"
+
+
+# --- Fun / Character / Novelty Male Voices ---
+
+# Albert (Rasping / Quirky)
+say -v "Albert" "Good evening, Sir. Welcome back!"
+
+# Zarvox (Deep Sci-Fi Robot)
+say -v "Zarvox" "Good evening, Sir. Welcome back!"
+
+# Trinoids (Alien / Cyborg Synth)
+say -v "Trinoids" "Good evening, Sir. Welcome back!"
+
+# Whisper (Quiet Whispering)
+say -v "Whisper" "Good evening, Sir. Welcome back!"
+
+# Wobble (Wobbly Pitch)
+say -v "Wobble" "Good evening, Sir. Welcome back!"
+
+# Jester (Playful / Crazy)
+say -v "Jester" "Good evening, Sir. Welcome back!"
+
+# Bad News (Downtrodden / Sarcastic Tone)
+say -v "Bad News" "Good evening, Sir. Welcome back!"
+
+# Good News (Energetic / Happy Tune)
+say -v "Good News" "Good evening, Sir. Welcome back!"
