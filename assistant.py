@@ -143,18 +143,39 @@ def listen_for_events():
         return
 
     last_spoken_time = 0
-    print("Assistant is running and waiting for screensaver/unlock events...", flush=True)
+    last_checked_minute = None
+    print("Assistant is running and waiting for screensaver/unlock events & reminders...", flush=True)
 
     while True:
         try:
-            rlist, _, _ = select.select(list(fd_map.keys()), [], [], 60)
+            # Check every 10 seconds or immediately when an unlock/screensaver event arrives
+            rlist, _, _ = select.select(list(fd_map.keys()), [], [], 10)
             now = time.time()
+            now_dt = datetime.now()
+            current_time_str = now_dt.strftime("%H:%M")
 
             # Reload config dynamically so edits take effect without restarting
             config = load_config()
             cooldown = config.get("cooldown_seconds", 3)
             delay = config.get("login_delay_seconds", 2)
+            name = config.get("user_name") or config.get("user_title", "Boss")
+            persona_key = config.get("assistant_persona", "friday").lower()
 
+            # 1. Check Scheduled Reminders (runs once per matching minute)
+            if current_time_str != last_checked_minute:
+                last_checked_minute = current_time_str
+                reminders = config.get("scheduled_reminders", [])
+                for reminder in reminders:
+                    if reminder.get("time") == current_time_str:
+                        # Pick message based on active persona (friday or jarvis)
+                        msg_template = reminder.get(f"{persona_key}_message") or reminder.get("message")
+                        if msg_template:
+                            msg = msg_template.format(name=name, title=name)
+                            print(f"Triggering scheduled reminder for {current_time_str}: {msg}", flush=True)
+                            speak(msg, config)
+                            last_spoken_time = time.time()
+
+            # 2. Check Wake / Unlock / Screen Saver events
             for fd in rlist:
                 os.read(fd, 4)
                 event_name = fd_map.get(fd, "unknown")

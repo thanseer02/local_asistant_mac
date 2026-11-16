@@ -2,37 +2,59 @@
   "assistant_persona": "friday",
   "voice": "Moira",
   "speech_rate": 175,
-  "user_name": "Boss",
+  "user_name": "Sir",
   "login_delay_seconds": 2,
   "cooldown_seconds": 3,
+  "scheduled_reminders": [
+    {
+      "time": "11:00",
+      "friday_message": "Sir, it's 11:00 AM. Time for your morning tea break.",
+      "jarvis_message": "The time is 11:00 AM. May I suggest taking your morning tea, Sir?"
+    },
+    {
+      "time": "13:00",
+      "friday_message": "Sir, it's 1:00 PM! Time to step away and grab some lunch.",
+      "jarvis_message": "The time is 1:00 PM. A lunch break is recommended to maintain optimal focus, Sir."
+    },
+    {
+      "time": "16:00",
+      "friday_message": "Sir, it's 4:00 PM. Perfect time for your afternoon tea break.",
+      "jarvis_message": "The time is 4:00 PM. A brief respite for afternoon tea would be advisable, Sir."
+    },
+    {
+      "time": "18:30",
+      "friday_message": "Sir, it's 6:30 PM. Time to wrap up for the day and head home! Great work today.",
+      "jarvis_message": "The time is 6:30 PM. All critical operations are secured. Shall we wrap up and head home, Sir?"
+    }
+  ],
   "personas": {
     "friday": {
       "voice": "Moira",
       "speech_rate": 175,
       "greetings": {
         "morning": [
-          "Good morning, {name}. F.R.I.D.A.Y. online. All systems green and ready for you.",
-          "Morning, {name}. Ready to get to work? I've got everything primed.",
-          "Good morning, {name}. Diagnostics clear. What's on the agenda today?",
-          "Hey {name}, morning! Coffee ready? Let's make today count."
+          "Sir, good morning! Friday online. All systems green and ready for you.",
+          "Sir, morning! Ready to get to work? I've got everything primed.",
+          "Sir, good morning. Diagnostics are clear. What's on the agenda today?",
+          "Sir, morning! Coffee ready? Let's make today count."
         ],
         "afternoon": [
-          "Good afternoon, {name}. F.R.I.D.A.Y. standing by. How can I assist?",
-          "Welcome back, {name}. Systems operational and ready to continue.",
-          "Good afternoon, {name}. Hope the day's treating you well. Ready when you are.",
-          "Welcome back, {name}. Standing by for your command."
+          "Sir, good afternoon. Friday standing by. How can I assist?",
+          "Sir, welcome back! Systems are operational and ready to continue.",
+          "Sir, good afternoon. Hope the day is treating you well.",
+          "Sir, welcome back! Standing by for your command."
         ],
         "evening": [
-          "Good evening, {name}. F.R.I.D.A.Y. online. Ready to wrap up today's objectives?",
-          "Welcome back, {name}. All systems stable and ready to continue where we left off.",
-          "Good evening, {name}. Hope you had a productive run today.",
-          "Evening, {name}. Ready to dive back in."
+          "Sir, good evening. Friday online. Ready to wrap up today's objectives?",
+          "Sir, welcome back! All systems stable and ready to continue where we left off.",
+          "Sir, good evening. Hope you had a productive run today.",
+          "Sir, evening! Ready to dive back in."
         ],
         "night": [
-          "Still up, {name}? Running night diagnostics now. Don't forget to get some rest.",
-          "Burning the midnight oil, {name}? I'm right here with you.",
-          "Late session tonight, {name}. Systems are quiet and ready for your focus.",
-          "Working late, {name}? Don't push yourself too hard tonight."
+          "Sir, still up? Running night diagnostics now. Don't forget to get some rest.",
+          "Sir, burning the midnight oil? I'm right here with you.",
+          "Sir, late session tonight. Systems are quiet and ready for your focus.",
+          "Sir, working late? Don't push yourself too hard tonight."
         ]
       }
     },
@@ -41,28 +63,28 @@
       "speech_rate": 170,
       "greetings": {
         "morning": [
-          "Good morning, {name}. J.A.R.V.I.S. online. All subsystems are functioning within normal parameters.",
-          "A very good morning to you, {name}. I trust you slept well? Shall we begin?",
-          "Good morning, {name}. Workspace initialized and standing by for your instructions.",
-          "Good morning, {name}. Diagnostics complete. Ready whenever you are."
+          "Good morning. Jarvis online. All subsystems are functioning within normal parameters, Sir.",
+          "A very good morning. I trust you slept well? Shall we begin, Sir?",
+          "Good morning. Workspace initialized and standing by for your instructions, Sir.",
+          "Good morning. Diagnostics complete. Ready whenever you are, Sir."
         ],
         "afternoon": [
-          "Good afternoon, {name}. J.A.R.V.I.S. at your service. How may I assist you?",
-          "Welcome back, {name}. All processes remain operational and ready for your input.",
-          "Good afternoon, {name}. Ready to resume our progress.",
-          "Welcome back, {name}. Standing by for further instructions."
+          "Good afternoon. Jarvis at your service. How may I assist you, Sir?",
+          "Welcome back. All processes remain operational and ready for your input, Sir.",
+          "Good afternoon. Ready to resume our progress, Sir.",
+          "Welcome back. Standing by for further instructions, Sir."
         ],
         "evening": [
-          "Good evening, {name}. J.A.R.V.I.S. online. Shall we proceed where we left off?",
-          "Good evening, {name}. I trust your day has been thoroughly productive.",
-          "Welcome back, {name}. Workspace restored and ready for this evening's tasks.",
-          "Good evening, {name}. All security protocols cleared. At your command."
+          "Good evening. Jarvis online. Shall we proceed where we left off, Sir?",
+          "Good evening. I trust your day has been thoroughly productive, Sir.",
+          "Welcome back. Workspace restored and ready for this evening's tasks, Sir.",
+          "Good evening. All security protocols cleared. At your command, Sir."
         ],
         "night": [
-          "Working late, {name}? Might I recommend getting some rest shortly?",
-          "Burning the midnight oil, {name}? I shall keep the systems primed for your convenience.",
-          "Late hours, {name}. All silent protocols engaged. Ready when you are.",
-          "Good evening, {name}. A reminder that human efficiency diminishes without adequate rest."
+          "Working late? Might I recommend getting some rest shortly, Sir?",
+          "Burning the midnight oil? I shall keep the systems primed for your convenience, Sir.",
+          "Late hours. All silent protocols engaged. Ready when you are, Sir.",
+          "Good evening. A gentle reminder that human efficiency diminishes without adequate rest, Sir."
         ]
       }
     }
