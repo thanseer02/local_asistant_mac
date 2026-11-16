@@ -1,0 +1,12 @@
+{
+  "voice": "Moira",
+  "login_delay_seconds": 2,
+  "cooldown_seconds": 3,
+  "user_title": "Sir",
+  "greetings": {
+    "morning": "Good morning, {title}. Welcome back! Wishing you a productive day ahead.",
+    "afternoon": "Good afternoon, {title}. I hope your day is progressing well.",
+    "evening": "Good evening, {title}. Welcome back! Ready to continue where we left off?",
+    "night": "Working late, {title}? I hope everything is going smoothly. Remember to take a break and get some rest."
+  }
+}

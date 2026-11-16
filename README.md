@@ -25,6 +25,7 @@ Built with pure macOS system APIs (`notify(3)` via `libSystem` & `/usr/bin/say`)
 
 ```text
 MacAssistant/
+├── config.json           # User configuration (voice, delays, greetings, title)
 ├── assistant.py          # Main daemon script & event listener
 ├── README.md             # Documentation & operational guide
 ├── voices.text           # Curated list of testable macOS voices
