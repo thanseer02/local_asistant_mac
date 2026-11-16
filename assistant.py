@@ -61,14 +61,26 @@ def load_config():
 # Load macOS libSystem for notify(3) APIs
 lib = ctypes.cdll.LoadLibrary('/usr/lib/libSystem.B.dylib')
 
+def get_active_persona(config):
+    persona_key = config.get("assistant_persona", "friday").lower()
+    personas = config.get("personas", {})
+    if persona_key in personas:
+        return personas[persona_key]
+    return {
+        "voice": config.get("voice", "Moira"),
+        "speech_rate": config.get("speech_rate", 175),
+        "greetings": config.get("greetings", DEFAULT_CONFIG["greetings"])
+    }
+
 def get_greeting(config, hour=None):
     global _last_chosen_greeting
 
     if hour is None:
         hour = datetime.now().hour
 
-    name = config.get("user_name") or config.get("user_title", "Tanseer")
-    greetings = config.get("greetings", DEFAULT_CONFIG["greetings"])
+    persona = get_active_persona(config)
+    name = config.get("user_name") or config.get("user_title", "Boss")
+    greetings = persona.get("greetings", DEFAULT_CONFIG["greetings"])
 
     if 5 <= hour < 12:
         pool = greetings.get("morning", DEFAULT_CONFIG["greetings"]["morning"])
@@ -91,8 +103,9 @@ def get_greeting(config, hour=None):
     return f"Welcome back, {name}!"
 
 def speak(message, config):
-    voice = config.get("voice", "Moira")
-    rate = str(config.get("speech_rate", 180))
+    persona = get_active_persona(config)
+    voice = persona.get("voice", config.get("voice", "Moira"))
+    rate = str(persona.get("speech_rate", config.get("speech_rate", 175)))
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Speaking with voice '{voice}' (rate {rate}): {message}", flush=True)
     subprocess.run(["/usr/bin/say", "-v", voice, "-r", rate, message])
 
