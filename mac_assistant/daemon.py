@@ -6,6 +6,7 @@ import select
 import time
 from datetime import datetime
 
+from .app_launcher import AppLauncher
 from .config_manager import ConfigManager
 from .event_listener import NotificationListener
 from .scheduler import ReminderScheduler
@@ -22,6 +23,7 @@ class AssistantDaemon:
         self.listener = NotificationListener()
         self.scheduler = ReminderScheduler(self.engine)
         self.last_spoken_time: float = 0
+        self.has_launched_startup_apps: bool = False
 
     def start(self) -> None:
         """Starts the daemon loop."""
@@ -29,8 +31,14 @@ class AssistantDaemon:
             logger.error("Failed to register system notification listeners. Exiting.")
             return
 
-        # Initial login greeting
         config = ConfigManager.load()
+
+        # Launch startup workspace applications on initial session boot
+        if not self.has_launched_startup_apps:
+            AppLauncher.launch_workspace(config)
+            self.has_launched_startup_apps = True
+
+        # Initial login greeting
         self.engine.speak(self.engine.get_greeting(config), config)
         logger.info("MacAssistant daemon started successfully.")
 

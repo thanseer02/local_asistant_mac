@@ -3,8 +3,20 @@
   "voice": "Daniel",
   "speech_rate": 162,
   "user_name": "Sir",
-  "login_delay_seconds": 2,
-  "cooldown_seconds": 3,
+  "login_delay_seconds": 0.5,
+  "cooldown_seconds": 2,
+  "startup_apps": {
+    "enabled": true,
+    "open_antigravity": true,
+    "open_chrome": true,
+    "chrome_profile_directory": "Default",
+    "teams_url": "https://teams.microsoft.com",
+    "open_brave": true,
+    "brave_urls": [
+      "https://open.spotify.com",
+      "https://music.youtube.com"
+    ]
+  },
   "late_night_reminders": {
     "enabled": true,
     "start_hour": 22,
