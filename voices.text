@@ -1,0 +1,15 @@
+female
+# # Original Siri voice (US)
+# say -v "Samantha" "Good evening! Welcome back."
+
+# # Australian English (Warm & Natural)
+# say -v "Karen" "Good evening! Welcome back."
+
+# # Irish English (Clear & Melodic)
+# say -v "Moira" "Good evening! Welcome back."
+
+# # Indian English (Female)
+# say -v "Lekha" "Good evening! Welcome back."
+
+
+male 
