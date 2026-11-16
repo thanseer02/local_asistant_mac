@@ -1,6 +1,6 @@
 {
-  "assistant_persona": "jarvis",
-  "voice": "Daniel",
+  "assistant_persona": "friday",
+  "voice": "Moira",
   "speech_rate": 162,
   "user_name": "Sir",
   "login_delay_seconds": 0.5,
