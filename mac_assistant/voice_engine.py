@@ -55,6 +55,19 @@ class VoiceEngine:
 
         return f"Welcome back, {name}!"
 
+    def get_goodbye(self, config: Dict[str, Any]) -> str:
+        """Constructs a polite shutdown/farewell message tailored to the persona."""
+        persona = self.get_active_persona(config)
+        name = config.get("user_name", "Sir")
+        goodbyes = persona.get("goodbyes", [])
+
+        if isinstance(goodbyes, list) and goodbyes:
+            return random.choice(goodbyes).format(name=name, title=name)
+        elif isinstance(goodbyes, str):
+            return goodbyes.format(name=name, title=name)
+
+        return f"Goodbye, {name}. Have a restful evening."
+
     def speak(self, message: str, config: Dict[str, Any]) -> None:
         """Invokes macOS native speech synthesizer (/usr/bin/say)."""
         persona = self.get_active_persona(config)

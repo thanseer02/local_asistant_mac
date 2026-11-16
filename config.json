@@ -29,32 +29,32 @@
       "Sir, just a caring check-in. Don't push yourself past your limits tonight. Time for a short break."
     ],
     "jarvis_messages": [
-      "Pardon the gentle interruption. The hour is growing quite late, Sir. Might I respectfully suggest taking a well-deserved rest?",
-      "Another thirty minutes have passed, Sir. Your dedication is remarkable, but a brief respite would be very wise.",
-      "Human endurance has its limits, Sir. To ensure your mind remains sharp tomorrow, please consider retiring for the evening.",
-      "Forgive the intrusion, Sir. It is well into the quiet hours of the night. Shall we save your progress and conclude for today?"
+      "Sir, pardon the gentle interruption. The hour is growing late; might I respectfully suggest taking a well-deserved rest?",
+      "Sir, another thirty minutes have elapsed. Your dedication is remarkable, but a brief respite would be very wise.",
+      "Sir, human endurance has its natural limits. To ensure your mind remains sharp tomorrow, please consider retiring for the night.",
+      "Sir, forgive the intrusion. It is well into the quiet hours of the night. Shall we save your progress and conclude for today?"
     ]
   },
   "scheduled_reminders": [
     {
       "time": "11:00",
       "friday_message": "Sir, it's 11:00 AM! How about stepping away for a warm cup of morning tea?",
-      "jarvis_message": "Pardon the intrusion. The time is 11:00 AM. May I kindly suggest pausing for a warm cup of morning tea, Sir?"
+      "jarvis_message": "Sir, pardon the intrusion. The time is 11:00 AM. May I kindly suggest pausing for a warm cup of morning tea?"
     },
     {
       "time": "13:00",
       "friday_message": "Sir, it's 1:00 PM! Time to treat yourself to a good lunch and recharge.",
-      "jarvis_message": "Pardon me. The clock strikes 1:00 PM. A nourishing lunch is warmly recommended to sustain your energy, Sir."
+      "jarvis_message": "Sir, pardon me. The clock strikes 1:00 PM. A nourishing lunch is warmly recommended to sustain your energy."
     },
     {
       "time": "16:00",
       "friday_message": "Sir, it's 4:00 PM. Perfect moment for an afternoon tea break and a gentle stretch.",
-      "jarvis_message": "Good afternoon. It is 4:00 PM. Might I propose a delightful afternoon tea break to refresh your focus, Sir?"
+      "jarvis_message": "Sir, good afternoon. It is 4:00 PM. Might I propose a delightful afternoon tea break to refresh your focus?"
     },
     {
       "time": "18:18",
       "friday_message": "Sir, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
-      "jarvis_message": "The time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening, Sir?"
+      "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
     }
   ],
   "personas": {
@@ -89,38 +89,48 @@
           "Sir, working into the night? I hope everything is going smoothly. Take care of yourself.",
           "Sir, it's late. Just a warm reminder that rest is just as important as progress."
         ]
-      }
+      },
+      "goodbyes": [
+        "Sir, systems shutting down. Have a restful night and take care of yourself.",
+        "Sir, powering down. Great work today. Have a wonderful rest.",
+        "Sir, signing off. All progress is safely stored. See you soon!"
+      ]
     },
     "jarvis": {
       "voice": "Daniel",
       "speech_rate": 162,
+      "goodbyes": [
+        "Sir, all systems are safely secured. A very pleasant and restful evening to you.",
+        "Sir, powering down subsystems. It has been an absolute honor assisting you today. Farewell.",
+        "Sir, disconnecting console. Have a wonderful and restorative rest."
+      ],
       "greetings": {
         "morning": [
-          "A very pleasant morning. Jarvis online. All subsystems are operating in quiet harmony for you, Sir.",
-          "Good morning. It is an absolute pleasure to see you early today. I trust you rested well, Sir?",
-          "A very good morning to you. Your workspace has been meticulously prepared for your arrival, Sir.",
-          "Good morning. The day holds immense promise. Shall we begin our endeavors, Sir?",
-          "Good morning. Diagnostic scans are immaculate. It is truly wonderful to be at your service today, Sir."
+          "Sir, a very pleasant morning. Jarvis online. All subsystems are operating in quiet harmony for you.",
+          "Sir, good morning. It is an absolute pleasure to see you early today. I trust you rested well?",
+          "Sir, a very good morning to you. Your workspace has been meticulously prepared for your arrival.",
+          "Sir, good morning. The day holds immense promise. Shall we begin our endeavors?",
+          "Sir, good morning. Diagnostic scans are immaculate. It is truly wonderful to be at your service today."
         ],
         "afternoon": [
-          "A pleasant afternoon. Jarvis at your service. I trust your day has been proceeding agreeably, Sir?",
-          "Welcome back. It is always a pleasure to welcome you back to your console, Sir.",
-          "Good afternoon. All background processes remain perfectly aligned with your workflow, Sir.",
-          "Welcome back. I hope your afternoon is proving both peaceful and remarkably productive, Sir.",
-          "A very good afternoon. Whenever you feel ready, we may effortlessly resume our progress, Sir."
+          "Sir, a pleasant afternoon. Jarvis at your service. I trust your day has been proceeding agreeably?",
+          "Sir, welcome back. It is always a pleasure to welcome you back to your console.",
+          "Sir, good afternoon. All background processes remain perfectly aligned with your workflow.",
+          "Sir, welcome back. I hope your afternoon is proving both peaceful and remarkably productive.",
+          "Sir, a very good afternoon. Whenever you feel ready, we may effortlessly resume our progress."
         ],
         "evening": [
-          "A very pleasant evening. Jarvis online. It is splendid to have you back with us, Sir.",
-          "Good evening. I trust today has brought both accomplishment and satisfaction, Sir.",
-          "Welcome back. Your evening workspace has been thoughtfully restored to its optimal state, Sir.",
-          "A very good evening to you. Shall we calmly attend to the final items on your agenda, Sir?",
-          "Good evening. All security parameters are tranquil and secure. Always an honor to assist you, Sir."
+          "Sir, a very pleasant evening. Jarvis online. It is splendid to have you back with us.",
+          "Sir, good evening. I trust today has brought both accomplishment and satisfaction.",
+          "Sir, welcome back. Your evening workspace has been thoughtfully restored to its optimal state.",
+          "Sir, a very good evening to you. Shall we calmly attend to the final items on your agenda?",
+          "Sir, good evening. All security parameters are tranquil and secure. Always an honor to assist you."
         ],
         "night": [
-          "Working into the night? The atmosphere is peaceful, yet I must gently remind you to pace yourself, Sir.",
-          "A very quiet evening. I shall remain quietly on watch, but do take care not to strain your eyes, Sir.",
-          "Burning the midnight oil? Your dedication is commendable, though genuine brilliance flourishes with rest, Sir.",
-          "Good evening. A gentle, polite reminder that even the most formidable minds require restorative sleep, Sir."
+          "Sir, working into the night? The atmosphere is peaceful, yet I must gently remind you to pace yourself.",
+          "Sir, a very quiet evening. I shall remain quietly on watch, but do take care not to strain your eyes.",
+          "Sir, burning the midnight oil? Your dedication is commendable, though genuine brilliance flourishes with rest.",
+          "Sir, good evening. A gentle, polite reminder that even the most formidable minds require restorative sleep."
         ]
       }
     }

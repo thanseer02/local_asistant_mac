@@ -3,6 +3,8 @@
 import logging
 import os
 import select
+import signal
+import sys
 import time
 from datetime import datetime
 
@@ -24,6 +26,27 @@ class AssistantDaemon:
         self.scheduler = ReminderScheduler(self.engine)
         self.last_spoken_time: float = 0
         self.has_launched_startup_apps: bool = False
+        self._is_shutting_down: bool = False
+
+        # Register termination signal handlers for shutdown / reboot / logout
+        signal.signal(signal.SIGTERM, self._handle_shutdown)
+        signal.signal(signal.SIGINT, self._handle_shutdown)
+
+    def _handle_shutdown(self, signum, frame) -> None:
+        """Invoked when macOS sends SIGTERM during system shutdown or logout."""
+        if self._is_shutting_down:
+            return
+        self._is_shutting_down = True
+        logger.info("System shutdown/termination signal received (%s). Saying goodbye...", signum)
+
+        try:
+            config = ConfigManager.load()
+            farewell = self.engine.get_goodbye(config)
+            self.engine.speak(farewell, config)
+        except Exception as e:
+            logger.error("Error during shutdown farewell: %s", e)
+        finally:
+            sys.exit(0)
 
     def start(self) -> None:
         """Starts the daemon loop."""
