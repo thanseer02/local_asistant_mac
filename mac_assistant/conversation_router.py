@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from modules.ai.conversation_manager import ConversationManager
+from modules.developer import (
+    DeveloperSecurityPolicy, ProjectManager, GitManager,
+    FlutterManager, PythonManager, LogInspector, ErrorAnalyzer
+)
 from modules.personality.friday_personality import FridayPersonalityEngine
 from modules.personality.jarvis_personality import JarvisPersonalityEngine
 from .application_launcher_service import ApplicationLauncherService
@@ -40,7 +44,9 @@ class ConversationRouter:
         self.conv_manager = conv_manager or ConversationManager()
         self.friday_engine = FridayPersonalityEngine()
         self.jarvis_engine = JarvisPersonalityEngine()
+        self.error_analyzer = ErrorAnalyzer(ollama_client=self.ollama)
         self.request_confirmation = request_confirmation_cb
+        self._pending_confirmation: Optional[Dict[str, Any]] = None
 
     def _get_engine(self, persona: str):
         if persona.lower() == "jarvis":
@@ -57,7 +63,18 @@ class ConversationRouter:
             "Files & Projects": [
                 "Find active Flutter projects (pubspec.yaml)",
                 "Search PDF documents by topic or keyword",
-                "Find general documents in your workspace"
+                "Find general documents in your workspace",
+                "List developer projects (Flutter, Python, Git)",
+                "Open project in VS Code or reveal in Finder"
+            ],
+            "Developer Assistant": [
+                "Git status, branch, recent log commits, and diff",
+                "Confirmation-protected git commit, push, pull, and checkout",
+                "Flutter doctor, analyze, and test (with automatic FVM support)",
+                "Confirmation-protected flutter pub get, build apk, and build ipa",
+                "Python venv detection, pytest execution, and script runner",
+                "Inspect error logs, warnings, and tracebacks with secret redaction",
+                "Offline local Ollama error root cause analysis for Dart, Gradle, CocoaPods, and Python"
             ],
             "System Controls": [
                 "Check current time and date",
@@ -166,6 +183,26 @@ class ConversationRouter:
             self.conv_manager.clear()
             return "clear_memory", True, "I've cleared our conversation history from memory. What should we explore next?"
 
+        # 3.5 CONFIRMATION FLOW FOR DEVELOPER MUTATING ACTIONS
+        if self._pending_confirmation:
+            if any(k in lower for k in ["yes", "confirm", "proceed", "go ahead", "do it", "approved"]):
+                pending = self._pending_confirmation
+                self._pending_confirmation = None
+                action = pending["action"]
+                args = pending.get("args", {})
+                logger.info("Executing confirmed action: %s", action)
+                # Execute confirmed action
+                return self._execute_confirmed_action(action, args, persona)
+            elif any(k in lower for k in ["no", "cancel", "stop", "abort", "don't", "deny"]):
+                self._pending_confirmation = None
+                decline_msg = "Understood, Sir. Action aborted." if persona.lower() == "jarvis" else "Got it, Boss! Action cancelled."
+                return "action_cancelled", True, decline_msg
+
+        # 4. DEVELOPER ASSISTANT ROUTING
+        dev_result = self._route_developer_command(lower, raw, persona)
+        if dev_result:
+            return dev_result
+
         # 4. DIRECT ACTION MODE CHECKS (Fast deterministic execution for Mac controls)
         # 4.1 Date & Time
         if any(k in lower for k in ["what time is it", "what's the time", "current time", "what day is today", "what is today's date", "date and time", "the time", "check the time", "check time"]):
@@ -258,3 +295,256 @@ class ConversationRouter:
 
         clarification = "I am listening closely, Sir. Could you kindly elaborate?" if persona.lower() == "jarvis" else "I'm following along. Could you tell me a little more?"
         return "conversation_ambiguous", True, clarification
+
+    def _resolve_target_project(self, utterance: str) -> Path:
+        """Helper to resolve target project directory from utterance or fallback to current repository."""
+        clean = utterance.lower()
+        # Look for explicit project mention
+        m = re.search(r"project\s+([a-zA-Z0-9_\-]+)", clean)
+        if m:
+            found = ProjectManager.find_project_by_name(m.group(1))
+            if found:
+                return found
+        # Fallback to current project root
+        return Path(__file__).resolve().parent.parent
+
+    def _route_developer_command(self, lower: str, raw: str, persona: str) -> Optional[Tuple[str, bool, str]]:
+        """Handles developer commands for Project, Git, Flutter, Python, and Logs."""
+        repo_path = self._resolve_target_project(lower)
+
+        # 1. Project Management
+        if any(lower.startswith(p) for p in ["list projects", "show projects", "list my projects", "find my projects"]):
+            projects = ProjectManager.list_projects()
+            if not projects:
+                return "dev_project_list", True, "No developer projects found in approved workspaces."
+            names = ", ".join([f"{p['name']} ({p['type']})" for p in projects[:5]])
+            return "dev_project_list", True, f"Found {len(projects)} projects: {names}."
+
+        if re.search(r"open\s+(.+)\s+in\s+vs\s*code", lower) or re.search(r"open\s+(.+)\s+in\s+code", lower):
+            m = re.search(r"open\s+(.+)\s+in\s+(?:vs\s*)?code", lower)
+            proj_name = m.group(1).replace("project", "").strip() if m else ""
+            target = ProjectManager.find_project_by_name(proj_name) if proj_name else repo_path
+            if target:
+                res = ProjectManager.open_in_vscode(target)
+                if res.success:
+                    return "dev_open_vscode", True, f"Opening {target.name} in Visual Studio Code."
+                return "dev_open_vscode", False, f"Could not open project in VS Code: {res.stderr}"
+            return "dev_open_vscode", False, f"Could not find project named {proj_name}."
+
+        if re.search(r"(?:open|show|reveal)\s+(.+)\s+in\s+finder", lower):
+            m = re.search(r"(?:open|show|reveal)\s+(.+)\s+in\s+finder", lower)
+            proj_name = m.group(1).replace("project", "").strip() if m else ""
+            target = ProjectManager.find_project_by_name(proj_name) if proj_name else repo_path
+            if target:
+                res = ProjectManager.open_in_finder(target)
+                if res.success:
+                    return "dev_open_finder", True, f"Revealing {target.name} in Finder."
+                return "dev_open_finder", False, f"Could not open project in Finder: {res.stderr}"
+            return "dev_open_finder", False, f"Could not find project named {proj_name}."
+
+        # 2. Git Read-Only Commands
+        if any(lower == p or lower.startswith(p) for p in ["git status", "check git status", "repo status", "check repo status"]):
+            res = GitManager.get_status(repo_path)
+            if res.success:
+                lines = [l for l in res.stdout.splitlines() if l.strip()]
+                count = len(lines) - 1 if len(lines) > 0 and "##" in lines[0] else len(lines)
+                count = max(0, count)
+                branch_res = GitManager.get_active_branch(repo_path)
+                branch = branch_res.stdout.strip() if branch_res.success else "main"
+                return "dev_git_status", True, f"In {repo_path.name} on branch {branch}, you have {count} modified files."
+            return "dev_git_status", False, "Unable to read Git status."
+
+        if any(k in lower for k in ["git branch", "current branch", "what branch am i on", "active branch"]):
+            res = GitManager.get_active_branch(repo_path)
+            if res.success:
+                return "dev_git_branch", True, f"Active Git branch is {res.stdout.strip()}."
+            return "dev_git_branch", False, "Could not determine active branch."
+
+        if any(k in lower for k in ["git log", "recent commits", "last commits", "git history"]):
+            res = GitManager.get_log(repo_path, max_count=3)
+            if res.success and res.stdout.strip():
+                first_commit = res.stdout.splitlines()[0]
+                return "dev_git_log", True, f"Recent Git commit: {first_commit}."
+            return "dev_git_log", False, "No recent commit history found."
+
+        if any(k in lower for k in ["git diff", "show diff", "check diff"]):
+            res = GitManager.get_diff(repo_path, stat_only=True)
+            if res.success:
+                summary = res.stdout.splitlines()[-1] if res.stdout.strip() else "Working tree clean, no differences."
+                return "dev_git_diff", True, f"Git diff summary: {summary}."
+            return "dev_git_diff", False, "Could not compute Git diff."
+
+        if any(k in lower for k in ["git remotes", "git remote"]):
+            res = GitManager.get_remotes(repo_path)
+            if res.success and res.stdout.strip():
+                remotes = set(l.split()[0] for l in res.stdout.splitlines() if l.strip())
+                return "dev_git_remote", True, f"Configured Git remotes: {', '.join(remotes)}."
+            return "dev_git_remote", False, "No Git remotes configured."
+
+        # 3. Git Confirmation-Gated Commands (Commit, Push, Pull, Checkout, Merge)
+        if lower.startswith("git commit") or lower.startswith("commit changes"):
+            msg_match = re.search(r"commit(?:\s+with\s+message)?(?:\s+changes)?\s*[:\"']?(.*?)[\"']?$", lower)
+            commit_msg = msg_match.group(1).strip() if msg_match else "Update from MacAssistant"
+            self._pending_confirmation = {
+                "action": "git_commit",
+                "args": {"repo_path": repo_path, "message": commit_msg}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return (
+                "dev_confirmation_required",
+                True,
+                f"{salutation}, please confirm: do you want me to commit uncommitted files in {repo_path.name} with message '{commit_msg}'?"
+            )
+
+        if lower.startswith("git push") or "push commits" in lower:
+            self._pending_confirmation = {
+                "action": "git_push",
+                "args": {"repo_path": repo_path}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return (
+                "dev_confirmation_required",
+                True,
+                f"{salutation}, please confirm: do you want me to push local commits to origin for {repo_path.name}?"
+            )
+
+        if lower.startswith("git pull") or "pull remote" in lower or "pull changes" in lower:
+            self._pending_confirmation = {
+                "action": "git_pull",
+                "args": {"repo_path": repo_path}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return (
+                "dev_confirmation_required",
+                True,
+                f"{salutation}, please confirm: do you want me to pull remote updates into {repo_path.name}?"
+            )
+
+        if lower.startswith("git checkout") or lower.startswith("switch branch"):
+            branch_target = lower.replace("git checkout", "").replace("switch branch to", "").replace("switch branch", "").strip()
+            self._pending_confirmation = {
+                "action": "git_checkout",
+                "args": {"repo_path": repo_path, "branch_name": branch_target}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return (
+                "dev_confirmation_required",
+                True,
+                f"{salutation}, please confirm: switch {repo_path.name} branch to '{branch_target}'?"
+            )
+
+        # 4. Flutter Operations
+        if any(k in lower for k in ["flutter doctor", "check flutter"]):
+            res = FlutterManager.doctor(repo_path)
+            summary = "Doctor scan complete. Check terminal for warnings." if res.success else "Flutter doctor found issues."
+            return "dev_flutter_doctor", res.success, summary
+
+        if any(k in lower for k in ["flutter analyze", "analyze flutter"]):
+            res = FlutterManager.analyze(repo_path)
+            msg = "Flutter analysis passed with zero errors." if res.success else "Flutter analysis reported issues."
+            return "dev_flutter_analyze", res.success, msg
+
+        if any(k in lower for k in ["flutter test", "run flutter tests"]):
+            res = FlutterManager.test(repo_path)
+            msg = "All Flutter tests passed successfully." if res.success else "Flutter tests failed or reported errors."
+            return "dev_flutter_test", res.success, msg
+
+        if any(k in lower for k in ["flutter pub get", "get flutter packages", "install flutter dependencies"]):
+            self._pending_confirmation = {
+                "action": "flutter_pub_get",
+                "args": {"project_path": repo_path}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return "dev_confirmation_required", True, f"{salutation}, please confirm: download Flutter packages for {repo_path.name}?"
+
+        if any(k in lower for k in ["build apk", "flutter build apk"]):
+            self._pending_confirmation = {
+                "action": "flutter_build_apk",
+                "args": {"project_path": repo_path}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return "dev_confirmation_required", True, f"{salutation}, please confirm: trigger release APK compilation for {repo_path.name}?"
+
+        if any(k in lower for k in ["build ipa", "flutter build ipa", "build ios"]):
+            self._pending_confirmation = {
+                "action": "flutter_build_ipa",
+                "args": {"project_path": repo_path}
+            }
+            salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+            return "dev_confirmation_required", True, f"{salutation}, please confirm: trigger release IPA compilation for {repo_path.name}?"
+
+        # 5. Python Operations
+        if any(k in lower for k in ["detect venv", "check python venv", "virtual environment"]):
+            venv_dir, py_bin = PythonManager.detect_venv(repo_path)
+            if venv_dir:
+                return "dev_python_venv", True, f"Found virtual environment at {venv_dir.name} using Python binary."
+            return "dev_python_venv", True, "No local virtual environment folder found; using default Python."
+
+        if any(k in lower for k in ["run pytest", "run python tests", "run unit tests", "run tests"]):
+            res = PythonManager.run_pytest(repo_path)
+            msg = "Pytest executed cleanly with all tests passing." if res.success else "Tests completed with failures or errors."
+            return "dev_python_pytest", res.success, msg
+
+        # 6. Log Inspector & Error Analysis
+        if any(k in lower for k in ["inspect logs", "check error logs", "check error log", "show recent errors", "recent errors in logs"]):
+            summary = LogInspector.get_summary_speech()
+            return "dev_inspect_logs", True, summary
+
+        if any(k in lower for k in ["analyze error", "diagnose error", "explain error", "debug error"]):
+            # Pull latest error from log inspector and run Ollama diagnostics
+            log_data = LogInspector.inspect_file(LogInspector.DEFAULT_LOGS[0], max_lines=50)
+            errors = log_data.get("errors", [])
+            err_snippet = "\n".join(errors[-3:]) if errors else raw
+            diagnosis = self.error_analyzer.analyze_error(err_snippet, context=repo_path.name)
+            return "dev_error_analyzer", True, diagnosis
+
+        return None
+
+    def _execute_confirmed_action(self, action: str, args: Dict[str, Any], persona: str) -> Tuple[str, bool, str]:
+        """Executes a previously confirmation-gated developer action."""
+        salutation = "Sir" if persona.lower() == "jarvis" else "Boss"
+
+        if action == "git_commit":
+            res = GitManager.commit(args["repo_path"], args["message"], confirmed=True)
+            if res.success:
+                return "dev_git_commit", True, f"{salutation}, commit completed successfully."
+            return "dev_git_commit", False, f"Commit failed: {res.stderr}"
+
+        if action == "git_push":
+            res = GitManager.push(args["repo_path"], confirmed=True)
+            if res.success:
+                return "dev_git_push", True, f"{salutation}, push to remote completed successfully."
+            return "dev_git_push", False, f"Push failed: {res.stderr}"
+
+        if action == "git_pull":
+            res = GitManager.pull(args["repo_path"], confirmed=True)
+            if res.success:
+                return "dev_git_pull", True, f"{salutation}, pulled remote changes successfully."
+            return "dev_git_pull", False, f"Pull failed: {res.stderr}"
+
+        if action == "git_checkout":
+            res = GitManager.checkout_branch(args["repo_path"], args["branch_name"], confirmed=True)
+            if res.success:
+                return "dev_git_checkout", True, f"{salutation}, switched branch to {args['branch_name']}."
+            return "dev_git_checkout", False, f"Checkout failed: {res.stderr}"
+
+        if action == "flutter_pub_get":
+            res = FlutterManager.pub_get(args["project_path"], confirmed=True)
+            if res.success:
+                return "dev_flutter_pub_get", True, f"{salutation}, Flutter packages downloaded successfully."
+            return "dev_flutter_pub_get", False, f"Pub get failed: {res.stderr}"
+
+        if action == "flutter_build_apk":
+            res = FlutterManager.build_apk(args["project_path"], confirmed=True)
+            if res.success:
+                return "dev_flutter_build_apk", True, f"{salutation}, release APK build succeeded."
+            return "dev_flutter_build_apk", False, f"Build failed: {res.stderr}"
+
+        if action == "flutter_build_ipa":
+            res = FlutterManager.build_ipa(args["project_path"], confirmed=True)
+            if res.success:
+                return "dev_flutter_build_ipa", True, f"{salutation}, release IPA build succeeded."
+            return "dev_flutter_build_ipa", False, f"Build failed: {res.stderr}"
+
+        return "dev_unknown_action", False, f"Unknown action: {action}"
+
