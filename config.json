@@ -9,6 +9,11 @@
     "enabled": true,
     "sound_file": "hud_chime.wav"
   },
+  "voice_commands": {
+    "enabled": true,
+    "wake_words": ["hey jarvis", "hey friday", "jarvis", "friday"],
+    "mic_index": null
+  },
   "startup_apps": {
     "enabled": true,
     "open_antigravity": true,
