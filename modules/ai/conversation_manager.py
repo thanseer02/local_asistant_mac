@@ -1,31 +1,40 @@
-"""Conversation session state and context management."""
+"""Unified conversation manager coordinating session memory, SQLite, and context building."""
 
-import time
-from typing import Any, Dict, List
+import logging
+from typing import Any, Dict, List, Optional
+from modules.ai.conversation_memory import PersistentConversationMemory
+from modules.personality.personality_config import PersonalityManager
+
+logger = logging.getLogger("MacAssistant.ConversationManager")
 
 
 class ConversationManager:
-    """Maintains local conversation memory, message history, and session metadata."""
+    """Coordinates active in-memory turns with optional persistent SQLite storage."""
 
-    def __init__(self, max_history: int = 30):
-        self.max_history = max_history
-        self.history: List[Dict[str, Any]] = []
-        self.session_start_time = time.time()
-        self.last_user_utterance: str = ""
-        self.last_assistant_response: str = ""
+    def __init__(self, use_sqlite: bool = True):
+        self.personality_mgr = PersonalityManager.get_instance()
+        self.sqlite_memory = PersistentConversationMemory() if use_sqlite else None
+        self.session_turns: List[Dict[str, str]] = []
 
-    def record_user_message(self, text: str) -> None:
-        """Stores user utterance in session memory."""
-        self.last_user_utterance = text
-        self.history.append({"role": "user", "content": text, "timestamp": time.time()})
-        self._trim()
+    def record_user_turn(self, utterance: str, intent: str = "conversation") -> None:
+        self.session_turns.append({"role": "user", "content": utterance})
+        if self.sqlite_memory and self.personality_mgr.config.persist_memory_sqlite:
+            self.sqlite_memory.record_turn("user", utterance, intent=intent)
 
-    def record_assistant_message(self, text: str) -> None:
-        """Stores assistant reply in session memory."""
-        self.last_assistant_response = text
-        self.history.append({"role": "assistant", "content": text, "timestamp": time.time()})
-        self._trim()
+    def record_assistant_turn(self, response: str, intent: str = "conversation") -> None:
+        self.session_turns.append({"role": "assistant", "content": response})
+        if self.sqlite_memory and self.personality_mgr.config.persist_memory_sqlite:
+            self.sqlite_memory.record_turn("assistant", response, intent=intent)
 
-    def _trim(self) -> None:
-        if len(self.history) > self.max_history:
-            self.history = self.history[-self.max_history:]
+    def get_messages_for_llm(self, system_prompt: str) -> List[Dict[str, str]]:
+        max_turns = self.personality_mgr.config.max_history_turns * 2
+        history = self.session_turns[-max_turns:]
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(history)
+        return messages
+
+    def clear(self) -> None:
+        self.session_turns.clear()
+        if self.sqlite_memory:
+            self.sqlite_memory.clear_all()
+        logger.info("Session history and persistent memory cleared.")

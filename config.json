@@ -192,5 +192,18 @@
       "friday_message": "Sir, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
       "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
     }
-  ]
+  ],
+  "personality_settings": {
+    "personality": "professional_friendly",
+    "speaking_style": "natural",
+    "response_length": "detailed",
+    "humor": true,
+    "emotional_awareness": true,
+    "use_conversation_context": true,
+    "avoid_repetitive_greetings": true,
+    "language": "English",
+    "use_salutation": false,
+    "max_history_turns": 15,
+    "persist_memory_sqlite": true
+  }
 }
