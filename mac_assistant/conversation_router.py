@@ -261,9 +261,13 @@ class ConversationRouter:
                 return "find_pdf", True, f"Found {len(pdfs)} matching PDF documents: {names}."
             return "find_pdf", True, "No matching PDF files were found."
 
-        # 4.7 Stop Listening / Silence
-        if any(lower == phrase or lower.startswith(phrase) for phrase in ["stop listening", "go to sleep", "sleep mode", "mute yourself"]):
-            return "stop_listening", True, "Pausing voice listening now."
+        # 4.7 Stop Listening / Sleep Mode
+        if any(phrase in lower for phrase in [
+            "stop listening", "stop listen", "go to sleep", "sleep mode",
+            "mute yourself", "stand down", "stop audio", "pause listening"
+        ]):
+            salutation = "Sir"
+            return "stop_listening", True, f"{salutation}, entering sleep mode now. Call 'Friday' or 'Jarvis' whenever you need me."
 
         # 5. CONVERSATION MODE (Local Ollama with Selected Persona & Multi-Turn Memory)
         system_prompt = active_engine.build_system_prompt(user_utterance=raw)
