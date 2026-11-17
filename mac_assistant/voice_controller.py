@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, Optional
 
 from .command_router import CommandRouter
 from .config_manager import ConfigManager
+from .conversation_router import ConversationRouter
 from .microphone_service import MicrophoneService
 from .speech_output import SpeechOutputService
 from .speech_recognizer import SpeechRecognitionService
@@ -42,7 +43,7 @@ class VoiceController:
             silence_duration=silence
         )
         self.recognizer = SpeechRecognitionService()
-        self.router = CommandRouter()
+        self.router = ConversationRouter()
 
         self._active = False
         self._lock = threading.Lock()
