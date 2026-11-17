@@ -72,6 +72,7 @@ class StrictVoiceController:
         # Command capture buffers
         self._command_audio_chunks = []
         self._active_wake_persona: Optional[str] = None
+        self._listening_timeout_timer: Optional[threading.Timer] = None
 
     @property
     def current_state(self) -> str:
@@ -100,8 +101,26 @@ class StrictVoiceController:
                 logger.info("Assistant started in STANDBY mode. Listening strictly for 'Friday' or 'Jarvis'.")
             return success
 
+    def _cancel_listening_timeout(self) -> None:
+        """Cancels any pending idle listening timeout timer."""
+        if self._listening_timeout_timer:
+            try:
+                self._listening_timeout_timer.cancel()
+            except Exception:
+                pass
+            self._listening_timeout_timer = None
+
+    def _on_listening_timeout(self) -> None:
+        """Invoked when user wakes the assistant but provides no command within 5 seconds."""
+        with self._lock:
+            if self.state == AssistantState.LISTENING_FOR_COMMAND:
+                logger.info("No command received within 5 seconds of wake activation. Returning to STANDBY mode.")
+                self.state = AssistantState.STANDBY
+                self._active_wake_persona = None
+
     def stop(self) -> None:
         """Halts the voice controller cleanly."""
+        self._cancel_listening_timeout()
         with self._lock:
             if not self._running:
                 return
@@ -164,12 +183,18 @@ class StrictVoiceController:
 
                 with self._lock:
                     self.state = AssistantState.LISTENING_FOR_COMMAND
-                    logger.info("Transitioned to LISTENING_FOR_COMMAND. Awaiting user instruction...")
+                    logger.info("Transitioned to LISTENING_FOR_COMMAND. Awaiting user instruction (5s timeout)...")
+                    # Start 5-second idle timeout
+                    self._cancel_listening_timeout()
+                    self._listening_timeout_timer = threading.Timer(5.0, self._on_listening_timeout)
+                    self._listening_timeout_timer.daemon = True
+                    self._listening_timeout_timer.start()
 
             return
 
         # 3. LISTENING_FOR_COMMAND MODE: Capture user instruction
         if self.state == AssistantState.LISTENING_FOR_COMMAND:
+            self._cancel_listening_timeout()
             with self._lock:
                 self.state = AssistantState.PROCESSING_COMMAND
 
@@ -209,17 +234,20 @@ class StrictVoiceController:
 
         clean = text.lower().strip(",.!? ")
 
-        # Test Jarvis
-        if "jarvis" in clean or "hey jarvis" in clean:
-            # Extract following command if present
-            m = re.search(r"(?:hey\s+)?jarvis[,:\s]*(.*)", clean)
-            cmd = m.group(1).strip() if m else None
+        # Test Jarvis (and phonetically common whisper misrecognitions: 'darius', 'jarvis', 'travis', 'charvis', 'jarvir', 'jar visual', 'jar visit', 'service', 'harvest', 'drivers')
+        jarvis_match = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?\b(jarvis|jarvir|darius|travis|charvis|service|harvest|drivers|jarv|jarve)\b[,:\s]*(.*)", clean)
+        if not jarvis_match and ("jarv" in clean or "darius" in clean or "travis" in clean):
+            m = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?([a-z]*jarv[a-z]*|[a-z]*darius[a-z]*)[,:\s]*(.*)", clean)
+            if m:
+                jarvis_match = m
+        if jarvis_match:
+            cmd = jarvis_match.group(2).strip()
             return "jarvis", (cmd if cmd else None)
 
-        # Test Friday
-        if "friday" in clean or "hey friday" in clean:
-            m = re.search(r"(?:hey\s+)?friday[,:\s]*(.*)", clean)
-            cmd = m.group(1).strip() if m else None
+        # Test Friday (and phonetically common whisper misrecognitions: 'friday', 'freida', 'frida', 'fry day')
+        friday_match = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?\b(friday|freida|frida|fry\s*day)\b[,:\s]*(.*)", clean)
+        if friday_match:
+            cmd = friday_match.group(2).strip()
             return "friday", (cmd if cmd else None)
 
         # Random conversation without wake word -> Strict IGNORE

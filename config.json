@@ -1,7 +1,7 @@
 {
-  "assistant_persona": "jarvis",
-  "voice": "Daniel",
-  "speech_rate": 162,
+  "assistant_persona": "friday",
+  "voice": "Moira",
+  "speech_rate": 172,
   "user_name": "Sir",
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
@@ -205,7 +205,9 @@
     "use_salutation": true,
     "salutation_title": "Boss",
     "max_history_turns": 15,
-    "persist_memory_sqlite": true
+    "persist_memory_sqlite": true,
+    "voice": "Moira",
+    "speech_rate": 172
   },
   "friday_personality_settings": {
     "personality": "professional_friendly",
@@ -227,7 +229,7 @@
     "personality": "sophisticated_butler",
     "speaking_style": "articulate_polished",
     "response_length": "concise",
-    "humor": true,
+    "humor": false,
     "emotional_awareness": true,
     "use_conversation_context": true,
     "avoid_repetitive_greetings": true,

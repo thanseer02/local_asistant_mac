@@ -12,6 +12,7 @@ from modules.ai.conversation_manager import ConversationManager
 from modules.personality.friday_personality import FridayPersonalityEngine
 from modules.personality.jarvis_personality import JarvisPersonalityEngine
 from .application_launcher_service import ApplicationLauncherService
+from .config_manager import ConfigManager
 from .file_search import FileSearchService
 from .ollama_client import OllamaClient
 
@@ -95,10 +96,20 @@ class ConversationRouter:
             return "empty", False, "I'm listening. How can I help?"
 
         # 0. Clean leading wake word if present
-        for wake in ["hey jarvis", "hey friday", "jarvis", "friday", "please"]:
-            if lower.startswith(wake):
-                lower = lower[len(wake):].strip(", ").strip()
-                raw = raw[len(wake):].strip(", ").strip()
+        wake_pattern = r"^(?:hey\s+|hi\s+|ok\s+|okay\s+)?\b(jarvis|darius|travis|charvis|friday|freida|frida|fry\s*day|please)\b[,:\s]*"
+        raw = re.sub(wake_pattern, "", raw, flags=re.IGNORECASE).strip()
+        lower = re.sub(wake_pattern, "", lower, flags=re.IGNORECASE).strip()
+
+        # Check persona switch requests
+        if any(lower.startswith(p) for p in [
+            "switch to jarvis", "change to jarvis", "use jarvis", "activate jarvis",
+            "switch to friday", "change to friday", "use friday", "activate friday"
+        ]):
+            target = "jarvis" if "jarvis" in lower else "friday"
+            ConfigManager.set_active_persona(target)
+            if target == "jarvis":
+                return "switch_persona", True, "Jarvis activated. At your service, Sir."
+            return "switch_persona", True, "Friday activated. Standing by, Boss!"
 
         active_engine = self._get_engine(persona)
 

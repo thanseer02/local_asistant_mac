@@ -57,6 +57,7 @@ class SpeechRecognitionService:
                 str(tmp_path),
                 beam_size=1,
                 language="en",
+                initial_prompt="Friday, Jarvis, Hey Friday, Hey Jarvis.",
                 condition_on_previous_text=False,
                 vad_filter=True
             )
