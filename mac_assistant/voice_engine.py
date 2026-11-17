@@ -98,4 +98,12 @@ class VoiceEngine:
         rate = str(persona.get("speech_rate", config.get("speech_rate", 175)))
 
         logger.info("Speaking with voice '%s' (rate %s): %s", voice, rate, message)
+        try:
+            subprocess.run(
+                ["/usr/bin/say", "-v", voice, "-r", rate, message],
+                check=False,
+                timeout=30
+            )
+        except Exception as e:
+            logger.error("Error executing /usr/bin/say: %s", e)
         subprocess.run(["/usr/bin/say", "-v", voice, "-r", rate, message], check=False)

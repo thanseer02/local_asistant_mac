@@ -10,12 +10,14 @@
     "sound_file": "hud_chime.wav"
   },
   "voice_commands": {
-    "enabled": false,
+    "enabled": true,
+    "speech_threshold": 120.0,
+    "silence_duration": 1.0,
     "wake_words": [
       "jarvis",
       "friday"
     ],
-    "mic_index": null
+    "mic_index": 0
   },
   "startup_apps": {
     "enabled": true,

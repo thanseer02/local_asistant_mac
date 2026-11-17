@@ -14,6 +14,8 @@ from .command_dispatcher import VoiceCommandDispatcher
 from .config_manager import ConfigManager
 from .event_listener import NotificationListener
 from .scheduler import ReminderScheduler
+from .speech_output import SpeechOutputService
+from .voice_controller import VoiceController
 from .voice_engine import VoiceEngine
 from .voice_listener import VoiceListener
 
@@ -31,15 +33,29 @@ class AssistantDaemon:
         self.has_launched_startup_apps: bool = False
         self._is_shutting_down: bool = False
 
-        # Live voice wake-word listener thread
+        # Live voice wake-word listener thread (legacy placeholder)
         self.voice_listener = VoiceListener(
             on_wake_callback=self._handle_wake_call,
             on_command_callback=self._handle_voice_command
         )
 
+        # Voice controller for modular microphone capture and command processing
+        config = ConfigManager.load()
+        self.speech_output = SpeechOutputService()
+        self.voice_controller = VoiceController(
+            config=config,
+            speech_output=self.speech_output,
+            on_exit_requested=self._handle_exit_requested
+        )
+
         # Register termination signal handlers for shutdown / reboot / logout
         signal.signal(signal.SIGTERM, self._handle_shutdown)
         signal.signal(signal.SIGINT, self._handle_shutdown)
+
+    def _handle_exit_requested(self) -> None:
+        """Called when user gives an explicit exit command via voice."""
+        logger.info("Voice exit command received. Shutting down daemon.")
+        self._handle_shutdown(signal.SIGINT, None)
 
     def _handle_wake_call(self) -> None:
         """Called immediately when you call out to Jarvis or Friday."""
@@ -85,6 +101,8 @@ class AssistantDaemon:
         logger.info("System shutdown/termination signal received (%s). Saying goodbye...", signum)
 
         try:
+            self.voice_controller.stop()
+            self.voice_listener.stop()
             config = ConfigManager.load()
             farewell = self.engine.get_goodbye(config)
             self.engine.speak(farewell, config)
@@ -114,6 +132,11 @@ class AssistantDaemon:
 
         # Start background voice wake listener thread
         self.voice_listener.start(config)
+
+        # Start modular voice controller if enabled in config
+        if config.get("voice_commands", {}).get("enabled", False):
+            logger.info("Starting VoiceController service...")
+            self.voice_controller.start()
 
         logger.info("MacAssistant daemon started successfully.")
 

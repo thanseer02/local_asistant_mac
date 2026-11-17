@@ -35,7 +35,8 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 ```text
 MacAssistant/
 ├── assistant.py                   # Clean LaunchAgent entry point
-├── config.json                    # Configuration (personas, voices, timings, apps)
+├── config.json                    # Configuration (personas, voices, timings, apps, voice commands)
+├── test_voice_system.py           # Interactive test CLI for voice commands & mic testing
 ├── README.md                      # Documentation & setup guide
 ├── voices.text                    # Curated voice preview commands
 ├── venv/                          # Local Python virtual environment
@@ -45,6 +46,13 @@ MacAssistant/
     ├── __init__.py                # Package root
     ├── config_manager.py          # Hot-reloading & safe JSON fallback
     ├── voice_engine.py            # Personas, HUD audio player & speech synthesis
+    ├── speech_output.py           # Speech output service wrapping macOS /usr/bin/say & afplay
+    ├── microphone_service.py      # Thread-safe microphone capture, silence detection & anti-loop guard
+    ├── speech_recognizer.py       # Offline / online speech-to-text transcription service
+    ├── command_router.py          # Intent routing & natural speech phrasing normalization
+    ├── application_launcher_service.py # Allowlisted, safe application launch service
+    ├── file_search.py             # Spotlight & filesystem search for Flutter projects & PDFs
+    ├── voice_controller.py        # Central voice orchestration with lifecycle management
     ├── event_listener.py          # Low-level macOS notify(3) kernel listener
     ├── scheduler.py               # Health & time-of-day alert scheduler
     ├── app_launcher.py            # App & browser workspace launcher with deduplication
@@ -199,6 +207,47 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistan
 | **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **View Live Logs** | `tail -f /tmp/macassistant-error.log` |
 | **Test Interactively** | `source venv/bin/activate && python assistant.py` |
+
+---
+
+## 🎙️ Natural Voice Commands & Controls
+
+MacAssistant includes a modular, safe voice-command engine with silence detection and speech-to-text.
+
+### Supported Natural Voice Commands
+
+| Intent / Action | Example Voice Phrasings | System Behavior |
+| :--- | :--- | :--- |
+| **Open Chrome** | *"open Google Chrome"*, *"launch Chrome"*, *"open browser"* | Launches Chrome safely using `/usr/bin/open -a` |
+| **Open VS Code** | *"open visual studio code"*, *"open vs code"*, *"launch vscode"* | Launches VS Code via allowlist |
+| **Open Terminal** | *"open terminal"*, *"launch terminal console"* | Launches macOS Terminal |
+| **Search Flutter Projects** | *"find flutter projects"*, *"search flutter"*, *"where is my flutter app"* | Searches Spotlight & filesystem for directories containing `pubspec.yaml` |
+| **Search PDF Documents** | *"search pdf files"*, *"find pdf resume"*, *"look for invoices pdf"* | Finds `.pdf` files matching keywords |
+| **Check Date & Time** | *"what time is it"*, *"what is the date today"*, *"current time"* | Speaks the current time and day |
+| **Stop Listening** | *"stop listening"*, *"pause voice"*, *"mute microphone"* | Pauses voice listening thread cleanly |
+| **Exit / Shutdown** | *"exit assistant"*, *"quit assistant"*, *"power down"* | Performs safe shutdown sequence |
+
+### Testing Voice Commands Interactively
+
+You can test both text command dispatch and live microphone listening using `test_voice_system.py`:
+
+```bash
+# 1. Text Simulation Mode (Test routing and responses without speaking)
+source venv/bin/activate
+./test_voice_system.py --sim
+
+# 2. Live Microphone Mode (Test PyAudio capture & silence detection)
+./test_voice_system.py --mic
+```
+
+---
+
+## 🔒 macOS Microphone Permissions & Setup
+
+Because Apple Silicon Macs (like Mac mini) require microphone authorization:
+1. Open **System Settings** → **Privacy & Security** → **Microphone**.
+2. Verify that **Terminal** (or your Python environment / iTerm) is toggled to **ON**.
+3. If using a Bluetooth headset (such as `WH-CH510`) or USB microphone, MacAssistant automatically discovers and binds to it.
 
 ---
 
