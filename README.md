@@ -8,6 +8,7 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 
 ## ✨ Features
 
+- 🗣️ **ChatGPT-Voice Style Realtime Speech-to-Speech**: Full duplex real-time conversation powered by OpenAI Realtime API (`gpt-4o-realtime-preview`) with instant barge-in / interruption support, low-latency streaming audio, and intelligent Mac automation tools.
 - 🦸 **Marvel Personas**:
   - **J.A.R.V.I.S.**: Articulate, polite British butler cadence (`Daniel` voice).
   - **F.R.I.D.A.Y.**: Warm, conversational Irish voice (`Moira` voice).
@@ -207,6 +208,36 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistan
 | **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **View Live Logs** | `tail -f /tmp/macassistant-error.log` |
 | **Test Interactively** | `source venv/bin/activate && python assistant.py` |
+
+---
+
+## 🎙️ Real-Time Conversational AI (ChatGPT Voice Style)
+
+MacAssistant supports full-duplex real-time voice conversations using the OpenAI Realtime API.
+
+### Starting Real-Time Voice Mode
+
+1. Set your OpenAI API key:
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+*(or create a `.env` file containing `OPENAI_API_KEY=sk-...` in the project root)*
+
+2. Run the real-time assistant:
+```bash
+source venv/bin/activate
+./run_realtime_voice.py
+```
+
+### Key Conversational Capabilities
+- **Instant Interruption (Barge-in)**: Start talking while the assistant is speaking, and it will immediately stop audio playback and listen to your new request.
+- **Mac Automation Tools**:
+  - *"Open Chrome / VS Code / Terminal / Slack / Spotify"*
+  - *"Find my Flutter projects"*
+  - *"Search for PDF documents"*
+  - *"What time is it?"*
+  - *"What is my battery level?"*
+  - *"Set the volume to 60 percent"*
 
 ---
 

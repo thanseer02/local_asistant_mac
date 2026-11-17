@@ -84,14 +84,15 @@ class VoiceController:
 
     def _handle_audio_chunk(self, audio_bytes: bytes) -> None:
         """Callback invoked when user finishes an utterance."""
-        logger.info("Processing captured audio (%d bytes)...", len(audio_bytes))
+        logger.info("Captured voice utterance (%d bytes). Transcribing...", len(audio_bytes))
 
         # Transcribe audio chunk
         transcribed_text = self.recognizer.transcribe_audio_bytes(audio_bytes)
         if not transcribed_text:
-            logger.debug("No speech recognized in audio chunk.")
+            logger.info("Transcription result: (silence or unrecognized words)")
             return
 
+        logger.info("Heard speech: '%s'", transcribed_text)
         self.process_command(transcribed_text)
 
     def process_command(self, utterance: str) -> None:

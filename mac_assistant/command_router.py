@@ -27,7 +27,29 @@ class CommandRouter:
         raw = utterance.lower().strip()
         prefix = "Sir, "
 
-        # 0. Clean leading wake word if present
+        # 0. Check pure wake-call salutations (calling Friday or Jarvis)
+        if raw in [
+            "friday", "hey friday", "hello friday", "hi friday",
+            "jarvis", "hey jarvis", "hello jarvis", "hi jarvis",
+            "are you there", "you there", "wake up"
+        ]:
+            if persona.lower() == "jarvis":
+                wake_replies = [
+                    f"{prefix}at your service. How may I assist you?",
+                    f"Yes, {prefix.strip(', ')}? Standing by.",
+                    f"{prefix}Jarvis online. What is your command?",
+                ]
+            else:
+                wake_replies = [
+                    f"{prefix}I'm here! What do you need?",
+                    f"Yes, {prefix.strip(', ')}? How can I help?",
+                    f"{prefix}Friday listening! What's up?",
+                    f"Right here, {prefix.strip(', ')}. Standing by.",
+                ]
+            import random
+            return "wake_call", True, random.choice(wake_replies)
+
+        # Clean leading wake word if followed by a command
         for wake in ["hey jarvis", "hey friday", "jarvis", "friday", "please"]:
             if raw.startswith(wake):
                 raw = raw[len(wake):].strip(", ").strip()

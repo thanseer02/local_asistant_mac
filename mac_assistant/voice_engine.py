@@ -95,15 +95,18 @@ class VoiceEngine:
         # 2. Synthesize speech
         persona = self.get_active_persona(config)
         voice = persona.get("voice", config.get("voice", "Moira"))
-        rate = str(persona.get("speech_rate", config.get("speech_rate", 175)))
+        rate = str(persona.get("speech_rate", config.get("speech_rate", 168)))
 
-        logger.info("Speaking with voice '%s' (rate %s): %s", voice, rate, message)
+        # Naturalize speech: micro-pauses, remove dashes/symbols, natural flow
+        from .speech_output import SpeechOutputService
+        speech_text = SpeechOutputService.naturalize_text(message)
+
+        logger.info("Speaking with voice '%s' (rate %s): %s", voice, rate, speech_text)
         try:
             subprocess.run(
-                ["/usr/bin/say", "-v", voice, "-r", rate, message],
+                ["/usr/bin/say", "-v", voice, "-r", rate, speech_text],
                 check=False,
                 timeout=30
             )
         except Exception as e:
             logger.error("Error executing /usr/bin/say: %s", e)
-        subprocess.run(["/usr/bin/say", "-v", voice, "-r", rate, message], check=False)
