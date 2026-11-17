@@ -12,52 +12,37 @@ CONFIG_FILE_PATH = Path(__file__).resolve().parent.parent / "config.json"
 DEFAULT_CONFIG: Dict[str, Any] = {
     "assistant_persona": "friday",
     "voice": "Moira",
-    "speech_rate": 175,
+    "speech_rate": 172,
     "user_name": "Sir",
-    "login_delay_seconds": 2,
-    "cooldown_seconds": 3,
-    "late_night_reminders": {
+    "login_delay_seconds": 0.5,
+    "cooldown_seconds": 2,
+    "hud_sound": {
         "enabled": True,
-        "start_hour": 22,
-        "end_hour": 5,
-        "interval_minutes": 30,
-        "friday_messages": [
-            "Sir, it's getting quite late. You've been working hard; please take a rest.",
-            "Sir, 30 minutes have passed. Remember to take a break and step away from the screen."
-        ],
-        "jarvis_messages": [
-            "Pardon the interruption. The hour is late, Sir. Might I strongly recommend taking a rest?",
-            "Another 30 minutes have elapsed, Sir. A brief respite would be prudent."
-        ]
+        "sound_file": "hud_chime.wav"
     },
-    "scheduled_reminders": [],
+    "voice_commands": {
+        "enabled": False,
+        "wake_words": ["hey jarvis", "hey friday", "jarvis", "friday"],
+        "mic_index": None
+    },
+    "startup_apps": {
+        "enabled": True
+    },
     "personas": {
         "friday": {
             "voice": "Moira",
-            "speech_rate": 175,
-            "greetings": {
-                "morning": ["Sir, good morning! Friday online."],
-                "afternoon": ["Sir, good afternoon. Friday standing by."],
-                "evening": ["Sir, good evening. Friday online."],
-                "night": ["Sir, working late tonight? Don't push yourself too hard."]
-            }
+            "speech_rate": 172
         },
         "jarvis": {
             "voice": "Daniel",
-            "speech_rate": 170,
-            "greetings": {
-                "morning": ["Good morning. Jarvis online, Sir."],
-                "afternoon": ["Good afternoon. Jarvis at your service, Sir."],
-                "evening": ["Good evening. Jarvis online, Sir."],
-                "night": ["Working late? Might I recommend getting some rest shortly, Sir?"]
-            }
+            "speech_rate": 162
         }
     }
 }
 
 
 class ConfigManager:
-    """Manages loading and dynamic reloading of config.json."""
+    """Manages loading, updating, and dynamic reloading of config.json."""
 
     @staticmethod
     def load() -> Dict[str, Any]:
@@ -70,3 +55,32 @@ class ConfigManager:
             except Exception as e:
                 logger.warning("Failed to parse config.json (%s). Using defaults.", e)
         return DEFAULT_CONFIG
+
+    @classmethod
+    def set_active_persona(cls, persona_name: str) -> None:
+        """
+        Dynamically switches the active persona ('friday' or 'jarvis')
+        and persists it to config.json as the new default!
+        """
+        target = persona_name.lower().strip()
+        if target not in ["friday", "jarvis"]:
+            return
+
+        config = cls.load()
+        if config.get("assistant_persona") == target:
+            return
+
+        config["assistant_persona"] = target
+        if target == "jarvis":
+            config["voice"] = "Daniel"
+            config["speech_rate"] = 162
+        else:
+            config["voice"] = "Moira"
+            config["speech_rate"] = 172
+
+        try:
+            with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+            logger.info("Persisted '%s' as the new active default assistant persona in config.json.", target)
+        except Exception as e:
+            logger.error("Failed saving new default persona to config.json: %s", e)

@@ -64,13 +64,21 @@ class ReminderScheduler:
                 return True
         return False
 
-    def check_hydration(self, config: Dict[str, Any], now_ts: float) -> bool:
-        """Triggers periodic hydration check-ins (e.g. every 45-60 minutes)."""
+    def check_hydration(self, config: Dict[str, Any], now_dt: datetime, now_ts: float) -> bool:
+        """Triggers periodic hydration check-ins (e.g. every 30-45 minutes during work hours)."""
         hydro_cfg = config.get("hydration_reminders", {})
         if not hydro_cfg.get("enabled", True):
             return False
 
-        interval_secs = hydro_cfg.get("interval_minutes", 45) * 60
+        start_h = hydro_cfg.get("start_hour", 9)
+        end_h = hydro_cfg.get("end_hour", 21)
+        current_hour = now_dt.hour
+
+        # Only trigger during designated daytime/evening working hours
+        if not (start_h <= current_hour < end_h):
+            return False
+
+        interval_secs = hydro_cfg.get("interval_minutes", 30) * 60
 
         if self.last_hydration_time == 0:
             self.last_hydration_time = now_ts

@@ -10,8 +10,11 @@
     "sound_file": "hud_chime.wav"
   },
   "voice_commands": {
-    "enabled": true,
-    "wake_words": ["hey jarvis", "hey friday", "jarvis", "friday"],
+    "enabled": false,
+    "wake_words": [
+      "jarvis",
+      "friday"
+    ],
     "mic_index": null
   },
   "startup_apps": {
@@ -26,86 +29,6 @@
       "https://music.youtube.com"
     ]
   },
-  "morning_briefing": {
-    "enabled": true,
-    "include_weather": true,
-    "include_calendar": true,
-    "weather_location": ""
-  },
-  "git_briefing": {
-    "enabled": true,
-    "repositories": [
-      "/Users/tanseer/Documents/oopsss/MacAssistant"
-    ]
-  },
-  "eye_break_reminders": {
-    "enabled": true,
-    "interval_minutes": 20,
-    "friday_messages": [
-      "Sir, 20-20-20 rule check. Look away at something 20 feet away for 20 seconds to rest your eyes.",
-      "Sir, 20 minutes of screen time. Give your eyes a quick 20-second break.",
-      "Sir, quick visual rest. Look outside or across the room for 20 seconds."
-    ],
-    "jarvis_messages": [
-      "Sir, the 20-20-20 protocol is due. Might I suggest looking at an object 20 feet away for 20 seconds to prevent ocular fatigue?",
-      "Sir, another 20 minutes of continuous screen focus have elapsed. A brief glance into the distance would be most beneficial.",
-      "Sir, forgive the momentary pause. Please rest your eyes on the horizon for 20 seconds."
-    ]
-  },
-  "hydration_reminders": {
-    "enabled": true,
-    "interval_minutes": 45,
-    "friday_messages": [
-      "Sir, stay hydrated! Time for a glass of water.",
-      "Sir, friendly reminder to take a sip of water and stay energized.",
-      "Sir, don't forget your hydration. Have some water nearby?"
-    ],
-    "jarvis_messages": [
-      "Sir, hydration levels require attention. Might I suggest enjoying a glass of water?",
-      "Sir, a polite reminder to stay hydrated during your session.",
-      "Sir, maintaining proper hydration sustains peak cognitive performance. Please take a sip of water."
-    ]
-  },
-  "late_night_reminders": {
-    "enabled": true,
-    "start_hour": 22,
-    "end_hour": 5,
-    "interval_minutes": 30,
-    "friday_messages": [
-      "Sir, it's getting quite late. You've been working so hard; please take a rest.",
-      "Sir, another thirty minutes have passed. Remember to take a quick breather and rest your eyes.",
-      "Sir, it's late into the night. Sleep is essential for your well-being. Consider calling it a day.",
-      "Sir, just a caring check-in. Don't push yourself past your limits tonight. Time for a short break."
-    ],
-    "jarvis_messages": [
-      "Sir, pardon the gentle interruption. The hour is growing late; might I respectfully suggest taking a well-deserved rest?",
-      "Sir, another thirty minutes have elapsed. Your dedication is remarkable, but a brief respite would be very wise.",
-      "Sir, human endurance has its natural limits. To ensure your mind remains sharp tomorrow, please consider retiring for the night.",
-      "Sir, forgive the intrusion. It is well into the quiet hours of the night. Shall we save your progress and conclude for today?"
-    ]
-  },
-  "scheduled_reminders": [
-    {
-      "time": "11:00",
-      "friday_message": "Sir, it's 11:00 AM! How about stepping away for a warm cup of morning tea?",
-      "jarvis_message": "Sir, pardon the intrusion. The time is 11:00 AM. May I kindly suggest pausing for a warm cup of morning tea?"
-    },
-    {
-      "time": "13:00",
-      "friday_message": "Sir, it's 1:00 PM! Time to treat yourself to a good lunch and recharge.",
-      "jarvis_message": "Sir, pardon me. The clock strikes 1:00 PM. A nourishing lunch is warmly recommended to sustain your energy."
-    },
-    {
-      "time": "16:00",
-      "friday_message": "Sir, it's 4:00 PM. Perfect moment for an afternoon tea break and a gentle stretch.",
-      "jarvis_message": "Sir, good afternoon. It is 4:00 PM. Might I propose a delightful afternoon tea break to refresh your focus?"
-    },
-    {
-      "time": "18:18",
-      "friday_message": "Sir, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
-      "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
-    }
-  ],
   "personas": {
     "friday": {
       "voice": "Moira",
@@ -183,5 +106,89 @@
         ]
       }
     }
-  }
+  },
+  "morning_briefing": {
+    "enabled": true,
+    "include_weather": true,
+    "include_calendar": true,
+    "weather_location": ""
+  },
+  "git_briefing": {
+    "enabled": true,
+    "repositories": [
+      "/Users/tanseer/Documents/oopsss/MacAssistant"
+    ]
+  },
+  "eye_break_reminders": {
+    "enabled": true,
+    "interval_minutes": 20,
+    "friday_messages": [
+      "Sir, 20-20-20 rule check. Look away at something 20 feet away for 20 seconds to rest your eyes.",
+      "Sir, 20 minutes of screen time. Give your eyes a quick 20-second break.",
+      "Sir, quick visual rest. Look outside or across the room for 20 seconds."
+    ],
+    "jarvis_messages": [
+      "Sir, the 20-20-20 protocol is due. Might I suggest looking at an object 20 feet away for 20 seconds to prevent ocular fatigue?",
+      "Sir, another 20 minutes of continuous screen focus have elapsed. A brief glance into the distance would be most beneficial.",
+      "Sir, forgive the momentary pause. Please rest your eyes on the horizon for 20 seconds."
+    ]
+  },
+  "hydration_reminders": {
+    "enabled": true,
+    "interval_minutes": 30,
+    "start_hour": 9,
+    "end_hour": 21,
+    "friday_messages": [
+      "Sir, friendly reminder to stay hydrated! Time for a refreshing glass of water.",
+      "Sir, don't forget to drink some water. Keep your energy up and stay hydrated.",
+      "Sir, quick wellness check. Please take a sip of water and keep that momentum going.",
+      "Sir, healthy habits make great work! Grab your water bottle and take a drink."
+    ],
+    "jarvis_messages": [
+      "Sir, hydration levels require attention. Might I suggest enjoying a glass of fresh water?",
+      "Sir, a polite reminder that optimal mental clarity flourishes with proper hydration. Please take a sip.",
+      "Sir, maintaining hydration is vital during intense focus. Time for a glass of water.",
+      "Sir, pardon the momentary interruption. A brief pause for a glass of water would be most prudent."
+    ]
+  },
+  "late_night_reminders": {
+    "enabled": true,
+    "start_hour": 22,
+    "end_hour": 5,
+    "interval_minutes": 30,
+    "friday_messages": [
+      "Sir, it's getting quite late. You've been working so hard; please take a rest.",
+      "Sir, another thirty minutes have passed. Remember to take a quick breather and rest your eyes.",
+      "Sir, it's late into the night. Sleep is essential for your well-being. Consider calling it a day.",
+      "Sir, just a caring check-in. Don't push yourself past your limits tonight. Time for a short break."
+    ],
+    "jarvis_messages": [
+      "Sir, pardon the gentle interruption. The hour is growing late; might I respectfully suggest taking a well-deserved rest?",
+      "Sir, another thirty minutes have elapsed. Your dedication is remarkable, but a brief respite would be very wise.",
+      "Sir, human endurance has its natural limits. To ensure your mind remains sharp tomorrow, please consider retiring for the night.",
+      "Sir, forgive the intrusion. It is well into the quiet hours of the night. Shall we save your progress and conclude for today?"
+    ]
+  },
+  "scheduled_reminders": [
+    {
+      "time": "11:00",
+      "friday_message": "Sir, it's 11:00 AM! How about stepping away for a warm cup of morning tea?",
+      "jarvis_message": "Sir, pardon the intrusion. The time is 11:00 AM. May I kindly suggest pausing for a warm cup of morning tea?"
+    },
+    {
+      "time": "13:00",
+      "friday_message": "Sir, it's 1:00 PM! Time to treat yourself to a good lunch and recharge.",
+      "jarvis_message": "Sir, pardon me. The clock strikes 1:00 PM. A nourishing lunch is warmly recommended to sustain your energy."
+    },
+    {
+      "time": "16:00",
+      "friday_message": "Sir, it's 4:00 PM. Perfect moment for an afternoon tea break and a gentle stretch.",
+      "jarvis_message": "Sir, good afternoon. It is 4:00 PM. Might I propose a delightful afternoon tea break to refresh your focus?"
+    },
+    {
+      "time": "18:18",
+      "friday_message": "Sir, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
+      "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
+    }
+  ]
 }

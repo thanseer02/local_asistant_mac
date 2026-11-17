@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
+from .config_manager import ConfigManager
+
 logger = logging.getLogger("MacAssistant.CommandDispatcher")
 
 
@@ -19,7 +21,22 @@ class VoiceCommandDispatcher:
         Returns: (success: bool, response_speech: str)
         """
         text = command_text.lower().strip()
+
+        # 0. Check if user called specific assistant ("Jarvis" or "Friday")
+        if "jarvis" in text:
+            ConfigManager.set_active_persona("jarvis")
+            persona = "jarvis"
+        elif "friday" in text:
+            ConfigManager.set_active_persona("friday")
+            persona = "friday"
+
         prefix = "Sir, "
+
+        # Strip wake-word from command string if present
+        for wake in ["hey jarvis", "hey friday", "jarvis", "friday"]:
+            if text.startswith(wake):
+                text = text[len(wake):].strip(", ").strip()
+                break
 
         # 1. Lock Mac
         if "lock" in text and ("mac" in text or "screen" in text or "computer" in text):
