@@ -46,11 +46,26 @@ class VoiceController:
         self.router = ConversationRouter()
 
         self._active = False
+        self._is_sleeping = False  # Sleep mode keeps microphone running to detect "wake up" or "Friday"
         self._lock = threading.Lock()
 
     @property
     def is_listening(self) -> bool:
         return self._active
+
+    @property
+    def is_sleeping(self) -> bool:
+        return self._is_sleeping
+
+    def sleep(self) -> None:
+        """Puts assistant to sleep: ignores commands until 'wake up', 'friday', or 'jarvis'."""
+        self._is_sleeping = True
+        logger.info("VoiceController entered sleep mode. Waiting for wake call.")
+
+    def wake(self) -> None:
+        """Wakes assistant from sleep mode."""
+        self._is_sleeping = False
+        logger.info("VoiceController woke up from sleep mode.")
 
     def start(self) -> bool:
         """Starts the voice controller listening loop."""
@@ -103,6 +118,16 @@ class VoiceController:
         voice = cfg.get("voice", "Moira")
         rate = cfg.get("speech_rate", 172)
 
+        # In sleep mode, ONLY respond to wake words ("wake up", "friday", "jarvis", "hey friday")
+        lower = utterance.lower().strip(",.!? ")
+        if self._is_sleeping:
+            is_wake = any(w in lower for w in ["wake up", "friday", "jarvis", "hey friday", "hey jarvis", "hello friday", "hello jarvis"])
+            if not is_wake:
+                logger.debug("Ignoring '%s' while in sleep mode.", utterance)
+                return
+            # Waking up
+            self.wake()
+
         # Mute mic while speaking
         self.mic_service.set_speaking_state(True)
         try:
@@ -111,8 +136,9 @@ class VoiceController:
 
             # Special Control Intents
             if intent == "stop_listening":
+                # Put into sleep mode (microphone remains active for "wake up" or "Friday")
                 self.speech_output.speak(response_text, voice=voice, rate=rate)
-                self.stop()
+                self.sleep()
                 return
 
             if intent == "exit":
