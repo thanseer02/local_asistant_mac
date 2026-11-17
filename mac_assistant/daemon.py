@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 
 from .app_launcher import AppLauncher
+from .briefing_service import BriefingService
 from .config_manager import ConfigManager
 from .event_listener import NotificationListener
 from .scheduler import ReminderScheduler
@@ -61,8 +62,11 @@ class AssistantDaemon:
             AppLauncher.launch_workspace(config)
             self.has_launched_startup_apps = True
 
-        # Initial login greeting
-        self.engine.speak(self.engine.get_greeting(config), config)
+        # Initial login greeting with optional Morning Briefing
+        greeting = self.engine.get_greeting(config)
+        briefing = BriefingService.generate_morning_briefing(config)
+        full_initial_speech = f"{greeting} {briefing}".strip()
+        self.engine.speak(full_initial_speech, config)
         logger.info("MacAssistant daemon started successfully.")
 
         while True:
@@ -78,8 +82,14 @@ class AssistantDaemon:
                 cooldown = config.get("cooldown_seconds", 3)
                 delay = config.get("login_delay_seconds", 2)
 
-                # 1. Check Timed Reminders
+                # 1. Check Fixed Schedule & Wellness Reminders
                 if self.scheduler.check_scheduled(config, current_time_str):
+                    self.last_spoken_time = time.time()
+
+                if self.scheduler.check_eye_break(config, now):
+                    self.last_spoken_time = time.time()
+
+                if self.scheduler.check_hydration(config, now):
                     self.last_spoken_time = time.time()
 
                 if self.scheduler.check_late_night(config, now_dt, now):

@@ -1,4 +1,4 @@
-"""Scheduler for tea, lunch, go-home, and late-night rest alerts."""
+"""Scheduler for tea, lunch, go-home, late-night rest, 20-20-20 eye strain, and hydration alerts."""
 
 import logging
 import random
@@ -12,12 +12,14 @@ logger = logging.getLogger("MacAssistant.Scheduler")
 
 
 class ReminderScheduler:
-    """Evaluates time rules and triggers audio alerts."""
+    """Evaluates time rules and triggers audio alerts for wellness, health, and schedule."""
 
     def __init__(self, voice_engine: VoiceEngine):
         self.engine = voice_engine
         self.last_checked_minute: Optional[str] = None
         self.last_late_night_time: float = 0
+        self.last_eye_break_time: float = 0
+        self.last_hydration_time: float = 0
 
     def check_scheduled(self, config: Dict[str, Any], current_time_str: str) -> bool:
         """Checks daily fixed reminders (tea, lunch, go home). Returns True if spoken."""
@@ -36,6 +38,54 @@ class ReminderScheduler:
                     logger.info("Triggering scheduled reminder (%s): %s", current_time_str, msg)
                     self.engine.speak(msg, config)
                     return True
+        return False
+
+    def check_eye_break(self, config: Dict[str, Any], now_ts: float) -> bool:
+        """Triggers the 20-20-20 rule reminder every 20 minutes (look 20 feet away for 20 seconds)."""
+        eye_cfg = config.get("eye_break_reminders", {})
+        if not eye_cfg.get("enabled", True):
+            return False
+
+        interval_secs = eye_cfg.get("interval_minutes", 20) * 60
+
+        if self.last_eye_break_time == 0:
+            self.last_eye_break_time = now_ts
+            return False
+
+        if now_ts - self.last_eye_break_time >= interval_secs:
+            self.last_eye_break_time = now_ts
+            persona_key = config.get("assistant_persona", "friday").lower()
+            name = config.get("user_name", "Sir")
+            messages = eye_cfg.get(f"{persona_key}_messages", [])
+            if messages:
+                msg = random.choice(messages).format(name=name, title=name)
+                logger.info("Triggering 20-20-20 eye break reminder: %s", msg)
+                self.engine.speak(msg, config)
+                return True
+        return False
+
+    def check_hydration(self, config: Dict[str, Any], now_ts: float) -> bool:
+        """Triggers periodic hydration check-ins (e.g. every 45-60 minutes)."""
+        hydro_cfg = config.get("hydration_reminders", {})
+        if not hydro_cfg.get("enabled", True):
+            return False
+
+        interval_secs = hydro_cfg.get("interval_minutes", 45) * 60
+
+        if self.last_hydration_time == 0:
+            self.last_hydration_time = now_ts
+            return False
+
+        if now_ts - self.last_hydration_time >= interval_secs:
+            self.last_hydration_time = now_ts
+            persona_key = config.get("assistant_persona", "friday").lower()
+            name = config.get("user_name", "Sir")
+            messages = hydro_cfg.get(f"{persona_key}_messages", [])
+            if messages:
+                msg = random.choice(messages).format(name=name, title=name)
+                logger.info("Triggering hydration reminder: %s", msg)
+                self.engine.speak(msg, config)
+                return True
         return False
 
     def check_late_night(self, config: Dict[str, Any], now_dt: datetime, now_ts: float) -> bool:

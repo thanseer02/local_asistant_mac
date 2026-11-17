@@ -1,7 +1,7 @@
 {
   "assistant_persona": "friday",
   "voice": "Moira",
-  "speech_rate": 162,
+  "speech_rate": 172,
   "user_name": "Sir",
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
@@ -15,6 +15,40 @@
     "brave_urls": [
       "https://open.spotify.com",
       "https://music.youtube.com"
+    ]
+  },
+  "morning_briefing": {
+    "enabled": true,
+    "include_weather": true,
+    "include_calendar": true,
+    "weather_location": ""
+  },
+  "eye_break_reminders": {
+    "enabled": true,
+    "interval_minutes": 20,
+    "friday_messages": [
+      "Sir, 20-20-20 rule check. Look away at something 20 feet away for 20 seconds to rest your eyes.",
+      "Sir, 20 minutes of screen time. Give your eyes a quick 20-second break.",
+      "Sir, quick visual rest. Look outside or across the room for 20 seconds."
+    ],
+    "jarvis_messages": [
+      "Sir, the 20-20-20 protocol is due. Might I suggest looking at an object 20 feet away for 20 seconds to prevent ocular fatigue?",
+      "Sir, another 20 minutes of continuous screen focus have elapsed. A brief glance into the distance would be most beneficial.",
+      "Sir, forgive the momentary pause. Please rest your eyes on the horizon for 20 seconds."
+    ]
+  },
+  "hydration_reminders": {
+    "enabled": true,
+    "interval_minutes": 45,
+    "friday_messages": [
+      "Sir, stay hydrated! Time for a glass of water.",
+      "Sir, friendly reminder to take a sip of water and stay energized.",
+      "Sir, don't forget your hydration. Have some water nearby?"
+    ],
+    "jarvis_messages": [
+      "Sir, hydration levels require attention. Might I suggest enjoying a glass of water?",
+      "Sir, a polite reminder to stay hydrated during your session.",
+      "Sir, maintaining proper hydration sustains peak cognitive performance. Please take a sip of water."
     ]
   },
   "late_night_reminders": {
@@ -61,6 +95,11 @@
     "friday": {
       "voice": "Moira",
       "speech_rate": 172,
+      "goodbyes": [
+        "Sir, systems shutting down. Have a restful night and take care of yourself.",
+        "Sir, powering down. Great work today. Have a wonderful rest.",
+        "Sir, signing off. All progress is safely stored. See you soon!"
+      ],
       "greetings": {
         "morning": [
           "Sir, a very good morning! Friday online. All systems are primed, and I'm ready whenever you are.",
@@ -89,12 +128,7 @@
           "Sir, working into the night? I hope everything is going smoothly. Take care of yourself.",
           "Sir, it's late. Just a warm reminder that rest is just as important as progress."
         ]
-      },
-      "goodbyes": [
-        "Sir, systems shutting down. Have a restful night and take care of yourself.",
-        "Sir, powering down. Great work today. Have a wonderful rest.",
-        "Sir, signing off. All progress is safely stored. See you soon!"
-      ]
+      }
     },
     "jarvis": {
       "voice": "Daniel",
