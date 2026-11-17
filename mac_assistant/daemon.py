@@ -15,7 +15,7 @@ from .config_manager import ConfigManager
 from .event_listener import NotificationListener
 from .scheduler import ReminderScheduler
 from .speech_output import SpeechOutputService
-from .voice_controller import VoiceController
+from .strict_voice_controller import StrictVoiceController
 from .voice_engine import VoiceEngine
 from .voice_listener import VoiceListener
 
@@ -39,10 +39,10 @@ class AssistantDaemon:
             on_command_callback=self._handle_voice_command
         )
 
-        # Voice controller for modular microphone capture and command processing
+        # Voice controller enforcing strict wake-word detection
         config = ConfigManager.load()
         self.speech_output = SpeechOutputService()
-        self.voice_controller = VoiceController(
+        self.voice_controller = StrictVoiceController(
             config=config,
             speech_output=self.speech_output,
             on_exit_requested=self._handle_exit_requested
