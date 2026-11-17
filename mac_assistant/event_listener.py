@@ -2,15 +2,25 @@
 
 import ctypes
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 logger = logging.getLogger("MacAssistant.Events")
 
+# Comprehensive macOS kernel notification events
+# Covering modern Sonoma / Sequoia screensaver dismissals, display power states, and lock/unlock
 NOTIFICATION_EVENTS: List[bytes] = [
+    # Screensaver states
     b'com.apple.screensaver.didstop',
+    b'com.apple.screensaver.willstop',
+    b'com.apple.screensaver.didquit',
+    b'com.apple.screensaver.stopped',
+
+    # Lock and unlock states
     b'com.apple.screenIsUnlocked',
     b'com.apple.sessionDidUnlock',
     b'com.apple.system.loginwindow.sessionDidUnlock',
+    b'com.apple.sessionDidBecomeActive',
+    b'com.apple.system.loginwindow.sessionDidBecomeActive',
 ]
 
 
