@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from modules.ai.conversation_manager import ConversationManager
-from modules.personality.personality_engine import PersonalityEngine
+from modules.personality.friday_personality import FridayPersonalityEngine
+from modules.personality.jarvis_personality import JarvisPersonalityEngine
 from .application_launcher_service import ApplicationLauncherService
 from .file_search import FileSearchService
 from .ollama_client import OllamaClient
@@ -36,8 +37,14 @@ class ConversationRouter:
     ):
         self.ollama = ollama_client or OllamaClient()
         self.conv_manager = conv_manager or ConversationManager()
-        self.personality_engine = PersonalityEngine()
+        self.friday_engine = FridayPersonalityEngine()
+        self.jarvis_engine = JarvisPersonalityEngine()
         self.request_confirmation = request_confirmation_cb
+
+    def _get_engine(self, persona: str):
+        if persona.lower() == "jarvis":
+            return self.jarvis_engine
+        return self.friday_engine
 
     def get_registered_capabilities(self) -> Dict[str, List[str]]:
         """Returns dynamic categorization of all available Mac automation capabilities."""
@@ -93,9 +100,11 @@ class ConversationRouter:
                 lower = lower[len(wake):].strip(", ").strip()
                 raw = raw[len(wake):].strip(", ").strip()
 
+        active_engine = self._get_engine(persona)
+
         # Check pure wake-call salutations using GreetingManager
         if lower in ["", "hello", "hi", "hey", "are you there", "you there", "wake up"]:
-            reply = self.personality_engine.greetings.get_activation_greeting(persona=persona)
+            reply = active_engine.greetings.get_activation_greeting(persona=persona)
             return "wake_call", True, reply
 
         # 1. DESTRUCTIVE ACTIONS SAFETY GUARD (Test 8 requirement)
@@ -118,16 +127,21 @@ class ConversationRouter:
         # 3. VOICE-BASED PERSONALITY & MEMORY ADJUSTMENTS
         if "toggle humor" in lower or "disable humor" in lower or "enable humor" in lower:
             enable = True if "enable" in lower else (False if "disable" in lower else None)
-            msg = self.personality_engine.mgr.toggle_humor(enable)
+            msg = active_engine.mgr.toggle_humor(enable)
             return "personality_control", True, msg
 
         if "set response length" in lower or "make your responses" in lower:
             if "concise" in lower or "short" in lower:
-                msg = self.personality_engine.mgr.set_response_length("concise")
+                msg = active_engine.mgr.set_response_length("concise")
             elif "detailed" in lower or "longer" in lower:
-                msg = self.personality_engine.mgr.set_response_length("detailed")
+                msg = active_engine.mgr.set_response_length("detailed")
             else:
-                msg = self.personality_engine.mgr.set_response_length("adaptive")
+                msg = active_engine.mgr.set_response_length("adaptive")
+            return "personality_control", True, msg
+
+        if "set personality" in lower or "switch personality" in lower:
+            p_name = lower.replace("set personality to", "").replace("switch personality to", "").strip()
+            msg = active_engine.mgr.set_personality(p_name)
             return "personality_control", True, msg
 
         if any(k in lower for k in ["what did we just talk about", "recall our discussion", "what were we talking about", "recall memory"]):
@@ -143,7 +157,7 @@ class ConversationRouter:
 
         # 4. DIRECT ACTION MODE CHECKS (Fast deterministic execution for Mac controls)
         # 4.1 Date & Time
-        if any(k in lower for k in ["what time is it", "what's the time", "current time", "what day is today", "what is today's date", "date and time"]):
+        if any(k in lower for k in ["what time is it", "what's the time", "current time", "what day is today", "what is today's date", "date and time", "the time", "check the time", "check time"]):
             now = datetime.now()
             time_str = now.strftime("%I:%M %p")
             date_str = now.strftime("%A, %B %d")
@@ -203,14 +217,15 @@ class ConversationRouter:
         if any(lower == phrase or lower.startswith(phrase) for phrase in ["stop listening", "go to sleep", "sleep mode", "mute yourself"]):
             return "stop_listening", True, "Pausing voice listening now."
 
-        # 5. CONVERSATION MODE (Local Ollama with Friday's Personality & Multi-Turn Memory)
-        system_prompt = self.personality_engine.build_system_prompt(user_utterance=raw)
+        # 5. CONVERSATION MODE (Local Ollama with Selected Persona & Multi-Turn Memory)
+        system_prompt = active_engine.build_system_prompt(user_utterance=raw)
 
         # Check Ollama availability
         if not self.ollama.is_available():
             logger.warning("Ollama daemon is not responding on http://localhost:11434.")
             if any(k in lower for k in ["how are you", "what's up", "good morning", "hello", "hi"]):
-                return "conversation_fallback", True, "I'm doing well, thank you! Ready to help you with your Mac."
+                fallback = "At your service, Sir. Ready to assist with your Mac." if persona.lower() == "jarvis" else "I'm doing well, thank you! Ready to help you with your Mac."
+                return "conversation_fallback", True, fallback
             return (
                 "conversation_offline",
                 False,
@@ -222,12 +237,13 @@ class ConversationRouter:
         self.conv_manager.record_user_turn(raw)
         messages = self.conv_manager.get_messages_for_llm(system_prompt)
 
-        logger.info("Routing to local Ollama with Friday personality (history: %d messages)...", len(messages))
+        logger.info("Routing to local Ollama with %s personality (history: %d messages)...", persona.capitalize(), len(messages))
         reply = self.ollama.chat(messages, temperature=0.7, max_tokens=150)
 
         if reply:
-            cleaned_reply = self.personality_engine.format_reply(reply)
+            cleaned_reply = active_engine.format_reply(reply)
             self.conv_manager.record_assistant_turn(cleaned_reply)
             return "conversation", True, cleaned_reply
 
-        return "conversation_ambiguous", True, "I'm following along. Could you tell me a little more?"
+        clarification = "I am listening closely, Sir. Could you kindly elaborate?" if persona.lower() == "jarvis" else "I'm following along. Could you tell me a little more?"
+        return "conversation_ambiguous", True, clarification

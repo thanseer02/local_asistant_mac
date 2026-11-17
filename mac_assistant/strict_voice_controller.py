@@ -146,8 +146,19 @@ class StrictVoiceController:
                 prompt_reply = "Yes, Sir?" if wake_word == "jarvis" else "I'm here!"
                 self.state = AssistantState.SPEAKING_RESPONSE
                 self.mic_service.set_speaking_state(True)
+                cfg = ConfigManager.load()
+                personas_cfg = cfg.get("personas", {})
+                if wake_word == "jarvis":
+                    j_voice = personas_cfg.get("jarvis", {}).get("voice", "Daniel")
+                    j_rate = personas_cfg.get("jarvis", {}).get("speech_rate", 162)
+                    prompt_voice, prompt_rate = j_voice, j_rate
+                else:
+                    f_voice = personas_cfg.get("friday", {}).get("voice", cfg.get("voice", "Moira"))
+                    f_rate = personas_cfg.get("friday", {}).get("speech_rate", cfg.get("speech_rate", 172))
+                    prompt_voice, prompt_rate = f_voice, f_rate
+
                 try:
-                    self.speech_output.speak(prompt_reply, play_chime=False)
+                    self.speech_output.speak(prompt_reply, voice=prompt_voice, rate=prompt_rate, play_chime=False)
                 finally:
                     self.mic_service.set_speaking_state(False)
 
@@ -221,10 +232,19 @@ class StrictVoiceController:
             self.state = AssistantState.PROCESSING_COMMAND
 
         cfg = ConfigManager.load()
-        voice = cfg.get("voice", "Moira")
-        rate = cfg.get("speech_rate", 170)
+        personas_cfg = cfg.get("personas", {})
+        persona_key = persona.lower()
 
-        logger.info("Processing command: '%s' (Persona: %s)", command_text, persona)
+        if persona_key == "jarvis":
+            j_profile = personas_cfg.get("jarvis", {})
+            voice = j_profile.get("voice", "Daniel")
+            rate = j_profile.get("speech_rate", 162)
+        else:
+            f_profile = personas_cfg.get("friday", {})
+            voice = f_profile.get("voice", cfg.get("voice", "Moira"))
+            rate = f_profile.get("speech_rate", cfg.get("speech_rate", 172))
+
+        logger.info("Processing command: '%s' (Persona: %s, Voice: %s, Rate: %s)", command_text, persona, voice, rate)
         intent, ok, response_text = self.router.route(command_text, persona=persona)
         logger.info("Command result: Intent='%s' | Response='%s'", intent, response_text)
 

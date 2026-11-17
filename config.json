@@ -196,7 +196,7 @@
   "personality_settings": {
     "personality": "professional_friendly",
     "speaking_style": "natural",
-    "response_length": "detailed",
+    "response_length": "concise",
     "humor": true,
     "emotional_awareness": true,
     "use_conversation_context": true,
@@ -204,6 +204,38 @@
     "language": "English",
     "use_salutation": false,
     "max_history_turns": 15,
-    "persist_memory_sqlite": true
+    "persist_memory_sqlite": true,
+    "voice": "Moira",
+    "speech_rate": 172
+  },
+  "jarvis_personality_settings": {
+    "personality": "sophisticated_butler",
+    "speaking_style": "articulate_polished",
+    "response_length": "concise",
+    "humor": false,
+    "emotional_awareness": true,
+    "use_conversation_context": true,
+    "avoid_repetitive_greetings": true,
+    "language": "English",
+    "use_salutation": true,
+    "max_history_turns": 15,
+    "persist_memory_sqlite": true,
+    "voice": "Daniel",
+    "speech_rate": 162
+  },
+  "friday_personality_settings": {
+    "personality": "professional_friendly",
+    "speaking_style": "natural",
+    "response_length": "concise",
+    "humor": true,
+    "emotional_awareness": true,
+    "use_conversation_context": true,
+    "avoid_repetitive_greetings": true,
+    "language": "English",
+    "use_salutation": false,
+    "max_history_turns": 15,
+    "persist_memory_sqlite": true,
+    "voice": "Moira",
+    "speech_rate": 172
   }
 }

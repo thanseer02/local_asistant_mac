@@ -4,7 +4,7 @@
 import sys
 from mac_assistant.conversation_router import ConversationRouter
 from mac_assistant.ollama_client import OllamaClient
-from mac_assistant.conversation_memory import ConversationMemory
+from modules.ai.conversation_manager import ConversationManager
 
 
 def run_all_tests():
@@ -13,8 +13,8 @@ def run_all_tests():
     print("=" * 70)
 
     # Initialize router with fresh in-memory session (no persistence for test)
-    memory = ConversationMemory(max_turns=10, persist=False)
-    router = ConversationRouter(ollama_client=OllamaClient(), memory=memory)
+    conv_mgr = ConversationManager(use_sqlite=False)
+    router = ConversationRouter(ollama_client=OllamaClient(), conv_manager=conv_mgr)
 
     scenarios = [
         ("Test 1: Greeting / Conversation", "Hello, how are you?"),

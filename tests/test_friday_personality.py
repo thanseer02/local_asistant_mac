@@ -13,7 +13,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from mac_assistant.conversation_router import ConversationRouter
 from mac_assistant.ollama_client import OllamaClient
 from modules.ai.conversation_manager import ConversationManager
-from modules.personality.personality_config import PersonalityManager
+from modules.personality.friday_config import FridayPersonalityManager
+from modules.personality.friday_personality import FridayPersonalityEngine
 from modules.personality.emotion_analyzer import EmotionAnalyzer
 from modules.personality.greeting_manager import GreetingManager
 from modules.personality.response_formatter import ResponseFormatter
@@ -24,7 +25,7 @@ class TestFridayPersonalityEngine(unittest.TestCase):
     def setUp(self):
         self.conv_mgr = ConversationManager(use_sqlite=False)
         self.router = ConversationRouter(ollama_client=OllamaClient(), conv_manager=self.conv_mgr)
-        self.personality_mgr = PersonalityManager.get_instance()
+        self.personality_mgr = FridayPersonalityManager.get_instance()
 
     def test_01_emotion_analyzer(self):
         """Verify sentiment detection for natural empathy calibration."""
