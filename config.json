@@ -1,7 +1,7 @@
 {
-  "assistant_persona": "friday",
-  "voice": "Moira",
-  "speech_rate": 172,
+  "assistant_persona": "jarvis",
+  "voice": "Daniel",
+  "speech_rate": 162,
   "user_name": "Sir",
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
@@ -36,37 +36,37 @@
       "voice": "Moira",
       "speech_rate": 172,
       "goodbyes": [
-        "Sir, systems shutting down. Have a restful night and take care of yourself.",
-        "Sir, powering down. Great work today. Have a wonderful rest.",
-        "Sir, signing off. All progress is safely stored. See you soon!"
+        "Boss, systems shutting down. Have a restful night and take care of yourself.",
+        "Boss, powering down. Great work today. Have a wonderful rest.",
+        "Boss, signing off. All progress is safely stored. See you soon!"
       ],
       "greetings": {
         "morning": [
-          "Sir, a very good morning! Friday online. All systems are primed, and I'm ready whenever you are.",
-          "Sir, wonderful to see you this morning. I hope you slept peacefully. Ready to have a great day?",
-          "Sir, good morning! Fresh day ahead. What wonderful things are we creating today?",
-          "Sir, morning! Hope you're feeling energized. I've got everything ready for you.",
-          "Sir, rise and shine! The workspace is clear and ready for your touch."
+          "Boss, a very good morning! Friday online. All systems are primed, and I'm ready whenever you are.",
+          "Boss, wonderful to see you this morning. I hope you slept peacefully. Ready to have a great day?",
+          "Boss, good morning! Fresh day ahead. What wonderful things are we creating today?",
+          "Boss, morning! Hope you're feeling energized. I've got everything ready for you.",
+          "Boss, rise and shine! The workspace is clear and ready for your touch."
         ],
         "afternoon": [
-          "Sir, good afternoon. Friday standing by. How has your day been treating you so far?",
-          "Sir, welcome back! It's lovely to have you back at your desk. How can I assist?",
-          "Sir, good afternoon. I hope your work is flowing smoothly today.",
-          "Sir, welcome back! Take a deep breath; we're making wonderful progress.",
-          "Sir, welcome back to your desk. Standing by happily for your next step."
+          "Boss, good afternoon. Friday standing by. How has your day been treating you so far?",
+          "Boss, welcome back! It's lovely to have you back at your desk. How can I assist?",
+          "Boss, good afternoon. I hope your work is flowing smoothly today.",
+          "Boss, welcome back! Take a deep breath; we're making wonderful progress.",
+          "Boss, welcome back to your desk. Standing by happily for your next step."
         ],
         "evening": [
-          "Sir, good evening. Friday online. It's so nice to see you back. Ready to finish up today's goals?",
-          "Sir, a very pleasant evening to you. I hope you've had a truly fulfilling day.",
-          "Sir, welcome back! Let's handle the remaining tasks smoothly so you can enjoy your night.",
-          "Sir, good evening. Everything is calm and ready whenever you want to continue.",
-          "Sir, welcome back. I hope you're proud of all the hard work you put in today."
+          "Boss, good evening. Friday online. It's so nice to see you back. Ready to finish up today's goals?",
+          "Boss, a very pleasant evening to you. I hope you've had a truly fulfilling day.",
+          "Boss, welcome back! Let's handle the remaining tasks smoothly so you can enjoy your night.",
+          "Boss, good evening. Everything is calm and ready whenever you want to continue.",
+          "Boss, welcome back. I hope you're proud of all the hard work you put in today."
         ],
         "night": [
-          "Sir, still with me? It's quiet tonight. I'm right here beside you, but please don't overwork.",
-          "Sir, late night session? You always work so hard. Remember to take gentle sips of water.",
-          "Sir, working into the night? I hope everything is going smoothly. Take care of yourself.",
-          "Sir, it's late. Just a warm reminder that rest is just as important as progress."
+          "Boss, still with me? It's quiet tonight. I'm right here beside you, but please don't overwork.",
+          "Boss, late night session? You always work so hard. Remember to take gentle sips of water.",
+          "Boss, working into the night? I hope everything is going smoothly. Take care of yourself.",
+          "Boss, it's late. Just a warm reminder that rest is just as important as progress."
         ]
       }
     },
@@ -125,9 +125,9 @@
     "enabled": true,
     "interval_minutes": 20,
     "friday_messages": [
-      "Sir, 20-20-20 rule check. Look away at something 20 feet away for 20 seconds to rest your eyes.",
-      "Sir, 20 minutes of screen time. Give your eyes a quick 20-second break.",
-      "Sir, quick visual rest. Look outside or across the room for 20 seconds."
+      "Boss, 20-20-20 rule check. Look away at something 20 feet away for 20 seconds to rest your eyes.",
+      "Boss, 20 minutes of screen time. Give your eyes a quick 20-second break.",
+      "Boss, quick visual rest. Look outside or across the room for 20 seconds."
     ],
     "jarvis_messages": [
       "Sir, the 20-20-20 protocol is due. Might I suggest looking at an object 20 feet away for 20 seconds to prevent ocular fatigue?",
@@ -141,10 +141,10 @@
     "start_hour": 9,
     "end_hour": 21,
     "friday_messages": [
-      "Sir, friendly reminder to stay hydrated! Time for a refreshing glass of water.",
-      "Sir, don't forget to drink some water. Keep your energy up and stay hydrated.",
-      "Sir, quick wellness check. Please take a sip of water and keep that momentum going.",
-      "Sir, healthy habits make great work! Grab your water bottle and take a drink."
+      "Boss, friendly reminder to stay hydrated! Time for a refreshing glass of water.",
+      "Boss, don't forget to drink some water. Keep your energy up and stay hydrated.",
+      "Boss, quick wellness check. Please take a sip of water and keep that momentum going.",
+      "Boss, healthy habits make great work! Grab your water bottle and take a drink."
     ],
     "jarvis_messages": [
       "Sir, hydration levels require attention. Might I suggest enjoying a glass of fresh water?",
@@ -159,10 +159,10 @@
     "end_hour": 5,
     "interval_minutes": 30,
     "friday_messages": [
-      "Sir, it's getting quite late. You've been working so hard; please take a rest.",
-      "Sir, another thirty minutes have passed. Remember to take a quick breather and rest your eyes.",
-      "Sir, it's late into the night. Sleep is essential for your well-being. Consider calling it a day.",
-      "Sir, just a caring check-in. Don't push yourself past your limits tonight. Time for a short break."
+      "Boss, it's getting quite late. You've been working so hard; please take a rest.",
+      "Boss, another thirty minutes have passed. Remember to take a quick breather and rest your eyes.",
+      "Boss, it's late into the night. Sleep is essential for your well-being. Consider calling it a day.",
+      "Boss, just a caring check-in. Don't push yourself past your limits tonight. Time for a short break."
     ],
     "jarvis_messages": [
       "Sir, pardon the gentle interruption. The hour is growing late; might I respectfully suggest taking a well-deserved rest?",
@@ -174,22 +174,22 @@
   "scheduled_reminders": [
     {
       "time": "11:00",
-      "friday_message": "Sir, it's 11:00 AM! How about stepping away for a warm cup of morning tea?",
+      "friday_message": "Boss, it's 11:00 AM! How about stepping away for a warm cup of morning tea?",
       "jarvis_message": "Sir, pardon the intrusion. The time is 11:00 AM. May I kindly suggest pausing for a warm cup of morning tea?"
     },
     {
       "time": "13:00",
-      "friday_message": "Sir, it's 1:00 PM! Time to treat yourself to a good lunch and recharge.",
+      "friday_message": "Boss, it's 1:00 PM! Time to treat yourself to a good lunch and recharge.",
       "jarvis_message": "Sir, pardon me. The clock strikes 1:00 PM. A nourishing lunch is warmly recommended to sustain your energy."
     },
     {
       "time": "16:00",
-      "friday_message": "Sir, it's 4:00 PM. Perfect moment for an afternoon tea break and a gentle stretch.",
+      "friday_message": "Boss, it's 4:00 PM. Perfect moment for an afternoon tea break and a gentle stretch.",
       "jarvis_message": "Sir, good afternoon. It is 4:00 PM. Might I propose a delightful afternoon tea break to refresh your focus?"
     },
     {
       "time": "18:18",
-      "friday_message": "Sir, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
+      "friday_message": "Boss, it's 6:18 PM! Time to pack up, unwind, and head home. You did wonderful work today.",
       "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
     }
   ],
@@ -202,26 +202,10 @@
     "use_conversation_context": true,
     "avoid_repetitive_greetings": true,
     "language": "English",
-    "use_salutation": false,
-    "max_history_turns": 15,
-    "persist_memory_sqlite": true,
-    "voice": "Moira",
-    "speech_rate": 172
-  },
-  "jarvis_personality_settings": {
-    "personality": "sophisticated_butler",
-    "speaking_style": "articulate_polished",
-    "response_length": "concise",
-    "humor": false,
-    "emotional_awareness": true,
-    "use_conversation_context": true,
-    "avoid_repetitive_greetings": true,
-    "language": "English",
     "use_salutation": true,
+    "salutation_title": "Boss",
     "max_history_turns": 15,
-    "persist_memory_sqlite": true,
-    "voice": "Daniel",
-    "speech_rate": 162
+    "persist_memory_sqlite": true
   },
   "friday_personality_settings": {
     "personality": "professional_friendly",
@@ -232,10 +216,27 @@
     "use_conversation_context": true,
     "avoid_repetitive_greetings": true,
     "language": "English",
-    "use_salutation": false,
+    "use_salutation": true,
+    "salutation_title": "Boss",
     "max_history_turns": 15,
     "persist_memory_sqlite": true,
     "voice": "Moira",
     "speech_rate": 172
+  },
+  "jarvis_personality_settings": {
+    "personality": "sophisticated_butler",
+    "speaking_style": "articulate_polished",
+    "response_length": "concise",
+    "humor": true,
+    "emotional_awareness": true,
+    "use_conversation_context": true,
+    "avoid_repetitive_greetings": true,
+    "language": "English",
+    "use_salutation": true,
+    "salutation_title": "Sir",
+    "max_history_turns": 15,
+    "persist_memory_sqlite": true,
+    "voice": "Daniel",
+    "speech_rate": 162
   }
 }

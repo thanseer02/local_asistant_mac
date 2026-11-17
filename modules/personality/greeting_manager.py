@@ -34,11 +34,11 @@ class GreetingManager:
                 ]
             else:
                 quick_acks = [
-                    "I'm here. What's on your mind?",
-                    "Right here! What do you need?",
-                    "Listening! How can I help?",
-                    "Standing by.",
-                    "Yes? What can I do for you?"
+                    "I'm here, Boss. What's on your mind?",
+                    "Right here, Boss! What do you need?",
+                    "Listening, Boss! How can I help?",
+                    "Standing by, Boss.",
+                    "Yes, Boss? What can I do for you?"
                 ]
             return random.choice(quick_acks)
 
@@ -72,27 +72,27 @@ class GreetingManager:
         else:
             if 5 <= hour < 12:
                 pool = [
-                    "Good morning! I'm ready whenever you are.",
-                    "Morning! Hope you have a productive day ahead.",
-                    "Good morning. Systems are primed and ready."
+                    "Good morning, Boss! I'm ready whenever you are.",
+                    "Morning, Boss! Hope you have a productive day ahead.",
+                    "Good morning, Boss. Systems are primed and ready."
                 ]
             elif 12 <= hour < 17:
                 pool = [
-                    "Good afternoon! How's your day going so far?",
-                    "Good afternoon. Standing by for whatever you need.",
-                    "Afternoon! Ready to assist."
+                    "Good afternoon, Boss! How's your day going so far?",
+                    "Good afternoon, Boss. Standing by for whatever you need.",
+                    "Afternoon, Boss! Ready to assist."
                 ]
             elif 17 <= hour < 22:
                 pool = [
-                    "Good evening! Ready to wrap up or keep going?",
-                    "Good evening. How can I help you finish up today?",
-                    "Evening! What are we working on?"
+                    "Good evening, Boss! Ready to wrap up or keep going?",
+                    "Good evening, Boss. How can I help you finish up today?",
+                    "Evening, Boss! What are we working on?"
                 ]
             else:
                 pool = [
-                    "Working late tonight? I'm right here with you.",
-                    "Still up? Let's get this done so you can rest.",
-                    "Night shift! What can I take off your plate?"
+                    "Working late tonight, Boss? I'm right here with you.",
+                    "Still up, Boss? Let's get this done so you can rest.",
+                    "Night shift, Boss! What can I take off your plate?"
                 ]
 
         candidates = [g for g in pool if g != self._last_chosen_greeting] or pool

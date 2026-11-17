@@ -58,7 +58,7 @@ class JarvisPersonalityEngine:
         }.get(self.config.response_length, "Deliver your reply in 1-2 articulate, polished sentences.")
 
         salutation_guideline = (
-            "You may occasionally and naturally address the user as 'Sir' with respectful British poise, but do not clutter every single clause with it."
+            "Address the user with respectful British poise as 'Sir'. Never call the user 'Boss'. Use 'Sir' naturally without cluttering every single clause with it."
             if self.config.use_salutation
             else "Address the user directly and courteously without using 'Sir'."
         )

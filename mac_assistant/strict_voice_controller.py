@@ -143,7 +143,7 @@ class StrictVoiceController:
                 self._execute_command_pipeline(immediate_command, persona=wake_word)
             else:
                 # User said "Friday" -> Prompt user and transition to LISTENING_FOR_COMMAND
-                prompt_reply = "Yes, Sir?" if wake_word == "jarvis" else "I'm here!"
+                prompt_reply = "Yes, Sir?" if wake_word == "jarvis" else "Yes, Boss?"
                 self.state = AssistantState.SPEAKING_RESPONSE
                 self.mic_service.set_speaking_state(True)
                 cfg = ConfigManager.load()

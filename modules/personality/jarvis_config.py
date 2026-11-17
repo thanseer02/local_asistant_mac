@@ -25,6 +25,7 @@ class JarvisPersonalityConfig(BaseModel):
     avoid_repetitive_greetings: bool = True
     language: str = "English"
     use_salutation: bool = True                 # Occasional respectful use of Sir
+    salutation_title: str = "Sir"
     max_history_turns: int = 15
     persist_memory_sqlite: bool = True
     voice: str = "Daniel"                       # British English classic Jarvis voice

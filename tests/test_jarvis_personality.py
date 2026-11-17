@@ -55,9 +55,10 @@ class TestJarvisAndDualPersonality(unittest.TestCase):
         j_ack = gm.get_activation_greeting(persona="jarvis", force_full=False)
         self.assertIn("Sir", j_ack)
 
-        # Friday greeting should NOT be forced to use Sir
+        # Friday greeting calls user 'Boss'
         f_fresh = gm.get_activation_greeting(persona="friday", force_full=True)
-        self.assertNotIn("Boss", f_fresh)
+        self.assertIn("Boss", f_fresh)
+        self.assertNotIn("Sir", f_fresh)
 
     def test_03_independent_settings(self):
         """Verify Jarvis and Friday settings are completely independent."""

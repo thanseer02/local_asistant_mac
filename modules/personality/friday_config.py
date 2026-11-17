@@ -18,7 +18,8 @@ class FridayPersonalityConfig(BaseModel):
     use_conversation_context: bool = True
     avoid_repetitive_greetings: bool = True
     language: str = "English"
-    use_salutation: bool = False                # False avoids unnecessary 'Sir' on every turn
+    use_salutation: bool = True                 # True to address the user as 'Boss'
+    salutation_title: str = "Boss"
     max_history_turns: int = 15
     persist_memory_sqlite: bool = True
     voice: str = "Moira"
