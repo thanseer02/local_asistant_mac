@@ -1,12 +1,16 @@
 """Voice synthesis and Marvel persona management."""
 
 import logging
+import os
 import random
 import subprocess
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger("MacAssistant.VoiceEngine")
+
+SOUNDS_DIR = Path(__file__).resolve().parent.parent / "sounds"
 
 
 class VoiceEngine:
@@ -68,8 +72,27 @@ class VoiceEngine:
 
         return f"Goodbye, {name}. Have a restful evening."
 
+    def play_hud_chime(self, config: Dict[str, Any]) -> None:
+        """Plays the Marvel HUD chime sound effect before speaking if enabled."""
+        sound_cfg = config.get("hud_sound", {})
+        if not sound_cfg.get("enabled", True):
+            return
+
+        sound_file = sound_cfg.get("sound_file", "hud_chime.wav")
+        sound_path = SOUNDS_DIR / sound_file
+        if sound_path.exists():
+            try:
+                # Play asynchronously and wait briefly for the crisp chime to trigger
+                subprocess.run(["/usr/bin/afplay", str(sound_path)], check=False)
+            except Exception as e:
+                logger.debug("HUD chime audio playback error: %s", e)
+
     def speak(self, message: str, config: Dict[str, Any]) -> None:
-        """Invokes macOS native speech synthesizer (/usr/bin/say)."""
+        """Plays HUD chime (if enabled) and speaks via macOS say."""
+        # 1. Play Marvel Iron Man HUD chime
+        self.play_hud_chime(config)
+
+        # 2. Synthesize speech
         persona = self.get_active_persona(config)
         voice = persona.get("voice", config.get("voice", "Moira"))
         rate = str(persona.get("speech_rate", config.get("speech_rate", 175)))

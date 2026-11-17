@@ -7,6 +7,8 @@ import urllib.request
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from .git_inspector import GitInspector
+
 logger = logging.getLogger("MacAssistant.Briefing")
 
 
@@ -96,6 +98,11 @@ class BriefingService:
                 lines.append(f"You have pending tasks on your agenda, including {task_str}.")
             else:
                 lines.append(f"You've got {len(tasks)} items on your reminder list, including {task_str}.")
+
+        # Git Status briefing
+        git_summary = GitInspector.get_summary(config)
+        if git_summary:
+            lines.append(git_summary)
 
         if not lines:
             return ""

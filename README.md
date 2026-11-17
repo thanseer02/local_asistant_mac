@@ -1,60 +1,126 @@
 # 🎙️ MacAssistant
 
-An intelligent, lightweight macOS background daemon that greets you with natural speech whenever you:
-- **Log in / Boot up / Restart** your Mac.
-- **Dismiss the screen saver** (when you return to your desk).
-- **Unlock your screen**.
+An intelligent, lightweight background voice daemon for macOS inspired by Marvel's **J.A.R.V.I.S.** and **F.R.I.D.A.Y.**.
 
-Built with pure macOS system APIs (`notify(3)` via `libSystem` & `/usr/bin/say`), running with **zero third-party package dependencies** and **~0% CPU usage**.
+MacAssistant monitors low-level macOS kernel events and schedules to deliver natural, time-aware audio briefings, health reminders, and automated workspace launches with **zero external dependencies** and **~0% CPU usage**.
 
 ---
 
 ## ✨ Features
 
-- 🌅 **Time-Aware Greetings**: Context-sensitive messages for morning, afternoon, evening, and late-night work sessions.
-- ⚡ **Instant Wake & Unlock Detection**: Listens to kernel notification events:
-  - `com.apple.screensaver.didstop`
-  - `com.apple.screenIsUnlocked`
-- 🛡️ **Debounced Triggering**: Built-in 10-second cooldown prevents duplicate audio triggers when multiple system events fire simultaneously.
-- 🗣️ **Configurable Voices**: Supports Siri, Samantha, Moira, Daniel (Jarvis-style), Rishi, and any installed macOS TTS voice.
-- 🔄 **Background Daemon (`LaunchAgent`)**: Managed via macOS `launchctl` with automatic start-at-login and auto-restart on crash (`KeepAlive`).
+- 🦸 **Marvel Personas**:
+  - **J.A.R.V.I.S.**: Articulate, polite British butler cadence (`Daniel` voice).
+  - **F.R.I.D.A.Y.**: Warm, conversational Irish voice (`Moira` voice).
+- 🔊 **Iron Man HUD UI Chimes**: Plays an authentic Marvel sci-fi UI upward chime (`hud_chime.wav`) before speaking.
+- ⚡ **Low-Latency Wake Detection**: Instant (<0.5s) greeting on login, screen unlock (Touch ID/password), and screensaver exit via `notify(3)`.
+- 🌅 **Morning & Login Intelligence Briefing**:
+  - Live local weather (without external API keys).
+  - Apple Reminders / Calendar task overview.
+  - 💻 **Developer Git Inspector**: Summarizes uncommitted files and unpushed commits across your active projects.
+- 🚀 **Smart Workspace Launcher**:
+  - Launches Antigravity IDE, Google Chrome (Teams), and Brave (Spotify + YouTube Music).
+  - **Duplicate Prevention**: Detects existing open tabs in Chrome and Brave so it never duplicates tabs.
+- 🌿 **Health & Ergonomic Alerts**:
+  - **20-20-20 Rule**: Prompts a 20-second distant look every 20 minutes to prevent eye fatigue.
+  - **Hydration**: Reminds you to drink water every 45 minutes.
+  - **Late-Night Work Guardian**: Prompts you every 30 minutes between 10:00 PM and 5:00 AM to take rest.
+- ⏰ **Daily Schedule Alerts**: Pre-set reminders for morning tea (11:00 AM), lunch (1:00 PM), afternoon tea (4:00 PM), and end of day (6:18 PM).
+- 🛑 **Shutdown / Logout Farewell**: Catches system `SIGTERM` on shutdown or restart to bid a polite farewell before powering down.
+- 🔄 **Live Hot-Reloading**: Any edit in `config.json` takes effect immediately without needing to restart the daemon.
 
 ---
 
-## 📁 Project Structure
-
-## 📁 Project Architecture
+## 🏛️ Project Architecture
 
 ```text
 MacAssistant/
-├── assistant.py                   # Clean CLI / LaunchAgent executable entry point
-├── config.json                    # Configuration (personas, timings, schedules)
+├── assistant.py                   # Clean LaunchAgent entry point
+├── config.json                    # Configuration (personas, voices, timings, apps)
+├── README.md                      # Documentation & setup guide
 ├── voices.text                    # Curated voice preview commands
-├── venv/                          # Python virtual environment
-│
+├── venv/                          # Local Python virtual environment
+├── sounds/
+│   └── hud_chime.wav              # Synthesized Iron Man HUD audio cue
 └── mac_assistant/                 # Core Architecture Package
     ├── __init__.py                # Package root
-    ├── config_manager.py          # Hot-reloading & configuration parser
-    ├── voice_engine.py            # Marvel persona logic & speech synthesis
-    ├── event_listener.py          # macOS notify(3) low-level kernel listener
-    ├── scheduler.py               # Timed reminders & late-night rest monitor
+    ├── config_manager.py          # Hot-reloading & safe JSON fallback
+    ├── voice_engine.py            # Personas, HUD audio player & speech synthesis
+    ├── event_listener.py          # Low-level macOS notify(3) kernel listener
+    ├── scheduler.py               # Health & time-of-day alert scheduler
+    ├── app_launcher.py            # App & browser workspace launcher with deduplication
+    ├── briefing_service.py        # Morning weather & calendar integration
+    ├── git_inspector.py           # Developer repository status checker
     └── daemon.py                  # Core event loop coordinating all layers
 ```
 
 ---
 
-## 🚀 Quick Setup & Installation
+## 📦 Setting Up on Another Mac (Step-by-Step)
 
-### 1. Ensure Python Virtual Environment is Ready
+Follow these simple steps to install and run MacAssistant on any new Mac:
 
-From this project directory:
+### Prerequisites
+- macOS Monterey, Ventura, Sonoma, or Sequoia.
+- Python 3.9+ (pre-installed on macOS or via Xcode command line tools).
+
+---
+
+### Step 1: Clone or Copy the Repository
+
+Copy the `MacAssistant` project folder to your new Mac (for example, into `~/Documents/MacAssistant`):
+
+```bash
+cd ~/Documents
+# If using git:
+# git clone <your-repo-url> MacAssistant
+cd MacAssistant
+```
+
+---
+
+### Step 2: Create the Python Virtual Environment
+
 ```bash
 python3 -m venv venv
 ```
+*(No `pip install` required! MacAssistant uses pure standard library and native macOS frameworks.)*
 
-### 2. Configure the LaunchAgent Plist
+---
 
-Create or verify the LaunchAgent plist at `~/Library/LaunchAgents/com.personal.macassistant.plist`:
+### Step 3: Configure `config.json` for the New Mac
+
+Open [config.json](file:///Users/tanseer/Documents/oopsss/MacAssistant/config.json) and verify your paths:
+
+1. **User Name**: Set `"user_name": "Sir"` or `"Boss"`.
+2. **Git Repositories**: Update `"git_briefing" -> "repositories"` with the absolute paths to your code projects on the new machine:
+   ```json
+   "git_briefing": {
+     "enabled": true,
+     "repositories": [
+       "/Users/YOUR_USERNAME/Documents/MacAssistant",
+       "/Users/YOUR_USERNAME/Documents/my-other-project"
+     ]
+   }
+   ```
+3. **Startup Apps**: If you don't use Brave or Chrome on the new Mac, you can toggle them under `"startup_apps"`.
+
+---
+
+### Step 4: Create the LaunchAgent Plist File
+
+macOS uses LaunchAgents to run your assistant automatically in the background on startup.
+
+1. Ensure the LaunchAgents directory exists:
+   ```bash
+   mkdir -p ~/Library/LaunchAgents
+   ```
+
+2. Create `~/Library/LaunchAgents/com.personal.macassistant.plist`:
+   ```bash
+   nano ~/Library/LaunchAgents/com.personal.macassistant.plist
+   ```
+
+3. Paste the following configuration (replace `YOUR_USERNAME` and ensure the path points to your `MacAssistant` folder):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -67,18 +133,22 @@ Create or verify the LaunchAgent plist at `~/Library/LaunchAgents/com.personal.m
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/tanseer/Documents/oopsss/MacAssistant/venv/bin/python</string>
-        <string>/Users/tanseer/Documents/oopsss/MacAssistant/assistant.py</string>
+        <string>/Users/YOUR_USERNAME/Documents/MacAssistant/venv/bin/python</string>
+        <string>/Users/YOUR_USERNAME/Documents/MacAssistant/assistant.py</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/tanseer/Documents/oopsss/MacAssistant</string>
+    <string>/Users/YOUR_USERNAME/Documents/MacAssistant</string>
 
     <key>RunAtLoad</key>
     <true/>
 
     <key>KeepAlive</key>
     <true/>
+
+    <!-- Allows time for goodbye farewell speech during system shutdown -->
+    <key>ExitTimeOut</key>
+    <integer>10</integer>
 
     <key>StandardOutPath</key>
     <string>/tmp/macassistant.log</string>
@@ -89,97 +159,53 @@ Create or verify the LaunchAgent plist at `~/Library/LaunchAgents/com.personal.m
 </plist>
 ```
 
-### 3. Load & Start the Service
+---
+
+### Step 5: Start the Daemon
+
+Load and start the service via macOS `launchctl`:
 
 ```bash
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist
 ```
+*(Or alternatively: `launchctl load -w ~/Library/LaunchAgents/com.personal.macassistant.plist`)*
 
 ---
 
-## 🛠️ Service Management
+### Step 6: Verify Everything is Working
 
-### Check Status
-Check if the service is registered and running (it should display a PID):
-```bash
-launchctl list | grep com.personal.macassistant
-```
+1. **Check process status**:
+   ```bash
+   launchctl list | grep com.personal.macassistant
+   ```
+   *(You should see an active PID)*
 
-### Restart Service (After Code or Voice Changes)
-```bash
-launchctl bootout gui/$(id -u)/com.personal.macassistant
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist
-```
+2. **Check the logs**:
+   ```bash
+   cat /tmp/macassistant-error.log
+   ```
 
-### Stop / Disable Service
-```bash
-launchctl bootout gui/$(id -u)/com.personal.macassistant
-```
+3. **Lock and unlock your Mac**:
+   Press <kbd>Cmd</kbd> + <kbd>Ctrl</kbd> + <kbd>Q</kbd> to lock your Mac, then unlock it with Touch ID or your password. You will hear the HUD chime followed by your assistant!
 
 ---
 
-## 📜 Logs & Debugging
+## 🛠️ Everyday Service Controls
 
-Check live logs to see events and speech output:
-
-```bash
-# View live speech logs
-tail -f /tmp/macassistant.log
-
-# View errors (if any)
-tail -f /tmp/macassistant-error.log
-```
+| Action | Command |
+| :--- | :--- |
+| **Start Service** | `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
+| **Stop Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant` |
+| **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
+| **View Live Logs** | `tail -f /tmp/macassistant-error.log` |
+| **Test Interactively** | `source venv/bin/activate && python assistant.py` |
 
 ---
 
-## 🗣️ Choosing & Testing Voices
+## 🎭 Switching Personas & Voices
 
-To change the voice, modify line 12 in `assistant.py`:
-```python
-VOICE = "Samantha"  # or "Moira", "Daniel", "Karen", etc.
-```
+Open `config.json` and change `"assistant_persona"`:
+- Set `"assistant_persona": "jarvis"` for Paul Bettany's British butler style.
+- Set `"assistant_persona": "friday"` for Kerry Condon's Irish AI style.
 
-### Preview Voices in Terminal
-
-You can audition voices directly from your terminal:
-
-#### 👩 Female Voices
-```bash
-# Original Siri Voice (US)
-say -v "Samantha" "Good evening, Sir. Welcome back!"
-
-# Irish (Melodic & Friendly)
-say -v "Moira" "Good evening, Sir. Welcome back!"
-
-# Australian (Warm & Natural)
-say -v "Karen" "Good evening, Sir. Welcome back!"
-
-# Indian English
-say -v "Lekha" "Good evening, Sir. Welcome back!"
-```
-
-#### 👨 Male Voices
-```bash
-# British English (Classic Jarvis / Butler style)
-say -v "Daniel" "Good evening, Sir. Welcome back!"
-
-# Indian English
-say -v "Rishi" "Good evening, Sir. Welcome back!"
-
-# American English (Deep Voice)
-say -v "Ralph" "Good evening, Sir. Welcome back!"
-```
-
-> **Tip:** You can download enhanced/neural Siri voices under **System Settings** → **Accessibility** → **Spoken Content** → **Manage Voices...**.
-
----
-
-## 🧪 Manual Terminal Test
-
-To test the assistant directly without `launchctl`:
-
-```bash
-source venv/bin/activate
-python assistant.py
-```
-Press `Ctrl + C` to stop.
+Changes reload automatically—no restart needed!
