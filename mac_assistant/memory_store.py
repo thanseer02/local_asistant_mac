@@ -27,7 +27,19 @@ class MemoryStore:
     """Manages persistent SQLite memory storage with parameterized queries."""
 
     def __init__(self, db_path: Optional[Path] = None):
-        self.db_path = db_path or (DEFAULT_DB_DIR / "memory.db")
+        if db_path is not None:
+            self.db_path = db_path
+        else:
+            # Fall back to local data directory if sandboxed from Application Support
+            app_support_dir = Path.home() / "Library" / "Application Support" / "MacAssistant"
+            try:
+                app_support_dir.mkdir(parents=True, exist_ok=True)
+                self.db_path = app_support_dir / "memory.db"
+            except Exception:
+                local_dir = Path(__file__).resolve().parent.parent / "data"
+                local_dir.mkdir(parents=True, exist_ok=True)
+                self.db_path = local_dir / "memory.db"
+
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 

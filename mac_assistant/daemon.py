@@ -12,7 +12,9 @@ from .app_launcher import AppLauncher
 from .briefing_service import BriefingService
 from .config_manager import ConfigManager
 from .event_listener import NotificationListener
+from .push_to_talk import PushToTalkController
 from .scheduler import ReminderScheduler
+from .skills.registry import SkillRegistry
 from .voice_engine import SpeechPriority, VoiceEngine
 
 logger = logging.getLogger("MacAssistant.Daemon")
@@ -25,6 +27,8 @@ class AssistantDaemon:
         self.engine = VoiceEngine()
         self.listener = NotificationListener()
         self.scheduler = ReminderScheduler(self.engine)
+        self.skills = SkillRegistry()
+        self.ptt = PushToTalkController(on_command_callback=self._handle_ptt_command)
         self.last_spoken_time: float = 0
         self.has_launched_startup_apps: bool = False
         self._is_shutting_down: bool = False
@@ -32,6 +36,15 @@ class AssistantDaemon:
         # Register termination signal handlers for shutdown / reboot / logout
         signal.signal(signal.SIGTERM, self._handle_shutdown)
         signal.signal(signal.SIGINT, self._handle_shutdown)
+
+    def _handle_ptt_command(self, transcript: str) -> None:
+        """Executes spoken command through the skills registry and speaks response."""
+        config = ConfigManager.load()
+        persona = config.get("assistant_persona", "friday")
+        result = self.skills.dispatch(transcript, persona=persona, config=config)
+        if result.response:
+            self.engine.speak(result.response, config, priority=SpeechPriority.NORMAL)
+            self.last_spoken_time = time.time()
 
     def _handle_shutdown(self, signum, frame) -> None:
         """Invoked when macOS sends SIGTERM during system shutdown or logout."""
