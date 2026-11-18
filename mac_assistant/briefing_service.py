@@ -97,7 +97,6 @@ class BriefingService:
     def get_briefing_data_concurrent(cls, config: Dict[str, Any], timeout: float = 4.0) -> Dict[str, Any]:
         """Fetches weather, tasks, and git status concurrently with strict total timeout."""
         location = config.get("morning_briefing", {}).get("weather_location", "")
-        repos = config.get("morning_briefing", {}).get("git_repos", [])
 
         data: Dict[str, Any] = {
             "weather": None,
@@ -108,7 +107,7 @@ class BriefingService:
         with ThreadPoolExecutor(max_workers=3, thread_name_prefix="BriefingWorker") as executor:
             fut_weather = executor.submit(cls.get_weather, location, 3.0)
             fut_tasks = executor.submit(cls.get_upcoming_tasks, 2.5)
-            fut_git = executor.submit(GitInspector.get_all_repos_summary, repos)
+            fut_git = executor.submit(GitInspector.get_summary, config)
 
             try:
                 data["weather"] = fut_weather.result(timeout=timeout)
