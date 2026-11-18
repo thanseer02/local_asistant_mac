@@ -67,32 +67,32 @@ class AssistantDaemon:
         briefing = BriefingService.generate_morning_briefing(config)
         full_initial_speech = f"{greeting} {briefing}".strip()
         self.engine.speak(full_initial_speech, config, priority=SpeechPriority.BRIEFING)
+
+        # Initialize event-driven scheduler heap
+        self.scheduler.rebuild_schedule(config)
         logger.info("MacAssistant daemon started successfully.")
+
+        last_config_check = time.time()
 
         while True:
             try:
-                # Poll descriptors every 10 seconds or wake on unlock/screensaver event
-                rlist, _, _ = select.select(self.listener.get_descriptors(), [], [], 10)
-                now = time.time()
-                now_dt = datetime.now()
-                current_time_str = now_dt.strftime("%H:%M")
+                # Calculate sleep timeout: min(10s, seconds until next due event)
+                timeout = self.scheduler.seconds_until_next_event(max_cap=10.0)
 
-                # Dynamically reload configuration
-                config = ConfigManager.load()
+                # Sleep until next event or wake on unlock/screensaver kernel descriptor
+                rlist, _, _ = select.select(self.listener.get_descriptors(), [], [], timeout)
+                now = time.time()
+
+                # Hot-reload config periodically or on loop iteration
+                if now - last_config_check >= 5.0:
+                    config = ConfigManager.load()
+                    last_config_check = now
+
                 cooldown = config.get("cooldown_seconds", 3)
                 delay = config.get("login_delay_seconds", 2)
 
-                # 1. Check Fixed Schedule & Wellness Reminders
-                if self.scheduler.check_scheduled(config, current_time_str):
-                    self.last_spoken_time = time.time()
-
-                if self.scheduler.check_eye_break(config, now):
-                    self.last_spoken_time = time.time()
-
-                if self.scheduler.check_hydration(config, now):
-                    self.last_spoken_time = time.time()
-
-                if self.scheduler.check_late_night(config, now_dt, now):
+                # 1. Process Due Scheduler Rules (20-20-20, hydration, meals, late-night)
+                if self.scheduler.process_due_events(config):
                     self.last_spoken_time = time.time()
 
                 # 2. Check Hardware / Session Unlock & Screensaver Events
@@ -103,6 +103,8 @@ class AssistantDaemon:
                     if now - self.last_spoken_time > cooldown:
                         self.last_spoken_time = now
                         logger.info("Detected event: %s", event_name)
+                        # Re-sync schedule after system wake/unlock
+                        self.scheduler.on_system_wake(config)
                         time.sleep(delay)
                         self.engine.speak(self.engine.get_greeting(config), config, priority=SpeechPriority.BRIEFING)
 
