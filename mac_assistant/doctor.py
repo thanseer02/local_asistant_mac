@@ -1,18 +1,19 @@
-"""System health, permissions, audio devices, and dependency diagnostic utility (--doctor)."""
+"""System health, permissions, audio devices, Bluetooth HFP state, and single-stream verification (--doctor)."""
 
 import os
 from pathlib import Path
 import platform
-import shutil
 import subprocess
 import sys
 from typing import Dict, List, Tuple
 
 from .audio_device_manager import AudioDeviceManager
+from .audio_diagnostics import AudioDiagnostics
+from .microphone_service import MicrophoneService
 
 
 class SystemDoctor:
-    """Diagnoses system permissions, audio devices & Bluetooth HFP state, binary dependencies, launchd status."""
+    """Diagnoses system permissions, audio devices & Bluetooth HFP state, active streams, and launchd status."""
 
     @classmethod
     def run_all_checks(cls) -> Dict[str, Tuple[bool, str]]:
@@ -22,8 +23,9 @@ class SystemDoctor:
         results["Audio Playback (/usr/bin/afplay)"] = cls.check_binary("/usr/bin/afplay")
         results["AppleScript (/usr/bin/osascript)"] = cls.check_binary("/usr/bin/osascript")
         results["Virtual Environment Python"] = cls.check_python_env()
-        results["Microphone Hardware Devices"] = cls.check_audio_devices()
+        results["Active Audio Hardware Devices"] = cls.check_audio_devices()
         results["Bluetooth Audio Profile (A2DP vs HFP)"] = cls.check_bluetooth_profile()
+        results["Shared Capture Stream Verification"] = cls.check_capture_streams()
         results["LaunchAgent Configuration"] = cls.check_launch_agent()
         results["SQLite Database Integrity"] = cls.check_database()
         return results
@@ -55,20 +57,27 @@ class SystemDoctor:
             inputs = devs["inputs"]
             outputs = devs["outputs"]
 
-            in_summary = ", ".join([f"{d['name']} ({d['sample_rate']}Hz)" for d in inputs]) if inputs else "None"
+            in_summary = ", ".join([f"{d['name']} ({d['sample_rate']}Hz, Built-in={d['is_builtin']})" for d in inputs]) if inputs else "None"
             out_summary = ", ".join([f"{d['name']} ({d['sample_rate']}Hz)" for d in outputs]) if outputs else "None"
 
-            msg = f"Inputs: [{in_summary}] | Outputs: [{out_summary}]"
+            msg = f"Inputs: [{in_summary}]\n      Outputs: [{out_summary}]"
             return len(inputs) > 0, msg
         except Exception as e:
             return False, f"Error inspecting devices: {e}"
 
     @staticmethod
     def check_bluetooth_profile() -> Tuple[bool, str]:
-        is_hfp = AudioDeviceManager.is_bluetooth_hfp_active()
+        is_hfp, msg = AudioDiagnostics.is_bluetooth_hfp_active()
         if is_hfp:
-            return False, "⚠️ Bluetooth mic is active! Headset is locked in low-quality 16kHz SCO/HFP mode."
-        return True, "✅ Bluetooth output is in high-fidelity mode (A2DP / High Quality)."
+            return False, f"⚠️ {msg}"
+        return True, f"✅ {msg}"
+
+    @staticmethod
+    def check_capture_streams() -> Tuple[bool, str]:
+        count = MicrophoneService.get_active_stream_count()
+        if count <= 1:
+            return True, f"Single shared stream verified (Active streams: {count}). Multiple mic opens prevented."
+        return False, f"Multiple mic capture streams detected ({count})! This violates single-stream constraint."
 
     @staticmethod
     def check_launch_agent() -> Tuple[bool, str]:

@@ -1,16 +1,20 @@
 """Audio device manager and CoreAudio resampler for MacAssistant.
 
 Prevents Bluetooth HFP / SCO low-quality audio drop by:
-1. Pinning the input device to Built-in or USB microphone, NEVER Bluetooth input.
-2. Opening at the native hardware sample rate (e.g. 44.1k/48k) and resampling to 16 kHz in software.
-3. Detecting device switches (AirPods / Bluetooth connects/disconnects) and maintaining high quality A2DP output.
-4. Warning when a Bluetooth mic would trigger mono/low-quality SCO mode.
+1. Hard-pinning the input device to the built-in microphone by name (never by index).
+2. If the pinned built-in mic is not found, NEVER falling back to a Bluetooth input or default input;
+   disabling capture and notifying cleanly instead.
+3. Managing listen_mode ("always" | "push_to_talk" | "smart") to close the capture stream completely
+   when idle, media is playing, screen is locked, or quiet hours are active, turning off the orange mic indicator.
+4. Resampling native sample rates (44.1k/48k) to 16kHz in memory using plain capture (no voice-processing IO unit).
 """
 
 import logging
 import math
 import subprocess
 from typing import Any, Dict, List, Optional, Tuple
+
+from .audio_diagnostics import AudioDiagnostics
 
 logger = logging.getLogger("MacAssistant.AudioDeviceManager")
 
@@ -31,14 +35,15 @@ class AudioDeviceManager:
         for i in range(count):
             try:
                 info = p.get_device_info_by_index(i)
+                name = info.get("name", "Unknown")
                 device_data = {
                     "index": i,
-                    "name": info.get("name", "Unknown"),
+                    "name": name,
                     "max_input_channels": info.get("maxInputChannels", 0),
                     "max_output_channels": info.get("maxOutputChannels", 0),
                     "sample_rate": int(info.get("defaultSampleRate", 44100)),
-                    "is_bluetooth": any(k in info.get("name", "").lower() for k in BLUETOOTH_KEYWORDS),
-                    "is_builtin": any(k in info.get("name", "").lower() for k in BUILTIN_KEYWORDS)
+                    "is_bluetooth": any(k in name.lower() for k in BLUETOOTH_KEYWORDS),
+                    "is_builtin": any(k in name.lower() for k in BUILTIN_KEYWORDS)
                 }
                 if device_data["max_input_channels"] > 0:
                     inputs.append(device_data)
@@ -50,80 +55,95 @@ class AudioDeviceManager:
         return {"inputs": inputs, "outputs": outputs}
 
     @classmethod
-    def is_bluetooth_hfp_active(cls) -> bool:
-        """Checks if Bluetooth is currently forced into low-quality 16kHz/8kHz SCO/HFP mode."""
-        try:
-            cmd = ["/usr/sbin/system_profiler", "SPAudioDataType"]
-            res = subprocess.run(cmd, capture_output=True, text=True, timeout=2.5)
-            out = res.stdout
-            # When Bluetooth audio is in HFP/SCO profile, Current SampleRate is 16000 or 8000
-            # and Transport is Bluetooth for Default Input.
-            lines = out.splitlines()
-            is_bt_input = False
-            for line in lines:
-                if "Transport: Bluetooth" in line:
-                    is_bt_input = True
-                if is_bt_input and "Current SampleRate: 16000" in line:
-                    return True
-        except Exception:
-            pass
-        return False
-
-    @classmethod
     def resolve_mic_device(
         cls,
         p,
-        mode: str = "builtin",
-        preferred_name: Optional[str] = None
-    ) -> Tuple[Optional[int], int, str, bool]:
-        """Resolves the microphone device according to the configured mode.
+        microphone_mode: str = "builtin",
+        pinned_device_name: Optional[str] = None
+    ) -> Tuple[Optional[int], int, str, str]:
+        """Resolves the microphone device strictly by name.
 
-        Returns: (device_index, native_sample_rate, device_name, is_bluetooth_warning)
-        mode options:
-          - "builtin": Strictly prefers Built-in / USB mic; avoids Bluetooth at all costs.
-          - "default": Uses system default or first available.
-          - "off": Disables mic capture.
+        Rules:
+        - If microphone_mode == "off": Returns None (Disabled).
+        - If microphone_mode == "builtin":
+            Searches strictly for a Built-in/MacBook/USB non-Bluetooth microphone.
+            If NO non-Bluetooth microphone exists, returns (None, 16000, "None", reason).
+            DOES NOT fall back to Bluetooth or default input.
+        - If a pinned_device_name is provided:
+            Matches by name. If not found or if it's Bluetooth while in builtin mode, rejects.
+        - If microphone_mode == "default":
+            Uses the current default input device, warning if Bluetooth.
+
+        Returns: (device_index, native_sample_rate, device_name, status_message)
         """
-        if mode == "off":
-            return None, 16000, "Disabled", False
+        if microphone_mode == "off":
+            return None, 16000, "Disabled", "Microphone listening is turned off in config."
 
         devices = cls.get_all_devices(p)
         inputs = devices["inputs"]
 
         if not inputs:
-            return None, 16000, "None", False
+            return None, 16000, "None", "No audio input hardware devices detected."
 
-        # If a specific preferred_name was requested, try that first
-        if preferred_name:
+        # 1. If explicit pinned name requested
+        if pinned_device_name:
+            clean_pin = pinned_device_name.strip().lower()
             for d in inputs:
-                if preferred_name.lower() in d["name"].lower():
-                    is_bt = d["is_bluetooth"]
-                    return d["index"], d["sample_rate"], d["name"], is_bt
+                if clean_pin in d["name"].lower():
+                    if microphone_mode == "builtin" and d["is_bluetooth"]:
+                        msg = f"Pinned device '{d['name']}' is Bluetooth. Rejected in builtin mode to protect audio quality."
+                        logger.warning(msg)
+                        return None, 16000, "None", msg
+                    return d["index"], d["sample_rate"], d["name"], "OK"
+            msg = f"Pinned input device '{pinned_device_name}' not found."
+            logger.warning(msg)
+            return None, 16000, "None", msg
 
-        # Builtin mode: prioritize Built-in / Internal / USB microphones
-        if mode == "builtin":
-            # 1. Builtin match
+        # 2. Builtin mode: Hard-pin to Built-in or USB non-Bluetooth microphone
+        if microphone_mode == "builtin":
+            # Pass 1: Built-in MacBook/Internal microphone
             for d in inputs:
                 if d["is_builtin"] and not d["is_bluetooth"]:
-                    return d["index"], d["sample_rate"], d["name"], False
+                    return d["index"], d["sample_rate"], d["name"], "OK"
 
-            # 2. USB or external non-Bluetooth microphone
+            # Pass 2: USB external microphone (e.g., Blue Yeti, USB audio interface)
             for d in inputs:
                 if not d["is_bluetooth"]:
-                    return d["index"], d["sample_rate"], d["name"], False
+                    return d["index"], d["sample_rate"], d["name"], "OK"
 
-            # 3. Fallback: If only Bluetooth exists (e.g. Mac mini with no internal mic)
-            bt_dev = inputs[0]
-            logger.warning(
-                "No built-in or USB microphone found. Falling back to '%s' (Bluetooth). "
-                "Note: Opening Bluetooth mic may drop headphone audio quality to HFP 16kHz.",
-                bt_dev["name"]
+            # Strict isolation: Do NOT fall back to Bluetooth!
+            msg = (
+                "No built-in or USB microphone found. Refusing to open Bluetooth input "
+                "to prevent audio quality drop (A2DP -> HFP)."
             )
-            return bt_dev["index"], bt_dev["sample_rate"], bt_dev["name"], True
+            logger.warning(msg)
+            return None, 16000, "None", msg
 
-        # Default mode: return first available input
+        # 3. Default mode
         first = inputs[0]
-        return first["index"], first["sample_rate"], first["name"], first["is_bluetooth"]
+        status = "Warning: Bluetooth input active" if first["is_bluetooth"] else "OK"
+        return first["index"], first["sample_rate"], first["name"], status
+
+    @classmethod
+    def is_media_playing(cls) -> bool:
+        """Checks if Spotify, Music, or Chrome/Brave media is actively playing."""
+        script = '''
+        tell application "System Events"
+            set isPlaying to false
+            if exists (application process "Spotify") then
+                tell application "Spotify" to if player state is playing then set isPlaying to true
+            end if
+            if exists (application process "Music") then
+                tell application "Music" to if player state is playing then set isPlaying to true
+            end if
+            return isPlaying
+        end tell
+        '''
+        try:
+            res = subprocess.run(["/usr/bin/osascript", "-e", script], capture_output=True, text=True, timeout=1.0)
+            return "true" in res.stdout.lower()
+        except Exception:
+            return False
 
     @staticmethod
     def resample_to_16k(audio_bytes: bytes, src_rate: int) -> bytes:
