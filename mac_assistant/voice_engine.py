@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 import enum
 import logging
+import math
 import os
 import queue
 import random
@@ -206,13 +207,30 @@ class VoiceEngine:
             self.play_hud_chime(config)
 
         persona = self.get_active_persona(config)
+        persona_name = persona.get("name", "Assistant")
         voice = persona.get("voice", config.get("voice", "Moira"))
         rate = str(persona.get("speech_rate", config.get("speech_rate", 175)))
 
         logger.info("Speaking with voice '%s' (rate %s): %s", voice, rate, message)
 
         from .avatar_client import AvatarClient
-        AvatarClient.speaking_start()
+        AvatarClient.speaking_start(message=message, persona=persona_name)
+
+        # Background amplitude modulator during speech for VRM mouth blendshape lip-sync
+        stop_lipsync = threading.Event()
+        def _lipsync_worker():
+            vowels = ["aa", "oh", "ee", "ih", "ou"]
+            step = 0
+            while not stop_lipsync.is_set():
+                # Modulate natural speaking amplitude
+                amp = 0.35 + 0.55 * math.sin(step * 0.7)
+                v = vowels[step % len(vowels)]
+                AvatarClient.amplitude(max(0.05, amp), vowel=v)
+                step += 1
+                time.sleep(0.08)
+
+        lipsync_thread = threading.Thread(target=_lipsync_worker, daemon=True)
+        lipsync_thread.start()
 
         try:
             self._is_speaking = True
@@ -230,6 +248,7 @@ class VoiceEngine:
         except Exception as e:
             logger.error("Error executing /usr/bin/say: %s", e)
         finally:
+            stop_lipsync.set()
             with self._process_lock:
                 if self._current_process == proc:
                     self._current_process = None

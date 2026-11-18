@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>MacAssistant VRM Avatar</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/",
+      "@pixiv/three-vrm": "./vendor/three-vrm.module.js"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div id="canvas-container"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+    import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+
+    let currentVrm = null;
+    let scene, camera, renderer, clock;
+    let avatarState = 'idle'; // idle, listening, thinking, speaking
+    let currentExpression = 'neutral';
+    let targetMouthOpen = 0.0;
+    let currentMouthOpen = 0.0;
+    let targetVowel = 'aa';
+    let lastBlinkTime = 0;
+    let isBlinking = false;
+    let blinkDuration = 0.15;
+    let blinkTimer = 0;
+    let targetFps = 24; // Lower fps when idle to save CPU
+    let lastRenderTime = 0;
+
+    function init() {
+      const container = document.getElementById('canvas-container');
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      clock = new THREE.Clock();
+      scene = new THREE.Scene();
+
+      // Transparent renderer with alpha
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      renderer.setSize(width, height);
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      container.appendChild(renderer.domElement);
+
+      // Camera positioned for upper body portrait
+      camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 20.0);
+      camera.position.set(0.0, 1.35, 1.6);
+      camera.lookAt(0.0, 1.30, 0.0);
+
+      // Lighting setup
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+      dirLight.position.set(1.0, 2.0, 1.5).normalize();
+      scene.add(dirLight);
+
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
+      scene.add(ambLight);
+
+      const fillLight = new THREE.DirectionalLight(0xddeeff, 0.6);
+      fillLight.position.set(-1.0, 1.0, -1.0).normalize();
+      scene.add(fillLight);
+
+      window.addEventListener('resize', onResize);
+      animate();
+    }
+
+    function onResize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.loadVRM = function (vrmUrl, scale = 1.0) {
+      console.log("Loading VRM from:", vrmUrl);
+      const loader = new GLTFLoader();
+      loader.crossOrigin = 'anonymous';
+      loader.register((parser) => new VRMLoaderPlugin(parser));
+
+      loader.load(
+        vrmUrl,
+        (gltf) => {
+          const vrm = gltf.userData.vrm;
+          if (currentVrm) {
+            scene.remove(currentVrm.scene);
+            VRMUtils.deepDispose(currentVrm.scene);
+          }
+          currentVrm = vrm;
+          scene.add(vrm.scene);
+          VRMUtils.rotateVRM0(vrm);
+
+          vrm.scene.scale.set(scale, scale, scale);
+          vrm.scene.position.set(0.0, 0.0, 0.0);
+
+          // Focus camera on head
+          if (vrm.humanoid) {
+            const head = vrm.humanoid.getNormalizedBoneNode('head');
+            if (head) {
+              const headPos = new THREE.Vector3();
+              head.getWorldPosition(headPos);
+              camera.position.set(headPos.x, headPos.y + 0.05, 1.3);
+              camera.lookAt(headPos.x, headPos.y - 0.02, 0.0);
+            }
+          }
+          console.log("VRM model loaded successfully.");
+        },
+        (progress) => {
+          // progress callback
+        },
+        (error) => {
+          console.error("VRM loading failed:", error);
+        }
+      );
+    };
+
+    window.setState = function (state) {
+      avatarState = state;
+      console.log("Avatar state updated to:", state);
+      if (state === 'speaking') {
+        targetFps = 60;
+        setExpression('happy', 0.4);
+      } else if (state === 'thinking') {
+        targetFps = 30;
+        setExpression('neutral', 1.0);
+      } else if (state === 'listening') {
+        targetFps = 45;
+        setExpression('surprised', 0.5);
+      } else {
+        targetFps = 24; // Idle power saving
+        setExpression('neutral', 1.0);
+        targetMouthOpen = 0.0;
+      }
+    };
+
+    window.setAmplitude = function (amplitude, vowel = 'aa') {
+      targetMouthOpen = Math.min(1.0, Math.max(0.0, amplitude));
+      targetVowel = vowel;
+    };
+
+    window.setExpression = function (name, weight = 1.0) {
+      currentExpression = name;
+      if (!currentVrm || !currentVrm.expressionManager) return;
+      ['happy', 'surprised', 'neutral', 'relaxed', 'sad'].forEach(exp => {
+        try {
+          currentVrm.expressionManager.setValue(exp, exp === name ? weight : 0.0);
+        } catch (e) { }
+      });
+    };
+
+    function updateExpressions(delta, elapsed) {
+      if (!currentVrm || !currentVrm.expressionManager) return;
+      const em = currentVrm.expressionManager;
+
+      // Smooth mouth interpolation
+      currentMouthOpen += (targetMouthOpen - currentMouthOpen) * Math.min(1.0, delta * 20.0);
+
+      // Reset all mouth vowel shapes
+      ['aa', 'ih', 'ou', 'ee', 'oh'].forEach(v => {
+        try { em.setValue(v, 0.0); } catch (e) { }
+      });
+
+      if (avatarState === 'speaking' && currentMouthOpen > 0.02) {
+        try {
+          em.setValue(targetVowel, currentMouthOpen);
+        } catch (e) {
+          try { em.setValue('aa', currentMouthOpen); } catch (e2) { }
+        }
+      }
+
+      // Natural eye blinking
+      if (!isBlinking && (elapsed - lastBlinkTime > 3.0 + Math.random() * 2.5)) {
+        isBlinking = true;
+        blinkTimer = 0;
+        lastBlinkTime = elapsed;
+      }
+
+      if (isBlinking) {
+        blinkTimer += delta;
+        const half = blinkDuration / 2.0;
+        let blinkWeight = 0.0;
+        if (blinkTimer < half) {
+          blinkWeight = blinkTimer / half;
+        } else if (blinkTimer < blinkDuration) {
+          blinkWeight = 1.0 - (blinkTimer - half) / half;
+        } else {
+          isBlinking = false;
+          blinkWeight = 0.0;
+        }
+        try { em.setValue('blink', blinkWeight); } catch (e) { }
+      }
+
+      em.update();
+    }
+
+    function updateHumanoid(delta, elapsed) {
+      if (!currentVrm || !currentVrm.humanoid) return;
+      const h = currentVrm.humanoid;
+      const spine = h.getNormalizedBoneNode('spine');
+      const head = h.getNormalizedBoneNode('head');
+      const neck = h.getNormalizedBoneNode('neck');
+
+      // Subtle breathing motion
+      const breath = Math.sin(elapsed * 1.8) * 0.02;
+      if (spine) {
+        spine.rotation.x = breath * 0.4;
+      }
+
+      // Natural micro head movement
+      if (head) {
+        if (avatarState === 'listening') {
+          // Slight head tilt when listening
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.08, delta * 4.0);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.04, delta * 4.0);
+        } else if (avatarState === 'thinking') {
+          // Slight look up/away when thinking
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.12, delta * 3.0);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.06, delta * 3.0);
+        } else if (avatarState === 'speaking') {
+          // Subtle rhythmic nodding while speaking
+          const nod = Math.sin(elapsed * 6.0) * 0.03;
+          const sway = Math.cos(elapsed * 3.0) * 0.02;
+          head.rotation.x = nod;
+          head.rotation.y = sway;
+        } else {
+          // Idle gentle drift
+          head.rotation.y = Math.sin(elapsed * 0.6) * 0.04;
+          head.rotation.x = Math.sin(elapsed * 0.9) * 0.02;
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.0, delta * 2.0);
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const now = performance.now();
+      const interval = 1000 / targetFps;
+      if (now - lastRenderTime < interval) return;
+      lastRenderTime = now - ((now - lastRenderTime) % interval);
+
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      if (currentVrm) {
+        updateExpressions(delta, elapsed);
+        updateHumanoid(delta, elapsed);
+        currentVrm.update(delta);
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>

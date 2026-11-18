@@ -23,12 +23,14 @@
 
   "avatar": {
     "enabled": true,
-    "image_path": "assets/avatar.png",
-    "width": 260,
-    "margin": 24,
-    "linger_seconds": 0.0,
-    "opacity": 1.0,
-    "screen": "main"
+    "vrm_path": "assets/vrm/default.vrm",
+    "position": "bottom-right",
+    "scale": 1.0,
+    "width": 320,
+    "height": 400,
+    "bubble_enabled": true,
+    "bubble_min_duration": 3.0,
+    "bubble_max_duration": 10.0
   },
 
   "hud_sound": {
