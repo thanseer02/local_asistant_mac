@@ -80,8 +80,8 @@ class ReminderScheduler:
 
     def add_custom_timer(self, delay_seconds: float, label: str, message: Optional[str] = None) -> None:
         """Adds a custom one-shot timer or reminder."""
-        due = time.time() + max(1.0, delay_seconds)
-        event_id = f"custom_timer_{int(due)}_{label}"
+        due = time.time() + max(0.01, delay_seconds)
+        event_id = f"custom_timer_{time.time()}_{label}"
 
         def _fire():
             cfg = self.current_config

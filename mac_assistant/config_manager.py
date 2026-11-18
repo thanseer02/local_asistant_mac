@@ -1,9 +1,11 @@
-"""Configuration loader and hot-reloading manager."""
+"""Configuration loader and hot-reloading manager with Pydantic validation."""
 
 import json
 import logging
 from pathlib import Path
 from typing import Any, Dict
+
+from .config_schema import AppConfigSchema
 
 logger = logging.getLogger("MacAssistant.Config")
 
@@ -42,26 +44,26 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 
 
 class ConfigManager:
-    """Manages loading, updating, and dynamic reloading of config.json."""
+    """Manages loading, updating, validation, and dynamic reloading of config.json."""
 
     @staticmethod
     def load() -> Dict[str, Any]:
-        """Loads configuration from disk, safely falling back to defaults."""
+        """Loads configuration from disk, validating against Pydantic schema and falling back safely."""
         if CONFIG_FILE_PATH.exists():
             try:
                 with open(CONFIG_FILE_PATH, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    return {**DEFAULT_CONFIG, **data}
+                    raw_data = json.load(f)
+
+                # Validate with Pydantic schema
+                validated = AppConfigSchema(**raw_data)
+                return {**DEFAULT_CONFIG, **raw_data}
             except Exception as e:
-                logger.warning("Failed to parse config.json (%s). Using defaults.", e)
+                logger.warning("Configuration validation/parse issue in config.json: %s. Using safe defaults.", e)
         return DEFAULT_CONFIG
 
     @classmethod
     def set_active_persona(cls, persona_name: str) -> None:
-        """
-        Dynamically switches the active persona ('friday' or 'jarvis')
-        and persists it to config.json as the new default!
-        """
+        """Dynamically switches the active persona ('friday' or 'jarvis') and persists to config.json."""
         target = persona_name.lower().strip()
         if target not in ["friday", "jarvis"]:
             return
@@ -71,16 +73,21 @@ class ConfigManager:
             return
 
         config["assistant_persona"] = target
-        if target == "jarvis":
-            config["voice"] = "Daniel"
-            config["speech_rate"] = 162
-        else:
-            config["voice"] = "Moira"
-            config["speech_rate"] = 172
+        if "personas" in config and target in config["personas"]:
+            profile = config["personas"][target]
+            config["voice"] = profile.get("voice", config.get("voice"))
+            config["speech_rate"] = profile.get("speech_rate", config.get("speech_rate"))
 
+        cls.save(config)
+        logger.info("Persona dynamically switched to '%s' and saved.", target)
+
+    @staticmethod
+    def save(config_data: Dict[str, Any]) -> bool:
+        """Writes configuration to config.json safely."""
         try:
             with open(CONFIG_FILE_PATH, "w", encoding="utf-8") as f:
-                json.dump(config, f, indent=2, ensure_ascii=False)
-            logger.info("Persisted '%s' as the new active default assistant persona in config.json.", target)
+                json.dump(config_data, f, indent=4)
+            return True
         except Exception as e:
-            logger.error("Failed saving new default persona to config.json: %s", e)
+            logger.error("Failed saving configuration to %s: %s", CONFIG_FILE_PATH, e)
+            return False
