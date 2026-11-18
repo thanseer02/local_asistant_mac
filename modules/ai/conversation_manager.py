@@ -26,6 +26,18 @@ class ConversationManager:
         if self.sqlite_memory and self.personality_mgr.config.persist_memory_sqlite:
             self.sqlite_memory.record_turn("assistant", response, intent=intent)
 
+    def get_chat_history(self) -> List[Dict[str, str]]:
+        """Returns the in-memory chat turns."""
+        max_turns = self.personality_mgr.config.max_history_turns * 2
+        return list(self.session_turns[-max_turns:])
+
+    def add_turn(self, role: str, content: str, intent: str = "conversation") -> None:
+        """Alias for recording turns."""
+        if role == "user":
+            self.record_user_turn(content, intent=intent)
+        else:
+            self.record_assistant_turn(content, intent=intent)
+
     def get_messages_for_llm(self, system_prompt: str) -> List[Dict[str, str]]:
         max_turns = self.personality_mgr.config.max_history_turns * 2
         history = self.session_turns[-max_turns:]

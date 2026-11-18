@@ -67,7 +67,8 @@ class StrictVoiceController:
             speech_threshold=self.speech_threshold,
             silence_duration=self.command_silence_duration,
             microphone_mode=config.get("microphone_mode", voice_cfg.get("microphone_mode", "builtin")),
-            preferred_device=config.get("input_device", voice_cfg.get("input_device"))
+            pinned_device=config.get("input_device", voice_cfg.get("input_device")),
+            listen_mode=config.get("listen_mode", "smart")
         )
         self._recognizer: Optional[SpeechRecognitionService] = None
         self.router = ConversationRouter()
