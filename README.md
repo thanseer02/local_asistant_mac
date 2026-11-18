@@ -206,9 +206,10 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistan
 
 | Action | Command |
 | :--- | :--- |
-| **Start Service** | `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
+| **Start Service** | `launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **Stop Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant` |
-| **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
+| **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant 2>&1; sleep 1; launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
+| **Check Status** | `launchctl list \| grep macassistant` |
 | **View Live Logs** | `tail -f /tmp/macassistant-error.log` |
 | **Test Interactively** | `source venv/bin/activate && python assistant.py` |
 
