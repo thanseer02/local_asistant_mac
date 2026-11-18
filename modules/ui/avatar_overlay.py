@@ -72,7 +72,7 @@ class AvatarController(NSObject):
             "image_path": str(DEFAULT_AVATAR_PATH),
             "width": 260,
             "margin": 24,
-            "linger_seconds": 1.5,
+            "linger_seconds": 0.0,
             "opacity": 1.0,
             "screen": "main"
         }
@@ -207,23 +207,31 @@ class AvatarController(NSObject):
         self._startAnimationTimer()
 
     def onSpeakingEnd(self):
-        """Starts linger timer before fading out."""
+        """Immediately fades out or starts linger timer before fading out."""
         if self.state == "hidden":
             return
 
-        self.state = "lingering"
-        linger = float(self.config.get("linger_seconds", 1.5))
+        linger = float(self.config.get("linger_seconds", 0.0))
 
         if self.linger_timer:
             self.linger_timer.invalidate()
+            self.linger_timer = None
 
-        self.linger_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
-            linger, self, "onLingerExpired:", None, False
-        )
+        if linger <= 0.05:
+            # User wants avatar to vanish immediately once speech ends
+            self.state = "fading_out"
+            self._startAnimationTimer()
+        else:
+            self.state = "lingering"
+            self.linger_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+                linger, self, "onLingerExpired:", None, False
+            )
 
     def onLingerExpired_(self, timer):
         """Fades out smoothly after linger time elapses."""
+        self.linger_timer = None
         self.state = "fading_out"
+        self._startAnimationTimer()
 
     def onThinking(self):
         """Transitions avatar to breathing/thinking glow."""
@@ -289,8 +297,8 @@ class AvatarController(NSObject):
             self.window.setFrameOrigin_(NSPoint(self.base_origin_x, self.base_origin_y + bob_offset))
 
         elif self.state == "fading_out":
-            # Smooth fade-out (~350ms)
-            new_alpha = max(0.0, current_alpha - 0.06)
+            # Quick fade-out (~200ms)
+            new_alpha = max(0.0, current_alpha - 0.10)
             self.window.setAlphaValue_(new_alpha)
             # Slight slide upwards on exit
             self.window.setFrameOrigin_(NSPoint(self.base_origin_x, self.base_origin_y + (1.0 - new_alpha) * 10.0))
@@ -298,8 +306,10 @@ class AvatarController(NSObject):
             if new_alpha <= 0.001:
                 # Fully hidden -> Stop all timers to reach 0% CPU
                 self.state = "hidden"
-                self.anim_timer.invalidate()
-                self.anim_timer = None
+                self.window.setAlphaValue_(0.0)
+                if self.anim_timer:
+                    self.anim_timer.invalidate()
+                    self.anim_timer = None
                 self.window.setFrameOrigin_(NSPoint(self.base_origin_x, self.base_origin_y))
 
 

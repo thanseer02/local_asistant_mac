@@ -26,7 +26,7 @@
     "image_path": "assets/avatar.png",
     "width": 260,
     "margin": 24,
-    "linger_seconds": 1.5,
+    "linger_seconds": 0.0,
     "opacity": 1.0,
     "screen": "main"
   },
