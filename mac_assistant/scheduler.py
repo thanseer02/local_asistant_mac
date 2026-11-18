@@ -381,8 +381,15 @@ class ReminderScheduler:
             self._record_fired(rule_id)
             persona_key = cfg.get("assistant_persona", "friday").lower()
             name = cfg.get("user_name", "Sir")
-            template = reminder.get(f"{persona_key}_message") or reminder.get("message")
-            if template:
+
+            # Support list of messages or single string template
+            candidates = reminder.get(f"{persona_key}_messages")
+            if not candidates:
+                single = reminder.get(f"{persona_key}_message") or reminder.get("message")
+                candidates = [single] if single else []
+
+            if candidates:
+                template = random.choice(candidates)
                 msg = template.format(name=name, title=name)
                 logger.info("Triggering scheduled reminder (%s): %s", time_str, msg)
                 self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
