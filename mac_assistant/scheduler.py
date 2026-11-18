@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from .voice_engine import VoiceEngine
+from .voice_engine import SpeechPriority, VoiceEngine
 
 logger = logging.getLogger("MacAssistant.Scheduler")
 
@@ -36,7 +36,7 @@ class ReminderScheduler:
                 if template:
                     msg = template.format(name=name, title=name)
                     logger.info("Triggering scheduled reminder (%s): %s", current_time_str, msg)
-                    self.engine.speak(msg, config)
+                    self.engine.speak(msg, config, priority=SpeechPriority.REMINDER)
                     return True
         return False
 
@@ -60,7 +60,7 @@ class ReminderScheduler:
             if messages:
                 msg = random.choice(messages).format(name=name, title=name)
                 logger.info("Triggering 20-20-20 eye break reminder: %s", msg)
-                self.engine.speak(msg, config)
+                self.engine.speak(msg, config, priority=SpeechPriority.REMINDER)
                 return True
         return False
 
@@ -84,7 +84,7 @@ class ReminderScheduler:
             if messages:
                 msg = random.choice(messages).format(name=name, title=name)
                 logger.info("Triggering hydration reminder: %s", msg)
-                self.engine.speak(msg, config)
+                self.engine.speak(msg, config, priority=SpeechPriority.REMINDER)
                 return True
         return False
 
@@ -117,6 +117,6 @@ class ReminderScheduler:
                 if messages:
                     msg = random.choice(messages).format(name=name, title=name)
                     logger.info("Triggering late night rest reminder: %s", msg)
-                    self.engine.speak(msg, config)
+                    self.engine.speak(msg, config, priority=SpeechPriority.REMINDER)
                     return True
         return False

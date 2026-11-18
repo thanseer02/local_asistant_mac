@@ -13,7 +13,7 @@ from .briefing_service import BriefingService
 from .config_manager import ConfigManager
 from .event_listener import NotificationListener
 from .scheduler import ReminderScheduler
-from .voice_engine import VoiceEngine
+from .voice_engine import SpeechPriority, VoiceEngine
 
 logger = logging.getLogger("MacAssistant.Daemon")
 
@@ -43,7 +43,7 @@ class AssistantDaemon:
         try:
             config = ConfigManager.load()
             farewell = self.engine.get_goodbye(config)
-            self.engine.speak(farewell, config)
+            self.engine.speak_farewell_and_wait(farewell, config, timeout=3.0)
         except Exception as e:
             logger.error("Error during shutdown farewell: %s", e)
         finally:
@@ -66,7 +66,7 @@ class AssistantDaemon:
         greeting = self.engine.get_greeting(config)
         briefing = BriefingService.generate_morning_briefing(config)
         full_initial_speech = f"{greeting} {briefing}".strip()
-        self.engine.speak(full_initial_speech, config)
+        self.engine.speak(full_initial_speech, config, priority=SpeechPriority.BRIEFING)
         logger.info("MacAssistant daemon started successfully.")
 
         while True:
@@ -104,7 +104,7 @@ class AssistantDaemon:
                         self.last_spoken_time = now
                         logger.info("Detected event: %s", event_name)
                         time.sleep(delay)
-                        self.engine.speak(self.engine.get_greeting(config), config)
+                        self.engine.speak(self.engine.get_greeting(config), config, priority=SpeechPriority.BRIEFING)
 
             except KeyboardInterrupt:
                 logger.info("Assistant daemon stopped by user.")
