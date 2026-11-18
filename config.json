@@ -33,6 +33,26 @@
     "bubble_max_duration": 10.0
   },
 
+  "tts": {
+    "engine": "kokoro",
+    "model_path": "models/kokoro/kokoro-v1.0.onnx",
+    "voices_path": "models/kokoro/voices-v1.0.bin",
+    "speed": 1.0,
+    "lang": "en-us",
+    "fillers_enabled": true,
+    "persona_voices": {
+      "jarvis": "bm_george",
+      "friday": "af_heart",
+      "alfred": "bm_lewis",
+      "coach": "am_adam",
+      "zen": "af_sky",
+      "noir": "bm_george",
+      "sarcastic": "am_michael",
+      "pirate": "bm_fable",
+      "sleepy": "af_bella"
+    }
+  },
+
   "hud_sound": {
     "enabled": true,
     "sound_file": "hud_chime.wav"

@@ -1,0 +1,18 @@
+# Core dependencies for MacAssistant
+pyobjc-core>=11.1
+pyobjc-framework-Cocoa>=11.1
+pyobjc-framework-WebKit>=11.1
+pyobjc-framework-Quartz>=11.1
+pyobjc-framework-AVFoundation>=11.1
+
+# Speech Recognition & Natural TTS
+kokoro-onnx>=0.3.5
+onnxruntime>=1.19.2
+soundfile>=0.13.1
+librosa>=0.11.0
+colorlog>=6.9.0
+phonemizer-fork>=3.3.1
+espeakng-loader>=0.2.4
+
+# Optional Utilities
+pywebview>=6.2.1
