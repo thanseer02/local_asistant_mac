@@ -8,9 +8,12 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 
 ## ✨ Features
 
-- 🦸 **Marvel Personas**:
-  - **Jarvis**: Articulate, polite British butler cadence (`Daniel` voice).
-  - **Friday**: Warm, conversational Irish voice (`Moira` voice).
+- 🦸 **Multi-Persona Roster & Voice Engine**:
+  - Dynamically selects personalities across sessions (Jarvis, Friday, Alfred, Coach, Zen, Noir, etc.).
+  - **Kokoro Neural TTS**: Ultra-natural spoken output with sentence pipelining and CoreML acceleration (`bm_george` for Jarvis, `af_heart` for Friday), with zero-downtime automatic fallback to native macOS `say`.
+- 🎭 **Interactive 3D VRM Avatar & Popup Messages**:
+  - Transparent, frameless floating 3D avatar (WebKit + Three.js + `@pixiv/three-vrm`) with natural breathing, eye blinking, listening head tilts, and audio-amplitude blendshape lip-sync.
+  - Sequenced glassmorphic popup message bubbles in the top-right corner with length-proportional display duration.
 - 🔊 **Iron Man HUD UI Chimes**: Plays an authentic Marvel sci-fi UI upward chime (`hud_chime.wav`) before speaking.
 - ⚡ **Low-Latency Wake Detection**: Instant (<0.5s) greeting on login, screen unlock (Touch ID/password), and screensaver exit via `notify(3)`.
 - 🌅 **Morning & Login Intelligence Briefing**:
@@ -131,12 +134,26 @@ cd MacAssistant
 
 ---
 
-### Step 2: Create the Python Virtual Environment
+### Step 2: Create Python Virtual Environment & Install Dependencies
 
 ```bash
 python3 -m venv venv
+./venv/bin/pip install -r requirements.txt
 ```
-*(No `pip install` required! MacAssistant uses pure standard library and native macOS frameworks.)*
+
+---
+
+### Step 2b: Download Kokoro Neural TTS Model Files (Optional but Recommended)
+
+MacAssistant supports **Kokoro ONNX** for ultra-natural, human-like neural text-to-speech with CoreML hardware acceleration. If the model files are not present, MacAssistant automatically falls back to native macOS `/usr/bin/say`.
+
+To download the Kokoro v1.0 model weights locally (~337 MB total, kept out of git via `.gitignore`):
+
+```bash
+mkdir -p models/kokoro
+curl -sL https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx -o models/kokoro/kokoro-v1.0.onnx
+curl -sL https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin -o models/kokoro/voices-v1.0.bin
+```
 
 ---
 
