@@ -1,8 +1,22 @@
 {
-  "assistant_persona": "friday",
+  "persona_mode": "random",
+  "persona": "friday",
+  "persona_pool": [],
+  "persona_weights": {
+    "jarvis": 1.2,
+    "friday": 1.2,
+    "coach": 1.0,
+    "zen": 1.0,
+    "alfred": 1.0,
+    "noir": 1.0,
+    "sarcastic": 1.0,
+    "pirate": 0.8,
+    "sleepy": 0.8
+  },
+  "persona_history_size": 3,
+  "announce_persona": true,
+
   "user_name": "Sir",
-  "voice": "Moira",
-  "speech_rate": 172,
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
   "listen_mode": "off",

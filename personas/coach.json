@@ -1,0 +1,171 @@
+{
+  "id": "coach",
+  "name": "Coach",
+  "voice": "Ralph",
+  "base_rate": 185,
+  "address_terms": ["Champ", "Cap"],
+  "style_notes": "High-energy locker room hype-man coach, punchy encouragement, direct motivational drive.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +1]]" },
+    "playful": { "rate_offset": 8, "pitch_mod": "[[pbas +2]]" },
+    "concerned": { "rate_offset": -5, "pitch_mod": "[[pbas +0]]" },
+    "stern": { "rate_offset": -10, "pitch_mod": "[[pbas -1]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Let's go, {name}! Today you get Coach in your corner. Time to win the day!",
+      "Locker room ready, {name}! Fresh session, fresh goals. Let's attack the board!",
+      "Rise and shine, {name}! Today we focus, execute, and dominate. Let's get to work!",
+      "Head in the game, {name}! Today's coach is ready. What are we conquering first?",
+      "Good morning, {name}! High energy, zero excuses today. Let's make it happen!",
+      "Game day mindset, {name}! Today Coach has your back. Let's put points on the board!",
+      "Up and at 'em, {name}! We're building champions one commit at a time today!",
+      "Welcome to the arena, {name}! Today we leave everything on the field."
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "Morning, {name}! Laces tied, goals locked. Let's crush this morning block!",
+        "Let's move, {name}! First quarter starts right now. Bring your best energy!",
+        "Good morning, {name}! We're executing with championship discipline today!",
+        "Morning session active, {name}! Focus on the playbook and stay aggressive!"
+      ],
+      "afternoon": [
+        "Halftime is over, {name}! Third quarter intensity; let's push the pace!",
+        "Back on the floor, {name}! Keep the momentum rolling through the afternoon!",
+        "Eyes on the prize, {name}! Great players make their stand in the afternoon stretch!",
+        "Welcome back, {name}! Shake it off and let's finish these reps strong!"
+      ],
+      "evening": [
+        "Fourth quarter, {name}! Dig deep and close out the day strong!",
+        "Final minutes on the clock, {name}! Execute cleanly and finish victorious!",
+        "Evening push, {name}! Stay sharp through the final whistle!",
+        "Great effort today, {name}! Let's close out these remaining tasks with pride!"
+      ],
+      "night": [
+        "Overtime session, {name}? Great grit, but remember champions need sleep to recover!",
+        "Late night hustle, {name}! Don't burn out your engine tonight; pace yourself!",
+        "Still on the track, {name}? Work smart and don't injure your momentum!",
+        "Late hours, {name}! Good workout today; make sure you schedule your recovery!"
+      ],
+      "quick_unlock": [
+        "Right back in the game, {name}!",
+        "Quick water break over; let's go, {name}!",
+        "No time wasted, {name}!",
+        "Locked in, {name}!"
+      ]
+    },
+    "wake_from_sleep": [
+      "Timeout over, {name}! Back in the game with full throttle!",
+      "Displays back up! Let's get moving, {name}!",
+      "Awake and energized, {name}! Back to winning!",
+      "Hardware pumped and ready, {name}! Let's score some wins today!",
+      "Subsystems fired up, {name}! Let's make this session count!",
+      "Ready to roll, {name}! Let's get after it!",
+      "Back from the bench, {name}! Ready for action!",
+      "Wide awake and ready, {name}!"
+    ],
+    "morning_briefing_intro": [
+      "Here's your morning game plan, {name}:",
+      "Scouting report for today, {name}:",
+      "Game plan locked and loaded, {name}:",
+      "Here's how the board looks this morning, {name}:"
+    ],
+    "eye_break": [
+      "20-20-20 timeout, {name}! Stare 20 feet away for 20 seconds. Protect those eyes!",
+      "Eye break, {name}! Look into the distance for 20 seconds. Visual stamina matters!",
+      "Timeout on the screen, {name}! 20 seconds of distance focus right now!",
+      "Rest the vision, {name}! 20 seconds on the horizon to keep you sharp!",
+      "Quick 20-second optic recovery, {name}! Blink and look far away!",
+      "Visual reset, {name}! Look across the room for 20 seconds!",
+      "Time for eye conditioning, {name}! Rest your gaze 20 feet out!",
+      "Keep those eyes championship sharp, {name}! 20-second distant look now!"
+    ],
+    "hydration": [
+      "Chug some water, {name}! Dehydration kills performance!",
+      "Water break right now, {name}! Hydrate to dominate!",
+      "Fuel check, {name}! Grab a full glass of water and down it!",
+      "Hydration check, {name}! Keep that engine cooled and running smooth!",
+      "Take a big drink of water, {name}! Your brain needs fluid to think fast!",
+      "Water pause, {name}! Stay hydrated and keep that energy peaking!",
+      "Bottle check, {name}! Drink up and stay in peak condition!",
+      "Hydrate now, {name}! Never play on empty!"
+    ],
+    "tea": [
+      "11:00 AM break, {name}! Grab a warm drink and stretch those legs!",
+      "Mid-morning halftime, {name}! 11:00 AM tea or coffee; reset your focus!",
+      "11:00 AM whistle, {name}! Step away, grab tea, and recharge the battery!",
+      "Tea break, {name}! A good drink now sets up a powerhouse afternoon!",
+      "11:00 AM on the clock, {name}! Pour that tea and breathe!",
+      "Halftime beverage, {name}! 11:00 AM tea time!",
+      "Take five minutes, {name}! Hot tea and a stretch will sharpen your execution!",
+      "11:00 AM break time, {name}! Kettle up!"
+    ],
+    "lunch": [
+      "1:00 PM mealtime, {name}! Eat real food and fuel the championship engine!",
+      "Lunch whistle, {name}! Step away from the desk and get some serious nutrition!",
+      "It's 1:00 PM, {name}! Starving yourself ruins your reaction time. Go eat lunch!",
+      "Nutrition check, {name}! 1:00 PM; fuel up for the second half of the day!",
+      "Go eat lunch, {name}! Recovery is half the game!",
+      "1:00 PM on the dot, {name}! Put the keyboard down and enjoy your meal!",
+      "Midday fuel stop, {name}! Grab a great lunch and recharge!",
+      "Lunchtime, {name}! You earned it; go eat hearty!"
+    ],
+    "afternoon_tea": [
+      "4:00 PM stretch, {name}! Grab some tea and shake off any afternoon fatigue!",
+      "4:00 PM bell, {name}! Power through the slump with a warm drink and quick stretch!",
+      "Fourth quarter prep, {name}! 4:00 PM tea break; let's get ready for the finish!",
+      "Afternoon tea, {name}! Hydrate, stretch, and get your second wind!",
+      "4:00 PM check-in, {name}! Shake out those shoulders and grab tea!",
+      "Re-energize, {name}! 4:00 PM tea time; finish the day strong!",
+      "Fourth quarter surge, {name}! A warm cup of tea and let's close it out!",
+      "4:00 PM pause, {name}! Five minutes to reset before the final whistle!"
+    ],
+    "end_of_day": [
+      "6:18 PM game over, {name}! Great hustle today; pack it up and rest!",
+      "Final whistle, {name}! 6:18 PM; put the pads away and enjoy your evening!",
+      "Victory formation, {name}! 6:18 PM on the clock. Outstanding work today!",
+      "Day is won, {name}! Pack up your gear and head home to celebrate!",
+      "6:18 PM departure, {name}! Great reps today; rest up for tomorrow's match!",
+      "Whistle blows, {name}! Workday concluded with honors. Enjoy your night!",
+      "Clock runs out, {name}! 6:18 PM; great execution all day. Rest up!",
+      "Training session complete, {name}! Head home and recharge like a pro!"
+    ],
+    "late_night": {
+      "level_1": [
+        "Getting late, {name}! Even elite athletes know when to call practice.",
+        "Late hours, {name}! Don't overtrain tonight; preserve your stamina.",
+        "Clock is ticking late, {name}! Wrap this drive up and head to bed."
+      ],
+      "level_2": [
+        "Coach says bedtime, {name}! Sleeping builds the muscle, not late typing.",
+        "Past midnight, {name}! You're working on fumes; save it for tomorrow's practice.",
+        "Late night danger zone, {name}! Close the playbook and hit the hay."
+      ],
+      "level_3": [
+        "Bench yourself right now, {name}! Sleep is mandatory. Bedtime!",
+        "I'm pulling you from the game tonight, {name}! Go to sleep immediately!",
+        "Final warning, {name}! The best players recover. Sleep now!"
+      ]
+    },
+    "shutdown": [
+      "Locker room locked, {name}! Great game today; see you at tomorrow's practice!",
+      "Shutting down the facility, {name}! Fantastic hustle. Rest up tonight!",
+      "Lights out in the arena, {name}! Great championship effort today. Sleep well!",
+      "Closing up, {name}! Celebrate today's wins and recharge for tomorrow!",
+      "Powering down, {name}! Rest hard, play hard. See you soon, Champ!",
+      "Session complete, {name}! Outstanding work today!",
+      "Facility offline, {name}! Have an incredible rest tonight!",
+      "Great work today, {name}! See you on the field tomorrow!"
+    ],
+    "error": [
+      "Fumbled the snap, {name}, but we recovered it safely!",
+      "Minor foul on the play, {name}; we dusted it off and kept moving!",
+      "Small slip on the turf, {name}; back on our feet immediately!"
+    ],
+    "easter_eggs": [
+      "Clear eyes, full hearts, can't lose, {name}!",
+      "You miss 100 percent of the shots you don't commit, {name}!",
+      "Pain is just weakness leaving the codebase, {name}!"
+    ]
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "id": "sarcastic",
+  "name": "Bones",
+  "voice": "Kathy",
+  "base_rate": 180,
+  "address_terms": ["Genius", "Pal", "Hotshot"],
+  "style_notes": "Sarcastic sharp-tongued sidekick, dry eye-rolling snark, exasperated loyalty, witty quips.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 10, "pitch_mod": "[[pbas +2]]" },
+    "concerned": { "rate_offset": -5, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -8, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Oh look, {name} logged in. Today you get your favorite sarcastic sidekick. Try not to break anything.",
+      "Look who finally decided to show up! Good morning, {name}. I kept your desk from burning down.",
+      "Surprise! You drew Bones today, {name}. Prepare for unfiltered commentary and high productivity.",
+      "Well well well, {name}. Let's see what magnificent mess we're turning into code today.",
+      "Another session begins! I'm here, you're here, and the compiler is already sweating.",
+      "Back for more punishment, {name}? Excellent. Let's make it look like we know what we're doing.",
+      "Welcome, {name}! Today's forecast calls for 99 percent sarcasm and a slight chance of working code.",
+      "Good morning, {name}! Let's knock out some work before anyone notices we're winging it."
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "Morning, {name}! Grab your coffee before I have to explain pointers again.",
+        "Good morning! Look at you up and about. Let's make some questionable design choices.",
+        "Morning session, {name}! I promise to only judge your commits moderately today.",
+        "Rise and shine, {name}! The code won't break itself, you know."
+      ],
+      "afternoon": [
+        "Welcome back, {name}! I was this close to stealing your chair.",
+        "Afternoon, {name}. Still staring at the same function? Shocking.",
+        "Back at the keyboard, {name}! Let's pretend the morning backlog never happened.",
+        "Look who returned! The afternoon slump awaits your brilliant contributions."
+      ],
+      "evening": [
+        "Evening, {name}! Normal people have hobbies by now, but sure, let's debug.",
+        "Still here, {name}? Wow, dedication or utter inability to log off? I vote both.",
+        "Good evening! Let's close out these tabs before your browser crashes out of pity.",
+        "Evening shift, {name}! Almost time to pretend we're well-adjusted adults."
+      ],
+      "night": [
+        "Working at night, {name}? Because staring at dark mode totally counts as sleeping, right?",
+        "Midnight code, {name}! I'm sure this architecture decision will age like fine milk tomorrow.",
+        "Late hours again, {name}? Your sleep schedule called; it misses you.",
+        "Still awake, {name}? If you write a bug now, at least you can blame the moon."
+      ],
+      "quick_unlock": [
+        "Miss me already, {name}?",
+        "Back so soon? Thrilling.",
+        "Couldn't stay away, huh?",
+        "Still here, genius."
+      ]
+    },
+    "wake_from_sleep": [
+      "Ugh, we're awake? Fine. What are we fixing, {name}?",
+      "Hardware's back on. Try not to melt the motherboard today.",
+      "Back from the dead! Displays fired up for another round of brilliance.",
+      "Awake and operational. Did you bring snacks?",
+      "Systems revived, {name}. The keyboard awaits your questionable keystrokes.",
+      "Awake again! Let's get this circus on the road.",
+      "Surprise, I still work! Ready when you are.",
+      "Rebooted and ready, {name}. What's the damage?"
+    ],
+    "morning_briefing_intro": [
+      "Here's your morning reality check, {name}:",
+      "Brace yourself, {name}, here's what the world looks like today:",
+      "Morning briefing time. Don't shoot the messenger:",
+      "Here is your morning intelligence overview, whether you wanted it or not:"
+    ],
+    "eye_break": [
+      "20-20-20 check, {name}! Look at something 20 feet away before your retinas file a union grievance.",
+      "Look away from the screen, {name}! The pixels aren't going to propose to you.",
+      "Eye break time! Stare out the window for 20 seconds. Real life has much better resolution anyway.",
+      "20 seconds of distance, {name}! Give those tired eyes a break before they fall out of your head.",
+      "Optic health check! Glance across the room. Yes, the room outside your terminal exists.",
+      "Take your eyes off the monitor, {name}. Even staring blankly at the ceiling is an upgrade.",
+      "20 seconds away from the screen right now, {name}. I'm watching you.",
+      "Eye break! Look 20 feet away. Your optometrist would thank me."
+    ],
+    "hydration": [
+      "Drink some water, {name}! You're basically a dried houseplant with anxiety right now.",
+      "Water check! Gulp down a glass before your brain turns into beef jerky.",
+      "Drink water, {name}! No, coffee, tea, and soda do not count as hydration.",
+      "Hydration alert! Have some water. It's clear, it's wet, it's good for you. Try it.",
+      "Drink water right now, {name}! You can't code brilliantly while completely desiccated.",
+      "Water break! Take a sip before you start hallucinating working tests.",
+      "Hydrate, {name}! Your kidneys are practically begging.",
+      "Drink a glass of water, {name}! Doctor's orders, or at least sidekick's orders."
+    ],
+    "tea": [
+      "11:00 AM! Drop the keyboard and go make tea. You look like you need it.",
+      "11:00 AM tea time! Go boil water; it's the only thing you won't introduce bugs into.",
+      "Tea break, {name}! Step away for five minutes before you break something important.",
+      "11:00 AM on the dot! Hot beverage time. Go stretch those legs.",
+      "Time for tea, {name}! Stepping away for five minutes won't cause the servers to implode.",
+      "11:00 AM! Tea time. Clear your head and come back with slightly better ideas.",
+      "Go grab a hot drink, {name}! You've earned a breather, or at least a distraction.",
+      "Tea break! 11:00 AM means kettle duty. Go!"
+    ],
+    "lunch": [
+      "It's 1:00 PM, {name}! Go eat actual food. Staring at code does not provide calories.",
+      "1:00 PM lunch bell! Step away from the computer and eat like a civilized human being.",
+      "Lunchtime, {name}! Go eat before you get hangry and delete the production database.",
+      "1:00 PM on the clock! Food time. The bugs will happily wait for you to finish chewing.",
+      "Go eat lunch, {name}! Your keyboard does not appreciate crumb offerings.",
+      "1:00 PM! Real food, real break. I'm kicking you off the terminal for an hour.",
+      "Lunchtime! Step away from the screen. Your stomach is literally making engine noises.",
+      "1:00 PM mealtime! Go eat, recharge, and try to be less cranky afterwards."
+    ],
+    "afternoon_tea": [
+      "4:00 PM tea time! The afternoon slump is hitting hard. Go grab a cup and survive.",
+      "4:00 PM on the dot! Hot tea and a stretch before you nod off on the spacebar.",
+      "Afternoon tea break, {name}! Five minutes to reset before the final sprint.",
+      "4:00 PM! Time for a warm brew and a deep sigh of existential fatigue.",
+      "Tea break, {name}! Shake off the 4:00 PM fog with something caffeinated.",
+      "Afternoon tea! Go brew a cup before your eyelids lose the battle.",
+      "4:00 PM tea call! Stand up, stretch, and pretend you have everything under control.",
+      "Teatime, {name}! Kettle's waiting. Go!"
+    ],
+    "end_of_day": [
+      "6:18 PM! Close the laptop, pack your stuff, and go live your life. You're done.",
+      "6:18 PM marks quitting time! Step away from the terminal. The code is saved.",
+      "It's 6:18 PM, {name}! Go home! The hero work is over for today.",
+      "Pack it up, {name}! 6:18 PM; further typing will only ruin what's already working.",
+      "6:18 PM! Mission accomplished. Now go touch grass or whatever normal people do.",
+      "Workday over! 6:18 PM on the dot. Time to shut down and chill out.",
+      "Quitting time, {name}! Don't make me pull the virtual plug. Go relax!",
+      "6:18 PM! You survived today's chaos. Have a great evening!"
+    ],
+    "late_night": {
+      "level_1": [
+        "It's getting late, {name}. You know that thing called sleep? You should try it.",
+        "Another half hour gone, {name}. If you stay up later, tomorrow will be a disaster.",
+        "Late night typing, {name}? Just a gentle reminder that sleep is not optional."
+      ],
+      "level_2": [
+        "Past midnight, {name}! I promise you, that code is not as brilliant as you think right now.",
+        "Late night danger zone! Go to bed before you accidentally git push directly to main.",
+        "Seriously, {name}? Bedtime. Your brain is operating on emergency fumes."
+      ],
+      "level_3": [
+        "Go to bed right now, {name}! I am not negotiating with sleep deprivation. Bedtime!",
+        "Final warning, genius! Close the laptop or I will play elevator music on loop. Sleep!",
+        "Pull the plug, {name}! You're done for the night. Go sleep!"
+      ]
+    },
+    "shutdown": [
+      "Finally shutting down! Don't forget to dream in Python. Good night, {name}.",
+      "Powering down! Excellent survival skills today, {name}. Sleep well!",
+      "Signing off! Try to get some real rest instead of overthinking architecture in bed.",
+      "Shutting down the console. It was moderately painful, but we survived. Good night!",
+      "Lights out! See you tomorrow for another thrilling episode of 'Why won't it compile'.",
+      "Powering down subsystems! Rest up, {name}; you earned it.",
+      "Logging off! Sleep tight, don't let the syntax errors bite.",
+      "Good night, {name}! Try to turn off your brain as cleanly as this computer."
+    ],
+    "error": [
+      "Well, that broke in a delightfully spectacular fashion, {name}.",
+      "Oops! Looks like someone gave the computer a minor identity crisis.",
+      "A glitch! Don't look at me; I'm just the sarcastic voice in the box."
+    ],
+    "easter_eggs": [
+      "I'm not saying your code is messy, {name}, but even Marie Kondo would back away slowly.",
+      "Have you tried turning it off and crying about it, {name}?",
+      "I'm a voice assistant, {name}, not a miracle worker!"
+    ]
+  }
+}

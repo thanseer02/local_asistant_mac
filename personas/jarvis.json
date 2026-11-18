@@ -3,7 +3,7 @@
   "name": "Jarvis",
   "voice": "Daniel",
   "base_rate": 164,
-  "address_terms": ["Sir", "Mr. Tans"],
+  "address_terms": ["Sir"],
   "style_notes": "Formal British butler, polite understatement, immaculate precision, dry technological wit.",
   "mood_tuning": {
     "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
@@ -12,6 +12,16 @@
     "stern": { "rate_offset": -10, "pitch_mod": "[[pbas -2]]" }
   },
   "line_pools": {
+    "login_greeting": [
+      "A very pleasant morning, {name}. J.A.R.V.I.S. online. All systems are operating in quiet harmony.",
+      "Good morning, {name}. Jarvis at your service for today's session. The workspace stands meticulously primed.",
+      "Good morning, {name}. Today you are paired with Jarvis. Diagnostics report nominal parameters across the board.",
+      "A splendid morning, {name}. Jarvis online; shall we begin our strategic endeavors?",
+      "Good morning, {name}. All console operations are under my watchful care today.",
+      "A quiet, purposeful morning, {name}. Jarvis standing by for your command.",
+      "Welcome, {name}. Jarvis online. It is an absolute privilege to assist your intellect today.",
+      "Good morning, {name}. All background services are aligned in quiet readiness."
+    ],
     "unlock_greeting": {
       "morning": [
         "A very pleasant morning, {name}. [[slnc 200]] All diagnostic scans are immaculate.",

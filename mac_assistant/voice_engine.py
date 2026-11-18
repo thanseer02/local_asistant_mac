@@ -66,16 +66,10 @@ class VoiceEngine:
         return self._is_speaking
 
     def get_active_persona(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Resolves the active persona ('friday' or 'jarvis') from configuration."""
-        persona_key = config.get("assistant_persona", "friday").lower()
-        personas = config.get("personas", {})
-        if persona_key in personas:
-            return personas[persona_key]
-        return {
-            "voice": config.get("voice", "Moira"),
-            "speech_rate": config.get("speech_rate", 175),
-            "greetings": {}
-        }
+        """Resolves active session persona definition."""
+        from .personality import personality_engine
+        pid = personality_engine.get_session_persona(config)
+        return personality_engine.get_persona(pid)
 
     def get_greeting(self, config: Dict[str, Any], hour: Optional[int] = None, context: Optional[Dict[str, Any]] = None) -> str:
         """Constructs a time-aware, non-repeating, personality-driven greeting."""

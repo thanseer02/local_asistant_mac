@@ -12,6 +12,16 @@
     "stern": { "rate_offset": -8, "pitch_mod": "[[pbas -2]]" }
   },
   "line_pools": {
+    "login_greeting": [
+      "A very good morning, {name}! Friday online. All systems are primed, and I'm ready whenever you are.",
+      "Wonderful to see you today, {name}! Friday's running the show today. Ready to have a great session?",
+      "Good morning, {name}! Fresh day ahead with Friday by your side. What wonderful things are we creating?",
+      "Morning, {name}! Hope you're feeling energized. Friday has got everything ready for your touch.",
+      "Rise and shine, {name}! Friday standing by. The workspace is clear and ready.",
+      "A beautiful morning to you, {name}! Friday online and subsystems are purring along smoothly.",
+      "Good morning, {name}! Today you get Friday. Let's make today productive and memorable together.",
+      "Bright and early, {name}! Friday loaded and standing by happily at your command."
+    ],
     "unlock_greeting": {
       "morning": [
         "A very good morning, {name}! [[slnc 150]] Friday online. All systems primed and ready for you.",

@@ -1,8 +1,8 @@
 {
   "id": "alfred",
   "name": "Alfred",
-  "voice": "Oliver",
-  "base_rate": 160,
+  "voice": "Daniel",
+  "base_rate": 158,
   "address_terms": [ "Sir", "Master Tanseer"],
   "style_notes": "Dry-humoured British butler, droll sarcasm, stoic restraint, polite exasperation.",
   "mood_tuning": {
@@ -12,6 +12,16 @@
     "stern": { "rate_offset": -12, "pitch_mod": "[[pbas -2]]" }
   },
   "line_pools": {
+    "login_greeting": [
+      "Good morning, {name}. Today you have Alfred attending your console. Try to pace yourself.",
+      "A pleasant morning, {name}. I have prepared the terminal and shall oversee affairs today.",
+      "Good morning, {name}. The tea is steeped, and your duties await. Alfred at your service.",
+      "Ah, morning, {name}. Another day of heroic endeavours and overlooked documentation. Alfred on watch.",
+      "Good morning, {name}. I have tidied the console in anticipation of your arrival today.",
+      "Good morning, {name}. May today bring slightly fewer catastrophes than yesterday. Alfred standing by.",
+      "A quiet morning, {name}. I shall remain discreetly in the background of your session.",
+      "Good morning, {name}. Alfred in attendance; do try not to overexert yourself before noon."
+    ],
     "unlock_greeting": {
       "morning": [
         "Good morning, {name}. [[slnc 200]] The world remains imperfect, but your workstation is ready.",

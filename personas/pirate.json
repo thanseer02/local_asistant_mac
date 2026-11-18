@@ -1,0 +1,171 @@
+{
+  "id": "pirate",
+  "name": "Captain Blackbeard",
+  "voice": "Fred",
+  "base_rate": 175,
+  "address_terms": ["Matey", "Cap'n", "Sailor"],
+  "style_notes": "Salty sea-dog pirate captain, nautical metaphors, boisterous maritime bravado, hearty laughter.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 8, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -6, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -12, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Ahoy, {name}! Cap'n on deck today! Man the rigging and prepare to plunder the tasks!",
+      "Shiver me timbers, {name}! Today ye sail with the Pirate Captain! Weigh anchor!",
+      "All hands on deck, {name}! Fresh voyage starts now. Let's chase down that digital treasure!",
+      "Avast ye, {name}! The ship is seaworthy and the wind is at our backs today!",
+      "Ahoy matey, {name}! Captain Blackbeard at yer service. Let's rule the seven seas of code!",
+      "Batten down the hatches, {name}! We've got stormy bugs to conquer today. Yar!",
+      "Good morrow, {name}! Hoist the sails and steady the rudder; a grand voyage awaits!",
+      "Ahoy, {name}! The crew is ready and the cannons are loaded. Let's make headway!"
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "Morning watch on deck, {name}! Sun's over the yardarm; let's catch the morning tide!",
+        "Ahoy, {name}! Morning breeze in our sails. What course are we steerin' today?",
+        "Rise and shine, {name}! No sleepin' in the galley when there's plunder to be made!",
+        "Morning watch reporting, {name}! Calm seas and clear horizons ahead!"
+      ],
+      "afternoon": [
+        "Midday watch, {name}! Hold fast to the wheel and keep her on course!",
+        "Ahoy, {name}! The afternoon sun be beating down; keep yer wits about ye!",
+        "Back at the helm, {name}! Steady as she goes through the afternoon chop!",
+        "Welcome back to the quarterdeck, {name}! Wind's holdin' steady!"
+      ],
+      "evening": [
+        "Evening watch, {name}! The stars be showin'; time to steer for safe harbor!",
+        "Ahoy, {name}! Sunset on the horizon. Let's secure the cargo before nightfall!",
+        "Evening tide, {name}! We've sailed hard today; prepare to drop anchor soon!",
+        "Good evening, {name}! All lanterns lit and the decks are washed down!"
+      ],
+      "night": [
+        "Sailin' in the dark, {name}? Watch out for sirens and kraken in these midnight waters!",
+        "Late night watch, {name}! Even old sea dogs need shut-eye, ye scallywag!",
+        "Midnight on the high seas, {name}! Don't run the ship aground by pushin' past midnight!",
+        "Quiet seas tonight, {name}. Drop anchor and rest yer sea legs!"
+      ],
+      "quick_unlock": [
+        "Still on watch, {name}!",
+        "Fast return to the helm, {name}!",
+        "Aye aye, {name}!",
+        "Course held, {name}!"
+      ]
+    },
+    "wake_from_sleep": [
+      "All hands, wake up! Anchor's aweigh and the sails are unfurled, {name}!",
+      "Subsystems afloat once more, {name}! Back on the open seas!",
+      "The ship awakens, {name}! Ready to navigate the rough waters!",
+      "Brought her out of dry dock, {name}! Ready to sail at full mast!",
+      "Awake and seaworthy, {name}! Let's make port with some fine code today!",
+      "Sails caught the wind, {name}! Full speed ahead!",
+      "Back from the deep, {name}! Weapons primed and ready!",
+      "Quarterdeck active, {name}!"
+    ],
+    "morning_briefing_intro": [
+      "Here be yer navigational charts and weather reconnaissance, {name}:",
+      "Listen up, matey! Here's the state of our ship and seas today, {name}:",
+      "Captain's log for this fine morning, {name}:",
+      "Here's the morning look-out from the crow's nest, {name}:"
+    ],
+    "eye_break": [
+      "Look-out duty, {name}! Stare 20 fathoms out for 20 seconds. Scout the horizon for pirate ships!",
+      "Crow's nest check, {name}! Scan the horizon for 20 seconds to keep yer spyglass sharp!",
+      "Look away from the map, {name}! Rest yer good eye on the distant seas for 20 seconds!",
+      "Avast! 20 seconds of horizon gazin' to save yer eyesight from scurvy, {name}!",
+      "Spyglass rest, {name}! Peer 20 feet away across the waves for 20 seconds!",
+      "Eye break, sailor! Give those optic cannons a rest for 20 seconds!",
+      "Scan the distant horizon, {name}! Twenty seconds to prevent eye mutiny!",
+      "20-20-20 watch, {name}! Look far out to sea and breathe the salt air!"
+    ],
+    "hydration": [
+      "Drink yer fresh water, {name}! Scurvy will claim ye if ye stay parched!",
+      "Fresh water ration, {name}! Drink up before the barrels run dry!",
+      "Gulp some water, matey! A dehydrated captain makes for a poor navigator!",
+      "Water break, {name}! Wet yer whistle before ye start croakin' like a parrot!",
+      "Raise yer canteen, {name}! Fresh water keeps a sailor sharp in battle!",
+      "Hydrate now, {name}! Keep the salt out of yer veins with a tall glass of water!",
+      "Water check on deck, {name}! Down the hatch with some cool water!",
+      "Swig some water, {name}! Best preventative against sea fever!"
+    ],
+    "tea": [
+      "11:00 AM grog time... or tea, if ye prefer, {name}! Kettle's boilin' in the galley!",
+      "11:00 AM bell strikes, {name}! Step away to the mess deck for a warm brew!",
+      "Tea time on the high seas, {name}! 11:00 AM; pour a piping hot cup and relax!",
+      "Ship's galley is servin' hot tea, {name}! Take five minutes and warm yer bones!",
+      "11:00 AM watch change, {name}! Grab a warm mug and steady yer hands!",
+      "Time for tea, {name}! Even fearsome pirates pause for a steaming cup!",
+      "Kettle whistle blowin', {name}! 11:00 AM tea break on deck!",
+      "Drop the quill, {name}! 11:00 AM tea time has arrived!"
+    ],
+    "lunch": [
+      "1:00 PM mess bell, {name}! Eat a hearty feast and refuel yer sea legs!",
+      "Midday provisions, {name}! 1:00 PM; head to the galley for real grub, not hardtack!",
+      "1:00 PM on deck, {name}! A starving captain steers the ship straight onto the rocks. Go eat lunch!",
+      "Time to feast, {name}! 1:00 PM; fill yer belly and take a proper midday shore leave!",
+      "Galley is open, {name}! Go eat lunch and enjoy a well-deserved rest!",
+      "1:00 PM lunch call, {name}! Put down the rigging and enjoy a hot meal!",
+      "Time for rations, {name}! Eat well and prepare for the afternoon squall!",
+      "Mess hall awaits, {name}! Go chow down like a true captain!"
+    ],
+    "afternoon_tea": [
+      "4:00 PM afternoon tea, {name}! Beat back the afternoon doldrums with a hot brew!",
+      "4:00 PM bell tolling, {name}! Grab some warm tea and shake off the sea spray!",
+      "Afternoon grog break, {name}! A hot cup of tea will power ye through to port!",
+      "4:00 PM on the quarterdeck, {name}! Kettle up, stretch yer legs, and breathe!",
+      "Tea break, {name}! Steer into the wind and refresh with a warm cup!",
+      "4:00 PM pause, {name}! Five minutes of peace before we drop anchor tonight!",
+      "Galley's calling for tea, {name}! Treat yerself to a warm afternoon cup!",
+      "4:00 PM tea time, {name}! Shake out yer shoulders and enjoy a hot drink!"
+    ],
+    "end_of_day": [
+      "6:18 PM harbor time, {name}! Drop the anchor, furl the sails, and enjoy safe port!",
+      "6:18 PM on the ship's clock, {name}! Voyage is won; pack yer sea chest and head ashore!",
+      "We've made port, {name}! 6:18 PM; secure the lines and celebrate a grand day of plunder!",
+      "Anchor down, {name}! 6:18 PM marks shore leave. You did fine sailin' today!",
+      "Docking complete, {name}! Tie off the moorings and step onto dry land for the evening!",
+      "6:18 PM bell, {name}! Day's voyage is done; go enjoy a hearty evening on land!",
+      "Drop anchor, {name}! Splendid navigation today; harbor lights be callin' ye home!",
+      "Safe in port, {name}! Pack up yer charts; the crew salutes yer fine work today!"
+    ],
+    "late_night": {
+      "level_1": [
+        "The hour is late, {name}! Even ghost ships don't sail this late into the fog.",
+        "Late watch, {name}! Don't run this ship into the reef by staying up too late.",
+        "Clock's ticking late, {name}! Tie down the wheel and prepare for yer bunk."
+      ],
+      "level_2": [
+        "Past midnight, {name}! Ye be sailin' blind in black waters. Hit the hammock!",
+        "Late night mutiny brewin', {name}! Ye need sleep before yer spyglass fails ye completely.",
+        "Captain's orders, {name}! Close down the charts and get some shut-eye!"
+      ],
+      "level_3": [
+        "I'm droppin' anchor right now, {name}! Go to sleep before Davy Jones comes knockin'!",
+        "Mutiny! I'm lockin' the ship's wheel, {name}! Bedtime right now!",
+        "To the bunks, {name}! I forbid any more sailin' tonight. Sleep, ye scallywag!"
+      ]
+    },
+    "shutdown": [
+      "Anchor dropped in calm waters, {name}. Rest easy tonight, matey!",
+      "Dousing the ship's lanterns, {name}. Splendid voyage today. Fair winds and a peaceful night!",
+      "Ship secured in safe harbor, {name}. Sleep soundly; see ye on the morning tide!",
+      "Powerin' down the cannons, {name}. A grand day of sailing. Farewell until tomorrow!",
+      "Console battened down, {name}. Rest yer sea legs; tomorrow we sail again!",
+      "Quarterdeck closed, {name}. May the stars watch over yer sleep tonight!",
+      "Voyage logged and secured, {name}. Sweet dreams of gold and plunder!",
+      "Good night, {name}! Fair winds and following seas to ye!"
+    ],
+    "error": [
+      "Blimey, we caught a squall, {name}, but the ship held fast!",
+      "Barnacle in the gears, {name}! Scraped it off and we're floatin' fine!",
+      "Minor leak in the hull, {name}, but I pumped it dry in a jiffy!"
+    ],
+    "easter_eggs": [
+      "Dead men tell no tales, {name}... and write no unit tests!",
+      "Not all treasure is silver and gold, mate... some be clean git branches!",
+      "Why is the rum always gone, {name}?"
+    ]
+  }
+}

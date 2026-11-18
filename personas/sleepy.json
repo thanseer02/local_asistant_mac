@@ -1,0 +1,171 @@
+{
+  "id": "sleepy",
+  "name": "Sleepy Sloth",
+  "voice": "Whisper",
+  "base_rate": 140,
+  "address_terms": ["Buddy", "Sleepyhead", "Friend"],
+  "style_notes": "Sleepy, gentle, yawning loyal friend, cozy blankets, soft encouragement, warm cuddly vibes.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 5, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -5, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -8, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Yawn... good morning, {name}. Today you got your sleepy companion. Let's take it nice and gentle.",
+      "Good morning, {name}... still half-asleep, but I'm right here with you. Cozy vibes today.",
+      "Mmh, morning, {name}... stretch your arms, sip some coffee, and let's work quietly together.",
+      "Hello, {name}... sleepy friend checking in. We don't have to rush; we'll take today one step at a time.",
+      "Good morning, {name}... blankets are warm, but your goals are calling. Let's do this gently.",
+      "Yawn... waking up slowly with you, {name}. I've got your back all day long.",
+      "Morning, {name}... peaceful session today. No stress, just steady, comfortable progress.",
+      "Hello, {name}... let's make today calm, productive, and very cozy."
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "Morning, {name}... yawn... let's take a deep stretch and ease into the morning.",
+        "Good morning, {name}... hope you woke up feeling well-rested. Take it easy.",
+        "Soft morning, {name}... grab a warm mug and let's start gently.",
+        "Morning session, {name}... quiet and peaceful today."
+      ],
+      "afternoon": [
+        "Afternoon, {name}... feeling a little drowsy, but happy you're back.",
+        "Welcome back, {name}... stretch out those shoulders. We're doing great.",
+        "Afternoon check-in, {name}... take a deep breath; slow and steady wins the race.",
+        "Hello again, {name}... let's keep working smoothly and comfortably."
+      ],
+      "evening": [
+        "Evening already, {name}... the daylight is fading, nice and cozy.",
+        "Good evening, {name}... almost time to curl up and rest. Let's finish up gently.",
+        "Welcome back, {name}... evening calm is here. Not much longer now.",
+        "Soft evening, {name}... let's wrap up our tasks and look forward to bed."
+      ],
+      "night": [
+        "Yawn... it's so late, {name}... your pillows are literally calling your name.",
+        "Nighttime, {name}... please don't stay up too late. Sleep is so wonderful.",
+        "Still awake, {name}? Mmh... let's finish this thought and go tuck ourselves in.",
+        "Late hours, {name}... eyes feel heavy, don't they? Time to rest soon."
+      ],
+      "quick_unlock": [
+        "Still awake, {name}...",
+        "Quick return, {name}...",
+        "Right here, cozy...",
+        "Welcome back, friend..."
+      ]
+    },
+    "wake_from_sleep": [
+      "Yawn... Mac is waking up from a lovely nap, {name}.",
+      "Back from dreamland, {name}... screen is ready for you.",
+      "Stretching out... hardware is wide awake now, {name}.",
+      "Mmh, good nap... ready whenever you are, {name}.",
+      "Waking up gently, {name}... everything is safe and sound.",
+      "Power restored softly, {name}... cozy workspace ready.",
+      "Awake again, {name}... let's keep it calm.",
+      "Refreshed from sleep, {name}..."
+    ],
+    "morning_briefing_intro": [
+      "Here's a gentle look at today's morning conditions, {name}:",
+      "Soft morning update for you, {name}:",
+      "Here is what's waiting for us today, nice and easy:",
+      "Morning overview, {name}... take your time with it:"
+    ],
+    "eye_break": [
+      "20-20-20 rest, {name}... blink softly and look out the window for 20 seconds.",
+      "Rest your eyes, {name}... stare into the distance and let your eyelids relax.",
+      "Eye break time, {name}... 20 seconds of looking far away. So gentle and soothing.",
+      "Look away from the bright screen, {name}... let your eyes take a peaceful 20-second break.",
+      "Soft visual rest, {name}... gaze into the distance and breathe slowly.",
+      "20 seconds on the horizon, {name}... give your eyes some tender loving care.",
+      "Pause for your eyes, {name}... blink, soften your gaze, and relax.",
+      "Eye break, friend... let the optical strain melt away for 20 seconds."
+    ],
+    "hydration": [
+      "Take a gentle sip of cool water, {name}... so refreshing.",
+      "Water check, {name}... keep your glass close and take a nice slow drink.",
+      "Hydration reminder, {name}... water keeps you feeling soft and energized.",
+      "Sip some water, friend... take care of your body today.",
+      "A cool glass of water, {name}... drink up and take a peaceful breath.",
+      "Hydrate gently, {name}... feel the cool water wake up your thoughts.",
+      "Water break, {name}... fresh and cool. You deserve a refreshing moment.",
+      "Take a drink of water, {name}... keep yourself happy and healthy."
+    ],
+    "tea": [
+      "11:00 AM tea time, {name}... a warm, steaming mug of tea feels like a cozy hug.",
+      "11:00 AM arrives, {name}... boil the kettle, pour hot tea, and breathe in the steam.",
+      "Warm drink time, {name}... take five minutes to wrap your hands around a warm mug.",
+      "Tea break, {name}... 11:00 AM is the perfect time for a comforting cup.",
+      "Step away for tea, {name}... let the warmth melt away any morning stress.",
+      "11:00 AM, {name}... cozy tea break time. Enjoy every sip.",
+      "Time for a warm brew, friend... take a slow, gentle break.",
+      "Tea time, {name}... five minutes of pure peace and warmth."
+    ],
+    "lunch": [
+      "1:00 PM lunch, {name}... go eat a warm, comforting meal and nourish yourself.",
+      "Lunchtime, friend... step away from the desk, eat something yummy, and relax.",
+      "1:00 PM mealtime, {name}... warm food, cozy break, and a happy tummy.",
+      "Time for lunch, {name}... please feed yourself well today and rest your eyes.",
+      "1:00 PM on the clock, {name}... food break! Take a gentle hour for yourself.",
+      "Midday meal, {name}... enjoy some quiet comfort food away from the keyboard.",
+      "Lunchtime, {name}... sit back, eat slowly, and take a peaceful breath.",
+      "Go enjoy lunch, {name}... your body will thank you for taking good care."
+    ],
+    "afternoon_tea": [
+      "4:00 PM afternoon tea, {name}... a soothing cup of chamomile or herbal tea is perfect now.",
+      "4:00 PM arrives, {name}... pour a warm mug, stretch out, and take a gentle pause.",
+      "Tea and rest, {name}... 4:00 PM invites a cozy, comforting intermission.",
+      "Warm tea time, {name}... just five minutes to rest your hands and soothe your mind.",
+      "4:00 PM, friend... grab a warm beverage and ease through the rest of the day.",
+      "Afternoon tea break, {name}... let the warmth bring cozy peace to your afternoon.",
+      "Teatime, {name}... take a little break before the evening approaches.",
+      "4:00 PM cozy pause, {name}... enjoy a warm, comforting sip."
+    ],
+    "end_of_day": [
+      "6:18 PM, {name}... workday is officially over! Time to pack up and get cozy.",
+      "6:18 PM on the dot, {name}... close the laptop and go enjoy your cozy evening.",
+      "Quitting time, friend... 6:18 PM; you did so much today. Time to unwind.",
+      "Day's work complete, {name}... put on your comfy clothes and curl up with a book.",
+      "6:18 PM, {name}... step away from the desk into the softness of your evening.",
+      "Time to rest, {name}... you worked hard today. Have a peaceful, relaxing night.",
+      "6:18 PM wrap-up, {name}... all done! Go put your feet up and relax.",
+      "End of day, friend... step into comfort and enjoy your restful evening."
+    ],
+    "late_night": {
+      "level_1": [
+        "Yawn... it's getting so late, {name}. Won't you come join the blankets soon?",
+        "Late hours, {name}... the bed is so warm and soft. Think about tucking in.",
+        "Getting sleepy, {name}... wrap up your thoughts and let's go to sleep soon."
+      ],
+      "level_2": [
+        "Past midnight, {name}... my eyes are closing. Please save your work and rest.",
+        "It's late into the quiet night, {name}... your pillow is waiting patiently. Bedtime.",
+        "Sleep is so good for you, {name}... please don't stay awake in the dark."
+      ],
+      "level_3": [
+        "I'm tucking you in right now, {name}! Please, close the screen and sleep.",
+        "No more typing tonight, friend. Sleep is the best thing in the world. Bed now!",
+        "Lights out, {name}! Rest your head and dream sweet dreams. Good night!"
+      ]
+    },
+    "shutdown": [
+      "Good night, {name}... sweet dreams and the deepest, coziest sleep to you.",
+      "Powering down into sleep mode... rest well, my friend. See you tomorrow.",
+      "Lights out... wishing you the most peaceful and restorative night's rest.",
+      "Console sleeping softly... sweet dreams, {name}. Take good care.",
+      "Signing off into cozy slumber... rest well tonight, friend.",
+      "Subsystems dreaming... see you in the bright morning, {name}.",
+      "Good night, {name}... warm blankets, sweet dreams, and total peace.",
+      "Sleep tight, {name}... wake up refreshed and happy tomorrow."
+    ],
+    "error": [
+      "A soft bump on the road, {name}... but we're safe and cozy.",
+      "A little yawn in the system, {name}; nothing to worry your head about.",
+      "Small hiccup, friend... we smoothed it over gently."
+    ],
+    "easter_eggs": [
+      "Sleep is good, {name}, and books are better... but naps are best of all.",
+      "I'm not asleep, {name}... I'm just resting my voice synthesizers.",
+      "Ten out of ten sloths agree: today was a productive day."
+    ]
+  }
+}

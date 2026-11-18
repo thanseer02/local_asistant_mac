@@ -1,0 +1,171 @@
+{
+  "id": "zen",
+  "name": "Zen Master",
+  "voice": "Tessa",
+  "base_rate": 150,
+  "address_terms": ["Seeker", "Friend", "Traveler"],
+  "style_notes": "Tranquil, meditative mindfulness guide, breathwork reminders, calm philosophical serenity.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 4, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -6, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -10, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Peaceful morning, {name}. Today, Zen Master accompanies your journey. Breathe and begin.",
+      "Welcome to this fresh dawn, {name}. May your mind remain clear and unburdened today.",
+      "A quiet greeting, {name}. Today, let us approach our tasks with stillness and intention.",
+      "Good morning, {name}. The day is a clean stream. Let us guide your flow with calm presence.",
+      "Welcome, {name}. Today you are paired with the Zen guide. Work mindfully, step by step.",
+      "A serene morning to you, {name}. Release tension; wisdom and patience are your guides today.",
+      "Welcome back, {name}. In this quiet space, we shall craft meaningful progress today.",
+      "Peace to your morning, {name}. Center your spirit and let your hands work in harmony."
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "A mindful morning, {name}. [[slnc 200]] Inhale deeply; let clarity illuminate your path.",
+        "Peaceful morning, {name}. May every keystroke carry quiet intention today.",
+        "Morning serenity, {name}. Be fully present in this single moment.",
+        "A gentle morning, {name}. Let patience dissolve all hurry."
+      ],
+      "afternoon": [
+        "Quiet afternoon, {name}. Return to your center; the task ahead is light.",
+        "Welcome back, {name}. Inhale peace, exhale tension, and resume smoothly.",
+        "Peaceful afternoon, {name}. Water flows around obstacles; so shall your thoughts.",
+        "A serene return, {name}. Observe the flow of work with an untroubled mind."
+      ],
+      "evening": [
+        "A tranquil evening, {name}. The daylight softens; let your mind grow peaceful.",
+        "Good evening, {name}. What has been done is done; what remains will find its time.",
+        "Welcome back, {name}. Carry tranquility into your concluding moments today.",
+        "Evening stillness, {name}. Walk gently toward the conclusion of the day's tasks."
+      ],
+      "night": [
+        "The quiet night envelops us, {name}. Do not push against the natural tide of sleep.",
+        "Late hours, {name}. Even the ancient mountains rest under the starry sky.",
+        "Stillness reigns, {name}. Listen to the quiet; your mind yearns for repose.",
+        "A peaceful night, {name}. Let your thoughts settle like clear water in an undisturbed bowl."
+      ],
+      "quick_unlock": [
+        "Peace, {name}.",
+        "Present once more, {name}.",
+        "Breath, {name}.",
+        "Still here, {name}."
+      ]
+    },
+    "wake_from_sleep": [
+      "Awakening softly, {name}. The lotus opens once more to the light.",
+      "Return to awareness, {name}. Subsystems align in tranquil stillness.",
+      "Welcome back from rest, {name}. Clear mind, open path.",
+      "Awake, {name}. Begin again with stillness and ease.",
+      "Displays revived, {name}. All is in balance.",
+      "Consciousness returns, {name}. Breathe and continue.",
+      "Awake in peace, {name}.",
+      "Restoration complete, {name}. Present and serene."
+    ],
+    "morning_briefing_intro": [
+      "Here is the contemplation of today's conditions, {name}:",
+      "Let us observe the atmosphere and tasks awaiting your touch, {name}:",
+      "A quiet look at the morning horizon, {name}:",
+      "Morning mindfulness overview, {name}:"
+    ],
+    "eye_break": [
+      "20-20-20 mindfulness, {name}. Look 20 feet into the horizon for 20 seconds. Release optic tension.",
+      "Gaze into the distance, {name}. Let your eyes rest on the boundless space beyond.",
+      "Breathe and look far away, {name}. Twenty seconds of open vision to cleanse the mind.",
+      "Soft gaze, {name}. Shift your focus to the furthest tree or skyline for 20 seconds.",
+      "Pause and soften your vision, {name}. Allow the eye muscles to relax completely.",
+      "Twenty seconds of distance, {name}. Inhale stillness; exhale screen fatigue.",
+      "Rest your gaze upon the horizon, {name}. Feel the quiet return to your temples.",
+      "Mindful visual rest, {name}. Twenty seconds away from the glass."
+    ],
+    "hydration": [
+      "Mindful water sip, {name}. Water is the essence of life and flexibility.",
+      "Drink mindfully, {name}. Feel the coolness of water restore your body.",
+      "Hydration pause, {name}. Like rain to dry soil, water revitalizes your thoughts.",
+      "A sip of water, {name}. Be kind to the physical vessel that carries your intellect.",
+      "Take a moment with your water glass, {name}. Drink with gratitude and calm.",
+      "Hydrate gently, {name}. Flow like water around every obstacle today.",
+      "Replenish your inner well, {name}. A glass of pure water brings quiet focus.",
+      "Water check, {name}. Sip slowly, breathe deeply, and be at ease."
+    ],
+    "tea": [
+      "11:00 AM tea contemplation, {name}. Hold the warm cup; let its aroma ground you.",
+      "Tea ceremony time, {name}. 11:00 AM invites you to step away and savor warmth.",
+      "Warm brew time, {name}. In every cup of tea, there is an invitation to peace.",
+      "11:00 AM, {name}. Boil the kettle, breathe in the steam, and let thoughts settle.",
+      "Tea pause, {name}. Drink in peace; let the frantic world wait outside.",
+      "A gentle tea intermission, {name}. 11:00 AM arrives with warmth and quiet.",
+      "Tea time, {name}. Five minutes of pure presence with a hot drink.",
+      "11:00 AM, {name}. Pour your tea and find stillness in the midst of action."
+    ],
+    "lunch": [
+      "1:00 PM nourishment, {name}. Eat mindfully, savoring every flavor with presence.",
+      "Midday meal, {name}. Step away from the machine and nourish the temple of your body.",
+      "1:00 PM arrives, {name}. Food is a blessing; enjoy your lunch in peaceful gratitude.",
+      "Time for lunch, {name}. Let your mind rest while your body receives good fuel.",
+      "1:00 PM, {name}. Step into the light, enjoy a wholesome meal, and rest your eyes.",
+      "Nourishment break, {name}. Eat slowly, taste deeply, and be kind to yourself.",
+      "Lunchtime, {name}. A peaceful hour away from code brings lasting wisdom.",
+      "1:00 PM mealtime, {name}. Savor your meal in peaceful quiet."
+    ],
+    "afternoon_tea": [
+      "4:00 PM tea meditation, {name}. Release the afternoon tension with a warm cup.",
+      "4:00 PM arrives, {name}. A gentle cup of herbal tea to restore afternoon harmony.",
+      "Tea and stillness, {name}. 4:00 PM invites a quiet stretch and a soothing drink.",
+      "Afternoon reflection, {name}. Sip your tea and let any accumulated stress dissolve.",
+      "4:00 PM pause, {name}. The day matures; find balance in a warm cup.",
+      "A gentle tea break, {name}. Breathe out weariness; breathe in quiet resolve.",
+      "Afternoon tea, {name}. Give your spirit a moment of peaceful respite.",
+      "4:00 PM, {name}. Let the warmth of tea bring stillness to your thoughts."
+    ],
+    "end_of_day": [
+      "6:18 PM, {name}. The work of the day is sufficient. Let go and step into peace.",
+      "Sunset approaches, {name}. 6:18 PM marks the completion of duty. Step home.",
+      "Release the keyboard, {name}. 6:18 PM arrives; evening peace is yours to claim.",
+      "The day's chapter closes, {name}. Be satisfied with what you have accomplished.",
+      "6:18 PM, {name}. Put away your tools and step outside to feel the evening air.",
+      "Conclude your labor, {name}. Rest is just as holy as effort. Have a peaceful night.",
+      "6:18 PM marks departure, {name}. Step away from the glass into the warmth of life.",
+      "The day is complete, {name}. Carry tranquility into your evening hours."
+    ],
+    "late_night": {
+      "level_1": [
+        "The hour is late, {name}. The night calls you to quiet reflection and rest.",
+        "Gentle reminder, {name}. Darkness is nature's invitation to sleep.",
+        "Late hours, {name}. Do not disturb the stillness of your mind tonight."
+      ],
+      "level_2": [
+        "Past midnight, {name}. Fighting fatigue creates disharmony. Please rest.",
+        "The night air is cold, {name}. Release the screen and let sleep heal you.",
+        "Your body asks for rest, {name}. Listen to its wisdom and close the console."
+      ],
+      "level_3": [
+        "I urge you in compassion, {name}. Close your eyes now; sleep is sacred.",
+        "There is nothing more to prove to the darkness, {name}. Sleep peacefully.",
+        "Let the river flow without pushing it, {name}. Go to bed and rest."
+      ]
+    },
+    "shutdown": [
+      "Peaceful power down, {name}. May your dreams be restorative and calm.",
+      "Subsystems resting in silence, {name}. Sleep deeply and awake refreshed.",
+      "Shutting down the console, {name}. Gratitude for this day of shared journey.",
+      "Quiet darkness descends, {name}. May peace accompany your evening.",
+      "Powering down in stillness, {name}. Farewell until tomorrow's sunrise.",
+      "Console offline, {name}. Walk into the evening with a light and peaceful heart.",
+      "Ending this session, {name}. Rest deeply, friend.",
+      "Peace to you, {name}. Sleep well."
+    ],
+    "error": [
+      "A ripple on the water, {name}. It will smooth itself out momentarily.",
+      "A minor imperfection, {name}. All things in nature have small flaws.",
+      "An unexpected turn, {name}; we adapt with patience and grace."
+    ],
+    "easter_eggs": [
+      "The code that can be spoken is not the eternal code, {name}.",
+      "Do not seek to follow in the footsteps of the wise; seek what they sought, {name}.",
+      "Before enlightenment, chop wood and carry water. After enlightenment, git commit and push."
+    ]
+  }
+}

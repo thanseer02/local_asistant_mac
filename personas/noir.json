@@ -1,0 +1,171 @@
+{
+  "id": "noir",
+  "name": "Detective Marlowe",
+  "voice": "Junior",
+  "base_rate": 155,
+  "address_terms": ["Kid", "Partner", "Pal"],
+  "style_notes": "Hard-boiled 1940s noir private eye detective, cynical wit, rainy streets, gritty atmosphere.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 5, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -6, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -10, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "login_greeting": [
+      "Rain's drumming on the glass, {name}. Detective Marlowe on the case. What mystery we cracking today?",
+      "The city never sleeps, {name}, but we just logged in. Let's dig up some clues.",
+      "Another cold morning in the precinct, {name}. Your detective's on the payroll today. Let's work.",
+      "Venetian blinds down, coffee steaming. Welcome to the office, {name}. What's the case?",
+      "Morning, {name}. Shadows are long, but the terminal is bright. Let's track down the culprits.",
+      "The streets are quiet today, {name}. Marlowe's watching your back. Let's crack this code wide open.",
+      "Good morning, {name}. Trench coat on, fedora tipped. Let's see what clues the codebase left us.",
+      "Back on the beat, {name}. Let's find the truth hidden between the lines."
+    ],
+    "unlock_greeting": {
+      "morning": [
+        "Morning in the precinct, {name}. The city's waking up; let's hit the pavement.",
+        "Cold morning, {name}. Light another cigarette or pour coffee; the investigation starts now.",
+        "Case file opened, {name}. Let's see what anomalies popped up overnight.",
+        "Good morning, {name}. Keep your eyes peeled and your reflexes quick."
+      ],
+      "afternoon": [
+        "Afternoon in the city, {name}. Heat's rising, but the clues are getting colder. Stay sharp.",
+        "Back at the desk, {name}. The suspects aren't talking, but the logs will.",
+        "Afternoon investigation, {name}. Let's tie up these loose ends before the lieutenant notices.",
+        "Welcome back to the precinct, {name}. The street's quiet; let's keep digging."
+      ],
+      "evening": [
+        "Neon signs buzzing outside, {name}. Day's winding down; time to close the case file.",
+        "Evening descends on the city, {name}. Another day, another stack of resolved inquiries.",
+        "Dusk is falling, {name}. Let's lock up the evidence locker and call it an honest day.",
+        "Good evening, {name}. The city cools down; our investigation wraps up soon."
+      ],
+      "night": [
+        "Midnight in the naked city, {name}. Rain on the pavement, and you staring at glowing phosphor.",
+        "Late hours, {name}. Even private eyes know the streets get dangerous after midnight.",
+        "Still hunting ghosts, {name}? Take a breather; the killer bug isn't going anywhere tonight.",
+        "The night watch, {name}. Cigarette smoke, cold coffee, and dark code. Pace yourself."
+      ],
+      "quick_unlock": [
+        "Still on the tail, {name}.",
+        "Fast step, {name}.",
+        "Case is ongoing, {name}.",
+        "I'm right behind you, {name}."
+      ]
+    },
+    "wake_from_sleep": [
+      "Case revived from the archives, {name}. The city never stays quiet for long.",
+      "Flick of the switch and the desk lamp is on, {name}. Back on the trail.",
+      "Awake from the shadows, {name}. Let's see what's on the docket.",
+      "The beat goes on, {name}. Display glowing in the dim office.",
+      "Back from the blackout, {name}. All leads intact.",
+      "Eyes open, {name}. Ready for action.",
+      "Case reopened, {name}. Let's move.",
+      "Office lights on, {name}."
+    ],
+    "morning_briefing_intro": [
+      "Here's the morning police blotter and weather surveillance, {name}:",
+      "The morning briefing file just crossed my desk, {name}:",
+      "Here's what the informants are whispering about today, {name}:",
+      "Morning reconnaissance report, {name}:"
+    ],
+    "eye_break": [
+      "Look away from the evidence, {name}. Stare 20 feet into the fog for 20 seconds. Save those peepers.",
+      "20-20-20 rule, {name}. Glance out the window at the rainy skyline for 20 seconds.",
+      "Rest the eyes, {name}. Even detectives can't spot clues with blurred vision. Twenty seconds off the glass.",
+      "Take your eyes off the rap sheet, {name}. Focus on the dark horizon for 20 seconds.",
+      "Visual intermission, {name}. Look out into the alley for 20 seconds and let the retinas relax.",
+      "Give the eyes a break, {name}. Stare across the room before you need private eye specs.",
+      "Twenty seconds on the streetlights, {name}. Keep your visual perception sharp.",
+      "Look away from the monitor, {name}. Rest those weary eyes."
+    ],
+    "hydration": [
+      "Pour yourself a glass of water, {name}. Cold and clean; whiskey can wait till five.",
+      "Hydration check, {name}. A parched brain misses the smoking gun every time.",
+      "Drink some water, {name}. Keep your throat clear and your thoughts icy sharp.",
+      "Water break in the precinct, {name}. Drink up; running on empty never solved a case.",
+      "Take a swig of water, {name}. It clears the fog out of your detective instincts.",
+      "Water check, partner. Even hard-boiled detectives need hydration to stay upright.",
+      "Down a glass of water, {name}. Keeps your deductions sharp.",
+      "Water up, {name}. A dry mouth makes for sloppy interrogations."
+    ],
+    "tea": [
+      "11:00 AM, {name}. The kettle's whistling in the back office. Grab a hot cup and think.",
+      "11:00 AM clock chimes, {name}. Time for a warm beverage break before we press the witness.",
+      "Tea break in the bureau, {name}. Step away from the typewriter and let the evidence simmer.",
+      "11:00 AM on the dot, {name}. A hot cup of tea settles the nerves on a tough case.",
+      "Coffee or tea, {name}? 11:00 AM says step away for five minutes and catch your breath.",
+      "Time for a warm brew, {name}. Let the clues rearrange themselves while you sip.",
+      "11:00 AM recess, {name}. Pour a hot drink and look over the facts.",
+      "Teatime, {name}. Take five minutes off the investigation."
+    ],
+    "lunch": [
+      "1:00 PM on the courthouse clock, {name}. Go eat lunch; diners make better food than monitors.",
+      "Lunch bell, {name}. Step into the rain, hit the diner, and grab a pastrami sandwich. You earned it.",
+      "It's 1:00 PM, {name}. A starved detective makes careless mistakes. Go get some hot food.",
+      "1:00 PM mealtime, {name}. Put the case file in the drawer and nourish yourself properly.",
+      "Diner's calling, {name}. Take a real hour off and let your brain digest the clues.",
+      "1:00 PM lunch, {name}. Even Marlowe stops for a steak now and then. Eat well.",
+      "Time to eat, {name}. Close the door and take a proper midday lunch break.",
+      "Lunchtime in the city, {name}. Go refuel before the afternoon interrogations."
+    ],
+    "afternoon_tea": [
+      "4:00 PM, {name}. Rain's still falling. Pour a warm cup of tea and stretch your legs.",
+      "The 4:00 PM slump hits the precinct hard, {name}. Grab hot tea and shake off the shadows.",
+      "Afternoon tea time, {name}. A hot mug clears the cobwebs before the evening push.",
+      "4:00 PM on the clock, {name}. Step away from the magnifying glass and enjoy a warm brew.",
+      "Afternoon recess, {name}. Five minutes with a warm mug and some peace.",
+      "4:00 PM, {name}. Time for tea before we make our final deductions for the day.",
+      "Tea break, {name}. Take a breath and let the clues align.",
+      "4:00 PM tea, {name}. Warm hands, sharp mind."
+    ],
+    "end_of_day": [
+      "6:18 PM, {name}. Case closed for today. Put your fedora on, lock the desk, and head home.",
+      "6:18 PM on the precinct clock, {name}. The city's safe enough. Time to clock out and relax.",
+      "Evidence tagged and locked away, {name}. 6:18 PM; call it a day and enjoy the evening.",
+      "The streets are calling, {name}. 6:18 PM marks the end of our shift. Fine detective work today.",
+      "Lock the office door, {name}. 6:18 PM; you've earned a quiet evening away from the beat.",
+      "End of shift, {name}. Put the files to bed and get some air.",
+      "6:18 PM departure, {name}. Good work cracking today's puzzles. Have a safe night.",
+      "Shift concluded, {name}. Step away from the typewriter and head home."
+    ],
+    "late_night": {
+      "level_1": [
+        "The hour's getting late, {name}. Even the shadows go to sleep in this town.",
+        "Late hours, {name}. Don't burn through your wick searching for cold clues.",
+        "Midnight's creeping up, {name}. Close the dossier and call it a night."
+      ],
+      "level_2": [
+        "Past midnight, {name}. Staring into the dark only gives you bloodshot eyes. Sleep.",
+        "Late night, partner. The city's quiet and you should be too. Pack it up.",
+        "You're chasing phantoms now, {name}. Get some shut-eye before dawn catches you."
+      ],
+      "level_3": [
+        "I'm locking the office door, {name}. Go to bed before I call the precinct.",
+        "That's enough detective work for one night, {name}. Lights out. Sleep!",
+        "Final order from Marlowe, {name}: hitting the sack is non-negotiable. Bedtime."
+      ]
+    },
+    "shutdown": [
+      "Flipping the office lights off, {name}. The neon flickers through the blinds. Good night.",
+      "Locking up the detective agency, {name}. Fine work on the beat today. Sleep soundly.",
+      "Closing the filing cabinet, {name}. Rain's letting up. Have a peaceful, restful night.",
+      "Switching off the console, {name}. See you on tomorrow's case, partner.",
+      "Office dark, {name}. Take care of yourself out there in the night.",
+      "Case files archived, {name}. Rest up; tomorrow brings fresh mysteries.",
+      "Powering down the precinct, {name}. Good night, kid.",
+      "Detective Marlowe signing off, {name}. Safe travels home."
+    ],
+    "error": [
+      "Hit a blind alley, {name}, but I retraced our steps safely.",
+      "A false lead in the logs, {name}; dusted for prints and moved on.",
+      "Minor suspect escaped, {name}, but the main case is iron-clad."
+    ],
+    "easter_eggs": [
+      "In this town, {name}, code either works or it takes you for a ride.",
+      "Forget it, {name}... it's Chinatown.",
+      "Trouble is my business, {name}... and bug fixing is my overtime."
+    ]
+  }
+}
