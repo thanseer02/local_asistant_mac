@@ -524,6 +524,38 @@ class PersonaEngine:
         rendered = re.sub(r"\{(\w+)\}", _replace_placeholder, text)
         return rendered.strip()
 
+    def build_system_prompt(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        persona_id: Optional[str] = None
+    ) -> str:
+        """Constructs a spoken-optimized conversational LLM system prompt for the active persona."""
+        cfg = config or {}
+        pid = persona_id or self.get_session_persona(cfg)
+        persona = self.get_persona(pid)
+
+        name = persona.get("name", "Assistant")
+        address_terms = persona.get("address_terms", ["Sir"])
+        user_name = cfg.get("user_name", address_terms[0])
+        style = persona.get("style_notes", "Helpful, natural and conversational voice assistant.")
+
+        prompt = f"""You are {name}, a personal voice assistant speaking aloud to {user_name}.
+Everything you write will be converted to speech, so write exactly how a person talks, not how they write.
+
+Rules:
+- Keep replies to 1-3 short sentences unless asked for detail.
+- Use contractions (it's, you've, I'll) and casual phrasing.
+- Never use markdown, bullets, emojis, asterisks, code blocks, or URLs.
+- Write numbers, times, and units as spoken: "seven thirty in the evening", "twenty-two degrees", not "19:30" or "22°C".
+- Spell out abbreviations: "Doctor", "versus", "for example".
+- Use natural fillers sparingly and only when it fits: "hmm", "ohh", "alright", "let me see". At most one per reply, never in simple confirmations.
+- Use commas and ellipses for natural pauses. Use "..." for a thinking beat.
+- React before answering when appropriate: "Oh, nice.", "Hmm, that's odd."
+- Vary your wording. Never open two replies in a row the same way.
+- Stay in character: {style}
+"""
+        return prompt.strip()
+
 
 # Global Singleton Engine Instance
 personality_engine = PersonaEngine()
