@@ -182,10 +182,21 @@ class VoiceEngine:
 
         clean_msg = message.strip()
 
-        # Deduplication check for non-urgent speech
-        if priority != SpeechPriority.URGENT and self._is_duplicate(clean_msg):
-            logger.debug("Suppressing duplicate speech within dedup window: '%s'", clean_msg)
-            return
+        # Check Focus / Meeting suppression for non-urgent speech
+        from .focus_guard import FocusGuard
+        if priority in (SpeechPriority.REMINDER, SpeechPriority.NORMAL):
+            if FocusGuard.is_busy(config):
+                logger.info("FocusGuard: User is in a meeting or Focus mode. Deferring speech: '%s'", clean_msg)
+                # Re-queue once with a 60-second delay; if already deferred once, it will be dropped if stale
+                item = SpeechItem(
+                    priority=int(priority),
+                    timestamp=time.time() + 30.0,
+                    message=clean_msg,
+                    config=dict(config),
+                    play_chime=False
+                )
+                self._speech_queue.put(item)
+                return
 
         # Barge-in: If incoming message is URGENT and something is currently speaking, terminate it
         if priority == SpeechPriority.URGENT and self._is_speaking:
