@@ -1,4 +1,4 @@
-"""Strict wake-word state manager implementing STANDBY -> WAKE_WORD_DETECTED -> LISTENING -> PROCESSING -> SPEAKING."""
+"""Strict wake-word state manager implementing STANDBY -> WAKE_WORD_DETECTED -> LISTENING -> PROCESSING -> SPEAKING -> FOLLOW_UP."""
 
 import enum
 import logging
@@ -25,17 +25,18 @@ class AssistantState(enum.Enum):
     LISTENING_FOR_COMMAND = "LISTENING_FOR_COMMAND"
     PROCESSING_COMMAND = "PROCESSING_COMMAND"
     SPEAKING_RESPONSE = "SPEAKING_RESPONSE"
+    FOLLOW_UP = "FOLLOW_UP"
 
 
 class StrictVoiceController:
-    """
-    Manages strict wake-word activation workflow:
-    1. STANDBY mode: lightweight wake detection only (openWakeWord / acoustic detector).
+    """Manages strict wake-word activation workflow with follow-up mode and barge-in:
+
+    1. STANDBY mode: offline wake detection (openWakeWord / acoustic detector).
     2. WAKE_WORD_DETECTED: Triggers short activation chime ('hud_chime.wav').
     3. LISTENING_FOR_COMMAND: Captures command utterance with silence timeout.
-    4. PROCESSING_COMMAND: Transcribes with Faster-Whisper, executes approved tool or Ollama chat.
-    5. SPEAKING_RESPONSE: Speaks output via speech engine with mic muted to prevent self-triggering.
-    6. Automatically returns to STANDBY mode.
+    4. PROCESSING_COMMAND: Transcribes with Whisper, executes tool/chat.
+    5. SPEAKING_RESPONSE: Speaks output via speech engine.
+    6. FOLLOW_UP mode: Listens for ~8 seconds without requiring the wake word again.
     """
 
     def __init__(
@@ -57,7 +58,7 @@ class StrictVoiceController:
         self.command_silence_duration = float(voice_cfg.get("silence_duration", 1.0))
         self.command_timeout = float(voice_cfg.get("command_timeout", 6.0))
 
-        # Core Engines
+        # Core Engines (Lazy or initialized)
         self.wake_detector = WakeWordService(
             jarvis_threshold=float(voice_cfg.get("wake_sensitivity", 0.5)),
             friday_threshold=float(voice_cfg.get("wake_sensitivity", 0.5))
@@ -66,13 +67,19 @@ class StrictVoiceController:
             speech_threshold=self.speech_threshold,
             silence_duration=self.command_silence_duration
         )
-        self.recognizer = SpeechRecognitionService()
+        self._recognizer: Optional[SpeechRecognitionService] = None
         self.router = ConversationRouter()
 
-        # Command capture buffers
-        self._command_audio_chunks = []
+        # Follow-up and timers
         self._active_wake_persona: Optional[str] = None
         self._listening_timeout_timer: Optional[threading.Timer] = None
+        self._followup_timer: Optional[threading.Timer] = None
+
+    @property
+    def recognizer(self) -> SpeechRecognitionService:
+        if self._recognizer is None:
+            self._recognizer = SpeechRecognitionService()
+        return self._recognizer
 
     @property
     def current_state(self) -> str:
@@ -92,7 +99,6 @@ class StrictVoiceController:
                 return False
 
             device_idx = voice_cfg.get("mic_index")
-            # Connect mic stream to our raw audio frame processor
             success = self.mic_service.start_listening(
                 on_speech_chunk=self._on_audio_chunk,
                 device_index=device_idx
@@ -101,8 +107,8 @@ class StrictVoiceController:
                 logger.info("Assistant started in STANDBY mode. Listening strictly for 'Friday' or 'Jarvis'.")
             return success
 
-    def _cancel_listening_timeout(self) -> None:
-        """Cancels any pending idle listening timeout timer."""
+    def _cancel_timers(self) -> None:
+        """Cancels any pending idle or follow-up timers."""
         if self._listening_timeout_timer:
             try:
                 self._listening_timeout_timer.cancel()
@@ -110,17 +116,22 @@ class StrictVoiceController:
                 pass
             self._listening_timeout_timer = None
 
+        if self._followup_timer:
+            try:
+                self._followup_timer.cancel()
+            except Exception:
+                pass
+            self._followup_timer = None
+
     def _on_listening_timeout(self) -> None:
-        """Invoked when user wakes the assistant but provides no command within 5 seconds."""
         with self._lock:
-            if self.state == AssistantState.LISTENING_FOR_COMMAND:
-                logger.info("No command received within 5 seconds of wake activation. Returning to STANDBY mode.")
+            if self.state in [AssistantState.LISTENING_FOR_COMMAND, AssistantState.FOLLOW_UP]:
+                logger.info("No command received within window. Returning to STANDBY mode.")
                 self.state = AssistantState.STANDBY
                 self._active_wake_persona = None
 
     def stop(self) -> None:
-        """Halts the voice controller cleanly."""
-        self._cancel_listening_timeout()
+        self._cancel_timers()
         with self._lock:
             if not self._running:
                 return
@@ -130,20 +141,40 @@ class StrictVoiceController:
             logger.info("StrictVoiceController stopped.")
 
     def _on_audio_chunk(self, audio_bytes: bytes) -> None:
-        """
-        Invoked on each captured speech chunk from the microphone.
-        Enforces strict state transitions.
-        """
-        # 1. Guard against microphone feedback while assistant is speaking
+        """Invoked on each captured speech chunk from the microphone."""
+        # Barge-in support: If speaking and wake word detected, stop speech
         if self.state == AssistantState.SPEAKING_RESPONSE or self.mic_service._is_speaking:
-            logger.debug("Audio chunk ignored: assistant is currently speaking.")
+            detected_wake = self._detect_wake_word_in_audio(audio_bytes)
+            if detected_wake:
+                logger.info("Barge-in detected during speech! Stopping speech...")
+                self.speech_output.stop_speaking()
+                with self._lock:
+                    self.state = AssistantState.WAKE_WORD_DETECTED
+                    self._active_wake_persona = detected_wake[0]
+                self.speech_output.play_hud_chime("hud_chime.wav")
+                return
             return
+
+        # 1. FOLLOW_UP MODE: Can accept direct commands without wake word
+        if self.state == AssistantState.FOLLOW_UP:
+            self._cancel_timers()
+            with self._lock:
+                self.state = AssistantState.PROCESSING_COMMAND
+
+            command_text = self.recognizer.transcribe_audio_bytes(audio_bytes)
+            if command_text and len(command_text.strip()) >= 2:
+                persona = self._active_wake_persona or self.config.get("assistant_persona", "friday")
+                self._execute_command_pipeline(command_text, persona=persona)
+                return
+            else:
+                with self._lock:
+                    self.state = AssistantState.STANDBY
+                return
 
         # 2. STANDBY MODE: Only wake words ('Friday' or 'Jarvis') can transition state
         if self.state == AssistantState.STANDBY:
             detected_wake = self._detect_wake_word_in_audio(audio_bytes)
             if not detected_wake:
-                # Completely ignore background talk, TV noise, random speech without wake word
                 logger.debug("STANDBY: Audio ignored (no wake word detected).")
                 return
 
@@ -154,14 +185,11 @@ class StrictVoiceController:
                 self.state = AssistantState.WAKE_WORD_DETECTED
                 self._active_wake_persona = wake_word
 
-            # Play short activation HUD chime
             self.speech_output.play_hud_chime("hud_chime.wav")
 
             if immediate_command:
-                # User said "Friday, open Chrome" in one utterance
                 self._execute_command_pipeline(immediate_command, persona=wake_word)
             else:
-                # User said "Friday" -> Prompt user and transition to LISTENING_FOR_COMMAND
                 prompt_reply = "Yes, Sir?" if wake_word == "jarvis" else "Yes, Boss?"
                 self.state = AssistantState.SPEAKING_RESPONSE
                 self.mic_service.set_speaking_state(True)
@@ -183,9 +211,8 @@ class StrictVoiceController:
 
                 with self._lock:
                     self.state = AssistantState.LISTENING_FOR_COMMAND
-                    logger.info("Transitioned to LISTENING_FOR_COMMAND. Awaiting user instruction (5s timeout)...")
-                    # Start 5-second idle timeout
-                    self._cancel_listening_timeout()
+                    logger.info("Transitioned to LISTENING_FOR_COMMAND. Awaiting instruction (5s timeout)...")
+                    self._cancel_timers()
                     self._listening_timeout_timer = threading.Timer(5.0, self._on_listening_timeout)
                     self._listening_timeout_timer.daemon = True
                     self._listening_timeout_timer.start()
@@ -194,11 +221,11 @@ class StrictVoiceController:
 
         # 3. LISTENING_FOR_COMMAND MODE: Capture user instruction
         if self.state == AssistantState.LISTENING_FOR_COMMAND:
-            self._cancel_listening_timeout()
+            self._cancel_timers()
             with self._lock:
                 self.state = AssistantState.PROCESSING_COMMAND
 
-            logger.info("Transcribing captured command with Faster-Whisper...")
+            logger.info("Transcribing captured command with Whisper...")
             command_text = self.recognizer.transcribe_audio_bytes(audio_bytes)
 
             if not command_text or len(command_text.strip()) < 2:
@@ -210,13 +237,7 @@ class StrictVoiceController:
             self._execute_command_pipeline(command_text, persona=persona)
 
     def _detect_wake_word_in_audio(self, audio_bytes: bytes) -> Optional[Tuple[str, Optional[str]]]:
-        """
-        Strictly tests audio chunk for 'Friday' or 'Jarvis'.
-        1. Fast test via openWakeWord ONNX for 'jarvis'.
-        2. Fast transcription via Whisper for 'friday' or 'jarvis'.
-        Returns (wake_word, follow_up_command) if detected, else None.
-        """
-        # Step A: Check openWakeWord model for Jarvis
+        """Strictly tests audio chunk for 'Friday' or 'Jarvis' using openWakeWord then Whisper."""
         try:
             samples = np.frombuffer(audio_bytes, dtype=np.int16)
             if len(samples) >= 1280:
@@ -227,14 +248,13 @@ class StrictVoiceController:
         except Exception:
             pass
 
-        # Step B: Fast transcription check for 'Friday' or 'Jarvis'
         text = self.recognizer.transcribe_audio_bytes(audio_bytes)
         if not text:
             return None
 
         clean = text.lower().strip(",.!? ")
 
-        # Test Jarvis (and phonetically common whisper misrecognitions: 'darius', 'jarvis', 'travis', 'charvis', 'jarvir', 'jar visual', 'jar visit', 'service', 'harvest', 'drivers')
+        # Test Jarvis
         jarvis_match = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?\b(jarvis|jarvir|darius|travis|charvis|service|harvest|drivers|jarv|jarve)\b[,:\s]*(.*)", clean)
         if not jarvis_match and ("jarv" in clean or "darius" in clean or "travis" in clean):
             m = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?([a-z]*jarv[a-z]*|[a-z]*darius[a-z]*)[,:\s]*(.*)", clean)
@@ -244,18 +264,17 @@ class StrictVoiceController:
             cmd = jarvis_match.group(2).strip()
             return "jarvis", (cmd if cmd else None)
 
-        # Test Friday (and phonetically common whisper misrecognitions: 'friday', 'freida', 'frida', 'fry day')
+        # Test Friday
         friday_match = re.search(r"(?:hey\s+|hi\s+|ok\s+|okay\s+)?\b(friday|freida|frida|fry\s*day)\b[,:\s]*(.*)", clean)
         if friday_match:
             cmd = friday_match.group(2).strip()
             return "friday", (cmd if cmd else None)
 
-        # Random conversation without wake word -> Strict IGNORE
         logger.info("STANDBY: Ignored speech without wake word: '%s'", text)
         return None
 
     def _execute_command_pipeline(self, command_text: str, persona: str) -> None:
-        """Processes command through ConversationRouter and speaks reply."""
+        """Processes command through ConversationRouter, speaks reply, and enters follow-up mode."""
         with self._lock:
             self.state = AssistantState.PROCESSING_COMMAND
 
@@ -272,21 +291,31 @@ class StrictVoiceController:
             voice = f_profile.get("voice", cfg.get("voice", "Moira"))
             rate = f_profile.get("speech_rate", cfg.get("speech_rate", 172))
 
-        logger.info("Processing command: '%s' (Persona: %s, Voice: %s, Rate: %s)", command_text, persona, voice, rate)
+        logger.info("Processing command: '%s' (Persona: %s)", command_text, persona)
         intent, ok, response_text = self.router.route(command_text, persona=persona)
         logger.info("Command result: Intent='%s' | Response='%s'", intent, response_text)
 
-        # Transition to SPEAKING_RESPONSE
+        # Stop command check
+        if intent == "stop":
+            with self._lock:
+                self.state = AssistantState.STANDBY
+                self._active_wake_persona = None
+            return
+
         with self._lock:
             self.state = AssistantState.SPEAKING_RESPONSE
             self.mic_service.set_speaking_state(True)
 
         try:
-            self.speech_output.speak(response_text, voice=voice, rate=rate, play_chime=False)
+            if response_text:
+                self.speech_output.speak(response_text, voice=voice, rate=rate, play_chime=False)
         finally:
             self.mic_service.set_speaking_state(False)
             with self._lock:
-                # 11. Return to STANDBY mode automatically
-                self.state = AssistantState.STANDBY
-                self._active_wake_persona = None
-                logger.info("Action complete. Automatically returned to STANDBY mode.")
+                # Transition to FOLLOW_UP mode for ~8 seconds
+                self.state = AssistantState.FOLLOW_UP
+                logger.info("Entered FOLLOW_UP mode (listening for 8s without wake word)...")
+                self._cancel_timers()
+                self._followup_timer = threading.Timer(8.0, self._on_listening_timeout)
+                self._followup_timer.daemon = True
+                self._followup_timer.start()
