@@ -21,6 +21,16 @@
   "cooldown_seconds": 2,
   "listen_mode": "off",
 
+  "avatar": {
+    "enabled": true,
+    "image_path": "assets/avatar.png",
+    "width": 260,
+    "margin": 24,
+    "linger_seconds": 1.5,
+    "opacity": 1.0,
+    "screen": "main"
+  },
+
   "hud_sound": {
     "enabled": true,
     "sound_file": "hud_chime.wav"

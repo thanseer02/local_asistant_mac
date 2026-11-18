@@ -211,6 +211,9 @@ class VoiceEngine:
 
         logger.info("Speaking with voice '%s' (rate %s): %s", voice, rate, message)
 
+        from .avatar_client import AvatarClient
+        AvatarClient.speaking_start()
+
         try:
             self._is_speaking = True
             proc = subprocess.Popen(["/usr/bin/say", "-v", voice, "-r", rate, message])
@@ -231,6 +234,7 @@ class VoiceEngine:
                 if self._current_process == proc:
                     self._current_process = None
             self._is_speaking = False
+            AvatarClient.speaking_end()
 
     def _speech_worker(self) -> None:
         """Background worker consuming queued speech by priority."""

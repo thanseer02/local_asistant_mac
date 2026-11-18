@@ -2,11 +2,14 @@
 
 import logging
 import os
+from pathlib import Path
 import select
 import signal
+import subprocess
 import sys
 import time
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 from .app_launcher import AppLauncher
 from .briefing_service import BriefingService
@@ -32,10 +35,40 @@ class AssistantDaemon:
         self.last_spoken_time: float = 0
         self.has_launched_startup_apps: bool = False
         self._is_shutting_down: bool = False
+        self._avatar_proc: Optional[subprocess.Popen] = None
 
         # Register termination signal handlers for shutdown / reboot / logout
         signal.signal(signal.SIGTERM, self._handle_shutdown)
         signal.signal(signal.SIGINT, self._handle_shutdown)
+
+    def _ensure_avatar_running(self, config: Dict[str, Any]) -> None:
+        """Launches or restarts the avatar overlay GUI process if enabled and dead."""
+        avatar_cfg = config.get("avatar", {})
+        if not avatar_cfg.get("enabled", True):
+            if self._avatar_proc and self._avatar_proc.poll() is None:
+                self._avatar_proc.terminate()
+                self._avatar_proc = None
+            return
+
+        # Check if already running healthy
+        if self._avatar_proc and self._avatar_proc.poll() is None:
+            return
+
+        # Launch avatar_overlay.py using venv python interpreter
+        venv_python = sys.executable
+        overlay_script = Path(__file__).resolve().parent.parent / "modules" / "ui" / "avatar_overlay.py"
+        if not overlay_script.exists():
+            return
+
+        try:
+            self._avatar_proc = subprocess.Popen(
+                [venv_python, str(overlay_script)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            logger.info("Spawned avatar overlay process (PID %d)", self._avatar_proc.pid)
+        except Exception as e:
+            logger.warning("Failed to launch avatar overlay process: %s", e)
 
     def _handle_ptt_command(self, transcript: str) -> None:
         """Executes spoken command through the skills registry and speaks response."""
@@ -60,6 +93,13 @@ class AssistantDaemon:
         except Exception as e:
             logger.error("Error during shutdown farewell: %s", e)
         finally:
+            from .avatar_client import AvatarClient
+            AvatarClient.hide()
+            if self._avatar_proc and self._avatar_proc.poll() is None:
+                try:
+                    self._avatar_proc.terminate()
+                except Exception:
+                    pass
             sys.exit(0)
 
     def start(self) -> None:
@@ -69,6 +109,7 @@ class AssistantDaemon:
             return
 
         config = ConfigManager.load()
+        self._ensure_avatar_running(config)
 
         # Launch startup workspace applications on initial session boot
         if not self.has_launched_startup_apps:
@@ -99,6 +140,7 @@ class AssistantDaemon:
                 # Hot-reload config periodically or on loop iteration
                 if now - last_config_check >= 5.0:
                     config = ConfigManager.load()
+                    self._ensure_avatar_running(config)
                     last_config_check = now
 
                 cooldown = config.get("cooldown_seconds", 3)
