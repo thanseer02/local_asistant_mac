@@ -1,0 +1,33 @@
+{
+  "eye_break": {
+    "interval_minutes": 20
+  },
+  "hydration": {
+    "interval_minutes": 45,
+    "start_hour": 9,
+    "end_hour": 18
+  },
+  "late_night": {
+    "start_hour": 22,
+    "end_hour": 5,
+    "interval_minutes": 30
+  },
+  "fixed_daily_alerts": [
+    {
+      "time": "11:00",
+      "label": "Morning Tea"
+    },
+    {
+      "time": "13:00",
+      "label": "Lunch"
+    },
+    {
+      "time": "16:00",
+      "label": "Afternoon Tea"
+    },
+    {
+      "time": "18:18",
+      "label": "End of Workday"
+    }
+  ]
+}
