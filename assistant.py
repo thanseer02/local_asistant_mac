@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 MacAssistant Entry Point.
-Runs the background daemon service or system diagnostics.
+Runs the background daemon service, system diagnostics (--doctor), or metrics (--stats).
 """
 
 import logging
@@ -16,10 +16,15 @@ if str(PROJECT_ROOT) not in sys.path:
 from mac_assistant.daemon import AssistantDaemon
 from mac_assistant.doctor import SystemDoctor
 from mac_assistant.logging_config import setup_structured_logging
+from mac_assistant.metrics import MetricsTracker
 
 if __name__ == "__main__":
     if "--doctor" in sys.argv:
         SystemDoctor.print_report()
+        sys.exit(0)
+
+    if "--stats" in sys.argv:
+        MetricsTracker.print_report()
         sys.exit(0)
 
     setup_structured_logging()
