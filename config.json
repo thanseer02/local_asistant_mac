@@ -43,7 +43,7 @@
   "morning_briefing": {
     "enabled": true,
     "include_weather": true,
-    "include_calendar": true,
+    "include_calendar": false,
     "weather_location": ""
   },
   "git_briefing": {

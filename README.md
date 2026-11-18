@@ -15,16 +15,17 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 - ⚡ **Low-Latency Wake Detection**: Instant (<0.5s) greeting on login, screen unlock (Touch ID/password), and screensaver exit via `notify(3)`.
 - 🌅 **Morning & Login Intelligence Briefing**:
   - Live local weather (without external API keys).
-  - Apple Reminders / Calendar task overview.
+  - Configurable calendar & task briefings (`include_calendar` can be toggled on/off).
   - 💻 **Developer Git Inspector**: Summarizes uncommitted files and unpushed commits across your active projects.
 - 🚀 **Smart Workspace Launcher**:
   - Launches Antigravity IDE, Google Chrome (Teams), and Brave (Spotify + YouTube Music).
   - **Duplicate Prevention**: Detects existing open tabs in Chrome and Brave so it never duplicates tabs.
-- 🌿 **Health & Ergonomic Alerts**:
+- 🌿 **Health & Ergonomic Alerts (Exactly-Once Engine)**:
   - **20-20-20 Rule**: Prompts a 20-second distant look every 20 minutes to prevent eye fatigue.
-  - **Hydration**: Reminds you to drink water every 45 minutes.
-  - **Late-Night Work Guardian**: Prompts you every 30 minutes between 10:00 PM and 5:00 AM to take rest.
-- ⏰ **Daily Schedule Alerts**: Pre-set reminders for morning tea (11:00 AM), lunch (1:00 PM), afternoon tea (4:00 PM), and end of day (6:18 PM).
+  - **Hydration**: Reminds you to drink water with random 30–45 minute jitter (work hours only, Mon–Fri).
+  - **Late-Night Work Guardian**: Prompts you every 30 minutes between 10:00 PM and 5:00 AM (midnight-crossing window).
+  - **Atomic State Persistence**: Guaranteed exactly-once execution via `scheduler_state.json`. Prevents duplicate alerts and caps sleep/wake recovery at 1 single reminder.
+- ⏰ **Daily Schedule Alerts**: Pre-set reminders for morning tea (11:00 AM), lunch (1:00 PM), afternoon tea (4:00 PM), and end of day (6:18 PM). Never repeats on the same day even across daemon restarts.
 - 🛑 **Shutdown / Logout Farewell**: Catches system `SIGTERM` on shutdown or restart to bid a polite farewell before powering down.
 - 🔄 **Live Hot-Reloading**: Any edit in `config.json` takes effect immediately without needing to restart the daemon.
 - ⚡ **Prioritized Speech Queue & Barge-In**: Thread-safe priority queue (`URGENT > BRIEFING > REMINDER > NORMAL`) with automatic stale reminder dropping (>60s) and instant interruption.
@@ -46,15 +47,21 @@ MacAssistant/
 ├── venv/                          # Local Python virtual environment
 ├── sounds/
 │   └── hud_chime.wav              # Synthesized Iron Man HUD audio cue
+├── tests/                         # Pure standard-library test suite
+│   ├── test_assistant_core.py     # Core regression & priority queue tests
+│   └── test_scheduler_strict.py   # Exactly-once & monotonic scheduler tests
 └── mac_assistant/                 # Core Architecture Package
     ├── __init__.py                # Package root
     ├── config_manager.py          # Hot-reloading & safe JSON fallback
-    ├── voice_engine.py            # Personas, HUD audio player & speech synthesis
+    ├── voice_engine.py            # Prioritized speech queue, HUD player & barge-in
     ├── event_listener.py          # Low-level macOS notify(3) kernel listener
-    ├── scheduler.py               # Health & time-of-day alert scheduler
+    ├── scheduler.py               # Monotonic & atomic reminder scheduler
     ├── app_launcher.py            # App & browser workspace launcher with deduplication
-    ├── briefing_service.py        # Morning weather & calendar integration
+    ├── briefing_service.py        # Concurrent weather & calendar integration
+    ├── focus_guard.py             # Focus & active meeting audio suppression
+    ├── memory_store.py            # SQLite long-term memory store
     ├── git_inspector.py           # Developer repository status checker
+    ├── skills/                    # Pluggable skills registry
     └── daemon.py                  # Core event loop coordinating all layers
 ```
 
