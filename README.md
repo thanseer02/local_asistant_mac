@@ -202,15 +202,58 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistan
 
 ---
 
-## 🛠️ Everyday Service Controls
+## 🛠️ Everyday Service Controls & Commands
 
-| Action | Command |
+You can control the background daemon directly from your terminal using macOS `launchctl`:
+
+### 🔄 Restart Assistant
+```bash
+launchctl bootout gui/$(id -u)/com.personal.macassistant 2>&1; sleep 1; launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist
+```
+
+### 🟢 Start Assistant
+```bash
+launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist
+```
+
+### 🛑 Stop Assistant
+```bash
+launchctl bootout gui/$(id -u)/com.personal.macassistant
+```
+
+### 🔍 Check Process & Status
+```bash
+launchctl list | grep macassistant
+```
+*(If running, it outputs `<PID> 0 com.personal.macassistant`)*
+
+### 📜 Stream Realtime Logs
+```bash
+tail -f /tmp/macassistant-error.log
+```
+
+### 🧪 Run Manually in Terminal (Interactive Debug Mode)
+```bash
+source venv/bin/activate && python assistant.py
+```
+
+### 🧪 Run Strict Unit Test Suite
+```bash
+python3 -m unittest discover tests
+```
+
+---
+
+### Quick Reference Table
+
+| Action | One-Liner Command |
 | :--- | :--- |
+| **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant 2>&1; sleep 1; launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **Start Service** | `launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **Stop Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant` |
-| **Restart Service** | `launchctl bootout gui/$(id -u)/com.personal.macassistant 2>&1; sleep 1; launchctl enable gui/$(id -u)/com.personal.macassistant && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.personal.macassistant.plist` |
 | **Check Status** | `launchctl list \| grep macassistant` |
 | **View Live Logs** | `tail -f /tmp/macassistant-error.log` |
+| **Run Tests** | `python3 -m unittest discover tests` |
 | **Test Interactively** | `source venv/bin/activate && python assistant.py` |
 
 ---
