@@ -43,8 +43,9 @@ MacAssistant follows a clean 5-tier architecture: **Kernel & Trigger Layer**, **
 ```text
 MacAssistant/
 ├── assistant.py                   # Clean LaunchAgent entry point
-├── config.json                    # General settings (persona, voices, apps, sound)
-├── schedule_times.json            # Dedicated time constants & schedule configuration
+├── config.json                    # Clean core settings (~70 lines: persona, voices, apps, sound)
+├── schedule_times.json            # Dedicated time constants & schedule intervals
+├── messages.json                  # Dedicated message & dialogue dictionaries for personas
 ├── README.md                      # Documentation & setup guide
 ├── voices.text                    # Curated voice preview commands
 ├── venv/                          # Local Python virtual environment
@@ -56,7 +57,7 @@ MacAssistant/
 └── mac_assistant/                 # Core Architecture Package
     ├── __init__.py                # Package root
     ├── daemon.py                  # Core event loop coordinating all layers (select.select)
-    ├── config_manager.py          # Hot-reloading & safe JSON fallback (loads config + schedule_times)
+    ├── config_manager.py          # Hot-reloading manager (combines config + times + messages)
     ├── event_listener.py          # Low-level macOS notify(3) kernel listener
     ├── scheduler.py               # Monotonic, persistent & atomic reminder scheduler
     ├── voice_engine.py            # Prioritized speech queue, HUD player & barge-in
