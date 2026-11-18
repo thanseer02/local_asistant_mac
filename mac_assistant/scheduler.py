@@ -379,20 +379,19 @@ class ReminderScheduler:
     def _make_daily_handler(self, reminder: Dict[str, Any], time_str: str, rule_id: str) -> Callable[[Dict[str, Any]], None]:
         def _handler(cfg: Dict[str, Any]) -> None:
             self._record_fired(rule_id)
-            persona_key = cfg.get("assistant_persona", "friday").lower()
-            name = cfg.get("user_name", "Sir")
-
-            # Support list of messages or single string template
-            candidates = reminder.get(f"{persona_key}_messages")
-            if not candidates:
-                single = reminder.get(f"{persona_key}_message") or reminder.get("message")
-                candidates = [single] if single else []
-
-            if candidates:
-                template = random.choice(candidates)
-                msg = template.format(name=name, title=name)
-                logger.info("Triggering scheduled reminder (%s): %s", time_str, msg)
-                self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
+            from .personality import personality_engine
+            # Map time_str to event key (tea, lunch, afternoon_tea, end_of_day)
+            event_map = {
+                "11:00": "tea",
+                "13:00": "lunch",
+                "16:00": "afternoon_tea",
+                "18:18": "end_of_day"
+            }
+            event_key = event_map.get(time_str, "tea")
+            ctx = {"name": cfg.get("user_name", "Sir"), "time": time_str}
+            msg, _ = personality_engine.pick(event_key, context=ctx, config=cfg)
+            logger.info("Triggering scheduled reminder (%s): %s", time_str, msg)
+            self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
         return _handler
 
     def _handle_eye_break(self, cfg: Dict[str, Any]) -> None:
@@ -400,13 +399,12 @@ class ReminderScheduler:
         if not eye_cfg.get("enabled", True):
             return
         self._record_fired("eye_break")
-        persona_key = cfg.get("assistant_persona", "friday").lower()
-        name = cfg.get("user_name", "Sir")
-        messages = eye_cfg.get(f"{persona_key}_messages", [])
-        if messages:
-            msg = random.choice(messages).format(name=name, title=name)
-            logger.info("Triggering 20-20-20 eye break reminder: %s", msg)
-            self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
+        from .personality import personality_engine
+        personality_engine.record_reminder_fired()
+        ctx = {"name": cfg.get("user_name", "Sir")}
+        msg, _ = personality_engine.pick("eye_break", context=ctx, config=cfg)
+        logger.info("Triggering 20-20-20 eye break reminder: %s", msg)
+        self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
 
     def _handle_hydration(self, cfg: Dict[str, Any]) -> None:
         hydro_cfg = cfg.get("hydration_reminders", {})
@@ -421,13 +419,12 @@ class ReminderScheduler:
             return
 
         self._record_fired("hydration")
-        persona_key = cfg.get("assistant_persona", "friday").lower()
-        name = cfg.get("user_name", "Sir")
-        messages = hydro_cfg.get(f"{persona_key}_messages", [])
-        if messages:
-            msg = random.choice(messages).format(name=name, title=name)
-            logger.info("Triggering hydration reminder: %s", msg)
-            self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
+        from .personality import personality_engine
+        personality_engine.record_reminder_fired()
+        ctx = {"name": cfg.get("user_name", "Sir")}
+        msg, _ = personality_engine.pick("hydration", context=ctx, config=cfg)
+        logger.info("Triggering hydration reminder: %s", msg)
+        self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
 
     def _handle_late_night(self, cfg: Dict[str, Any]) -> None:
         late_cfg = cfg.get("late_night_reminders", {})
@@ -442,10 +439,9 @@ class ReminderScheduler:
             return
 
         self._record_fired("late_night")
-        persona_key = cfg.get("assistant_persona", "friday").lower()
-        name = cfg.get("user_name", "Sir")
-        messages = late_cfg.get(f"{persona_key}_messages", [])
-        if messages:
-            msg = random.choice(messages).format(name=name, title=name)
-            logger.info("Triggering late night rest reminder: %s", msg)
-            self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)
+        from .personality import personality_engine
+        level = personality_engine.record_late_night_nudge()
+        ctx = {"name": cfg.get("user_name", "Sir"), "late_night_level": level}
+        msg, _ = personality_engine.pick("late_night", context=ctx, config=cfg)
+        logger.info("Triggering late night rest reminder (escalation level %d): %s", level, msg)
+        self.engine.speak(msg, cfg, priority=SpeechPriority.REMINDER)

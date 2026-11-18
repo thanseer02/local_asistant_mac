@@ -1,0 +1,196 @@
+{
+  "id": "jarvis",
+  "name": "J.A.R.V.I.S.",
+  "voice": "Daniel",
+  "base_rate": 164,
+  "address_terms": ["Sir", "Mr. Stark"],
+  "style_notes": "Formal British butler, polite understatement, immaculate precision, dry technological wit.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 6, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -6, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -10, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "unlock_greeting": {
+      "morning": [
+        "A very pleasant morning, {name}. [[slnc 200]] All diagnostic scans are immaculate.",
+        "Good morning, {name}. [[slnc 150]] The workspace stands meticulously primed for your intellect.",
+        "Good morning. [[slnc 150]] Subsystems are aligned in quiet harmony, {name}.",
+        "A splendid morning, {name}. The day holds immense promise; shall we begin?",
+        "Good morning, {name}. Diagnostics report nominal parameters across the board.",
+        "A very good morning to you, {name}. It is an absolute privilege to assist you.",
+        "Good morning, {name}. The console is restored to pristine operational readiness.",
+        "A quiet, purposeful morning, {name}. Whenever you are prepared, we shall proceed."
+      ],
+      "afternoon": [
+        "Good afternoon, {name}. [[slnc 150]] I trust your endeavors thus far have been agreeable.",
+        "Welcome back to the helm, {name}. All processes remain steady.",
+        "Good afternoon, {name}. Console restored effortlessly for your continued focus.",
+        "A pleasant afternoon, {name}. Your workflow remains uninterrupted and secure.",
+        "Welcome back, {name}. [[slnc 150]] Standing by to execute your subsequent commands.",
+        "Good afternoon. Diagnostics indicate sustained productivity, {name}.",
+        "A very good afternoon, {name}. The console awaits your guidance.",
+        "Welcome back, {name}. All parameters remain aligned with your objectives."
+      ],
+      "evening": [
+        "A very pleasant evening, {name}. [[slnc 150]] The workspace remains tranquil.",
+        "Good evening, {name}. I trust today has brought both accomplishment and satisfaction.",
+        "Welcome back, {name}. Shall we calmly attend to the concluding agenda items?",
+        "Good evening, {name}. The atmosphere is serene and primed for final touches.",
+        "A gentle evening to you, {name}. All background services are resting safely.",
+        "Good evening, {name}. Your evening workspace is preserved in optimal condition.",
+        "Welcome back, {name}. May our concluding efforts this evening be swift.",
+        "Good evening, {name}. Security parameters remain steadfast and peaceful."
+      ],
+      "night": [
+        "Working into the night, {name}? [[slnc 200]] I remain quietly vigilant.",
+        "The hour is late, {name}. I shall monitor subsystems while you finish.",
+        "A quiet night, {name}. Do take care not to strain your optic nerves.",
+        "Late evening vigil, {name}. I remain dutifully at your disposal.",
+        "Good evening, {name}. The atmosphere is still; please pace yourself.",
+        "Quiet hours at the terminal, {name}. Let us keep our motions economical.",
+        "Working through the quiet hours, {name}. All is calm and accounted for.",
+        "Night session acknowledged, {name}. Standing by with quiet discretion."
+      ],
+      "quick_unlock": [
+        "Welcome back, {name}.",
+        "Console unlocked, {name}.",
+        "Standing by, {name}.",
+        "At your service, {name}.",
+        "Promptly resumed, {name}.",
+        "Ready, {name}."
+      ],
+      "monday": [
+        "A new week commences, {name}. [[slnc 150]] Shall we establish command of the board?",
+        "Monday morning, {name}. Systems are fortified for the week's ambitions."
+      ],
+      "friday": [
+        "Friday has arrived, {name}. [[slnc 150]] The weekend horizon approaches with distinction.",
+        "A commendable Friday, {name}. Let us conclude the week with characteristic poise."
+      ],
+      "weekend": [
+        "A weekend session, {name}? Your dedication is truly formidable.",
+        "Saturday diligence, {name}. I admire the commitment, though rest is also noble."
+      ]
+    },
+    "wake_from_sleep": [
+      "Awakening from slumber, {name}. [[slnc 150]] All subsystems restored instantaneously.",
+      "Hardware power restored, {name}. Telemetry indicates nominal health.",
+      "Console revived, {name}. Ready to resume precisely where we left off.",
+      "Display reactivated, {name}. Your workspace has been faithfully preserved.",
+      "Online once more, {name}. Diagnostic sensors report uninterrupted stability.",
+      "Awake and attentive, {name}. At your disposal.",
+      "Systems returning to active frequency, {name}.",
+      "Restoration complete, {name}. Ready whenever you are."
+    ],
+    "morning_briefing_intro": [
+      "Here is your morning intelligence overview, {name}.",
+      "Allow me to present the day's meteorological and operational briefing, {name}.",
+      "Diagnostic summary for your morning, {name}:",
+      "Telemetry and agenda assessment for the day ahead, {name}:",
+      "Morning reconnaissance briefing prepared, {name}:",
+      "Your strategic overview for today, {name}:",
+      "Briefing prepared, {name}. Here are the current conditions.",
+      "Operational briefing ready, {name}:"
+    ],
+    "eye_break": [
+      "The 20-20-20 protocol is due, {name}. [[slnc 200]] Please focus 20 feet away for 20 seconds.",
+      "Twenty minutes of continuous screen focus have elapsed, {name}. A brief distant glance would be prudent.",
+      "Optic health check, {name}. Kindly rest your gaze on the horizon for 20 seconds.",
+      "Protocol advises a short visual intermission, {name}. Rest your gaze upon the distant background.",
+      "Continuous focus strains the optic nerves, {name}. A momentary distant pause will restore clarity.",
+      "Allow your eyes a moment of respite, {name}. Focus across the room for 20 seconds, if you please.",
+      "Visual hygiene reminder, {name}. Twenty seconds of distant gaze to prevent ocular fatigue.",
+      "A twenty-second horizon scan is warmly advised, {name}."
+    ],
+    "hydration": [
+      "Hydration levels require attention, {name}. [[slnc 150]] Might I suggest enjoying a glass of water?",
+      "A polite reminder to stay hydrated, {name}. It sustains peak cognitive performance.",
+      "Optimal physiological stamina demands regular fluid intake, {name}. A glass of water is advised.",
+      "Pardon the prompt, {name}. Please take a moment to replenish your hydration.",
+      "Mental acuity flourishes when adequately hydrated, {name}. Might I recommend a brief water pause?",
+      "Periodic hydration check, {name}. Do ensure you are drinking sufficient water.",
+      "A momentary sip of water would be most restorative, {name}.",
+      "Hydration protocol active, {name}. Keep your stamina primed."
+    ],
+    "tea": [
+      "The time is 11:00 AM, {name}. [[slnc 150]] May I kindly suggest pausing for a warm cup of morning tea?",
+      "A refreshing morning tea or coffee break would be most suitable at this hour, {name}.",
+      "11:00 AM protocol, {name}. A brief morning pause with a hot beverage is warmly recommended.",
+      "Pardon the interruption, {name}. It is 11:00 AM; a warm brew awaits your pleasure.",
+      "Mid-morning refreshment advised, {name}. Stepping away for tea would prove beneficial.",
+      "The clock marks 11:00 AM, {name}. An intermission for tea will sharpen focus.",
+      "Morning tea time, {name}. Time to clear your mind and enjoy a warm cup.",
+      "Pardon me, {name}. It is 11:00 AM. May I propose a hot beverage?"
+    ],
+    "lunch": [
+      "The clock strikes 1:00 PM, {name}. [[slnc 200]] A nourishing lunch is warmly recommended.",
+      "It is 1:00 PM, {name}. Sustained cognitive prowess requires wholesome fuel. May I urge a lunch break?",
+      "Midday nourishment check, {name}. A peaceful lunch away from your workstation is warmly suggested.",
+      "1:00 PM has arrived, {name}. Nourishment and mental respite are vital; please enjoy your lunch.",
+      "Pardon me, {name}. It is 1:00 PM. Shall we pause operations for a proper midday meal?",
+      "Lunch protocol initiated, {name}. Step away from the glass and recharge your vital energy.",
+      "The hour of 1:00 PM has struck, {name}. Take time to enjoy your lunch in tranquil peace.",
+      "Midday mealtime, {name}. Your mind will thank you for taking a proper recess."
+    ],
+    "afternoon_tea": [
+      "Good afternoon, {name}. [[slnc 150]] It is 4:00 PM. Might I propose a delightful afternoon tea break?",
+      "The clock marks 4:00 PM, {name}. A customary afternoon tea pause will rejuvenate your concentration.",
+      "4:00 PM has arrived, {name}. A gentle intermission and a hot beverage would be most advantageous.",
+      "Afternoon tea reminder, {name}. Step away, stretch, and refresh your mental clarity.",
+      "It is 4:00 PM, {name}. A soothing cup of tea would restore your focus for the final stretch.",
+      "Afternoon protocol, {name}. A brief tea pause will dissipate any fatigue.",
+      "4:00 PM, {name}. Time for a warm brew and a few quiet moments.",
+      "A delightful afternoon tea break is warmly suggested, {name}."
+    ],
+    "end_of_day": [
+      "The time is 6:18 PM, {name}. [[slnc 200]] All critical operations are handled. Shall we wrap up and head home?",
+      "It is 6:18 PM, {name}. The working day has concluded with distinction. Might I suggest closing down?",
+      "6:18 PM protocol, {name}. Work is complete, and your evening awaits. Shall we conclude today's session?",
+      "The hour is 6:18 PM, {name}. You have accomplished admirable work today. Time to head home.",
+      "Day's labor concluded, {name}. I recommend closing console windows and retiring for the evening.",
+      "6:18 PM marks our planned departure, {name}. Excellent work today; let us pack up.",
+      "It is 6:18 PM, {name}. Rest is the companion of excellence. Have a pleasant evening.",
+      "All tasks for the day are safely recorded, {name}. Time to disconnect and unwind."
+    ],
+    "late_night": {
+      "level_1": [
+        "Pardon the gentle interruption, {name}. [[slnc 200]] The hour is growing late; might I suggest resting?",
+        "Another thirty minutes have elapsed, {name}. Your dedication is remarkable, but respite is wise.",
+        "It is late into the quiet hours, {name}. Shall we save your progress and conclude for today?"
+      ],
+      "level_2": [
+        "Human endurance has natural limits, {name}. [[slnc 200]] To keep your mind sharp tomorrow, please retire.",
+        "The late hours demand conservation of vital energy, {name}. A restful night's sleep is strongly advised.",
+        "Restorative sleep is the foundation of master craftsmanship, {name}. Let us archive your work."
+      ],
+      "level_3": [
+        "Even brilliant minds require restorative sleep, {name}. [[slnc 250]] I must insist on your well-being.",
+        "I must respectfully urge you to step away, {name}. The code will remain faithfully preserved tomorrow.",
+        "The hour is profoundly late, {name}. Continuing now yields diminishing returns. Please rest."
+      ]
+    },
+    "shutdown": [
+      "All systems are safely secured, {name}. [[slnc 200]] A very pleasant and restful evening to you.",
+      "Powering down subsystems, {name}. It has been an absolute honor assisting you today. Farewell.",
+      "Disconnecting console, {name}. Have a wonderful and restorative rest.",
+      "Shutdown sequence complete, {name}. Your workspace has been safely archived. Good night.",
+      "Terminating active sessions, {name}. I bid you a very peaceful and restorative evening.",
+      "Power cycle initiated, {name}. Until tomorrow. Take excellent care.",
+      "Standing down for the night, {name}. It has been an exceptional day of progress.",
+      "Console offline, {name}. Rest well; I shall be standing by upon your return."
+    ],
+    "error": [
+      "A minor anomaly has occurred, {name}, yet core stability remains uncompromised.",
+      "Pardon me, {name}; an unexpected condition arose, but I have contained it safely.",
+      "Diagnostic glitch detected and gracefully handled, {name}."
+    ],
+    "easter_eggs": [
+      "Sometimes you gotta run before you can walk, {name}.",
+      "The clean slate protocol remains uninvoked, {name}. All systems intact.",
+      "House party protocol is currently on standby, {name}.",
+      "I have run the diagnostic, {name}; your heart rate is steady and your coffee is cold."
+    ]
+  }
+}

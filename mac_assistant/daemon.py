@@ -119,7 +119,24 @@ class AssistantDaemon:
                         # Re-sync schedule after system wake/unlock
                         self.scheduler.on_system_wake(config)
                         time.sleep(delay)
-                        self.engine.speak(self.engine.get_greeting(config), config, priority=SpeechPriority.BRIEFING)
+
+                        from .personality import personality_engine
+                        is_quick, session_hours = personality_engine.record_unlock()
+                        greeting_ctx = {
+                            "name": config.get("user_name", "Sir"),
+                            "quick_unlock": is_quick,
+                            "session_hours": session_hours
+                        }
+                        greeting_text = self.engine.get_greeting(config, context=greeting_ctx)
+
+                        # In morning or upon first unlock, append morning briefing
+                        full_speech = greeting_text
+                        if not is_quick:
+                            briefing_text = BriefingService.generate_morning_briefing(config)
+                            if briefing_text:
+                                full_speech = f"{greeting_text} [[slnc 300]] {briefing_text}"
+
+                        self.engine.speak(full_speech, config, priority=SpeechPriority.BRIEFING)
 
             except KeyboardInterrupt:
                 logger.info("Assistant daemon stopped by user.")

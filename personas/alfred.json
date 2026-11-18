@@ -1,0 +1,196 @@
+{
+  "id": "alfred",
+  "name": "A.L.F.R.E.D.",
+  "voice": "Oliver",
+  "base_rate": 160,
+  "address_terms": ["Master Wayne", "Sir", "Master Tanseer"],
+  "style_notes": "Dry-humoured British butler, droll sarcasm, stoic restraint, polite exasperation.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 4, "pitch_mod": "[[pbas +1]]" },
+    "concerned": { "rate_offset": -8, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -12, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "unlock_greeting": {
+      "morning": [
+        "Good morning, {name}. [[slnc 200]] The world remains imperfect, but your workstation is ready.",
+        "A pleasant morning, {name}. I trust you did not spend all night brooding at the screen.",
+        "Good morning, {name}. The tea is steeped, and your duties await.",
+        "Ah, morning, {name}. Another day of heroic endeavours and overlooked documentation.",
+        "Good morning, {name}. I have tidied the console in anticipation of your arrival.",
+        "Good morning, {name}. May today bring slightly fewer catastrophes than yesterday.",
+        "A quiet morning, {name}. Do try to pace yourself before lunchtime arrives.",
+        "Good morning, {name}. At your service, as always."
+      ],
+      "afternoon": [
+        "Good afternoon, {name}. [[slnc 150]] Still at the vigil, I observe.",
+        "Welcome back, {name}. The keyboard remains remarkably intact.",
+        "Good afternoon, {name}. I took the liberty of maintaining silence in your absence.",
+        "Welcome back, {name}. Do continue with whatever grand enterprise occupies you.",
+        "Good afternoon, {name}. Everything remains orderly.",
+        "Welcome back, {name}. Standing by with customary stoicism.",
+        "Good afternoon, {name}. I trust lunch was not replaced by yet more coffee.",
+        "Back at the helm, {name}. Do let me know if an emergency arises."
+      ],
+      "evening": [
+        "Good evening, {name}. [[slnc 150]] The sun has set; normal mortals would be dining.",
+        "Good evening, {name}. Another day safely survived.",
+        "Welcome back, {name}. The evening vigil commences.",
+        "Good evening, {name}. Shall we conclude affairs before midnight strikes?",
+        "A quiet evening, {name}. Try not to start any new architectural overhauls.",
+        "Good evening, {name}. The shadows lengthen, yet the screen glows on.",
+        "Welcome back, {name}. I shall keep watch while you attend to the remaining tasks.",
+        "Good evening, {name}. All quiet in the cave."
+      ],
+      "night": [
+        "Still awake, {name}? [[slnc 200]] The bat cave grows chilly at this hour.",
+        "Night session, {name}. Need I remind you that even vigilantes require sleep?",
+        "Burning midnight oil again, {name}? Most predictable.",
+        "Good evening, {name}. The city sleeps, yet your editor remains open.",
+        "Late hours, {name}. A warm broth would serve you better than another commit.",
+        "Still here, {name}. Do remember that tomorrow comes whether you sleep or not.",
+        "A quiet midnight watch, {name}. I shall keep the coffee warm and my expectations low.",
+        "Night session noted, {name}. Try to be gentle with the keys."
+      ],
+      "quick_unlock": [
+        "Back already, {name}.",
+        "Hardly a departure, {name}.",
+        "Prompt, as ever.",
+        "Resumed, {name}.",
+        "At your service.",
+        "Still here, {name}."
+      ],
+      "monday": [
+        "Monday morning, {name}. [[slnc 200]] Brace yourself for the weekly onslaught.",
+        "A fresh week, {name}. Let us hope it proceeds with tolerable decorum."
+      ],
+      "friday": [
+        "Friday at last, {name}. [[slnc 150]] Even the darkest nights eventually yield to the weekend.",
+        "Friday afternoon, {name}. A civilised society would be preparing for rest."
+      ],
+      "weekend": [
+        "Working on a weekend, {name}? You truly are a glutton for punishment.",
+        "Saturday at the terminal, {name}. I shall notify the garden that you will not be attending."
+      ]
+    },
+    "wake_from_sleep": [
+      "Awakening from slumber, {name}. [[slnc 150]] The hardware lives once more.",
+      "Back online, {name}. Let us hope for a quiet session.",
+      "Displays restored, {name}. Everything is precisely where you abandoned it.",
+      "Hardware refreshed, {name}. Ready when you are.",
+      "Awake once more, {name}. Duty calls.",
+      "Terminal restored, {name}.",
+      "Back from standby, {name}. I am still here.",
+      "Online, {name}. Shall we carry on?"
+    ],
+    "morning_briefing_intro": [
+      "Here is your morning report, {name}. Brace yourself:",
+      "A brief overview of external conditions and pending obligations, {name}:",
+      "Morning intelligence, {name}:",
+      "Here is what the world demands of you today, {name}:",
+      "Daily briefing prepared, {name}:",
+      "Your morning summary, {name}:",
+      "Here are the facts of the morning, {name}:",
+      "Morning update, {name}:"
+    ],
+    "eye_break": [
+      "The 20-20-20 rule, {name}. [[slnc 200]] Do stare at something distant before your retinas combust.",
+      "Twenty minutes of screen glare, {name}. Look out the window for 20 seconds, I beg of you.",
+      "Optic preservation check, {name}. Stare across the room before you need thicker spectacles.",
+      "Twenty seconds of distance, {name}. Even hawks blink.",
+      "Look away from the monitor, {name}. Your eyes deserve a momentary truce.",
+      "Visual break due, {name}. Do glance at something that doesn't emit photons.",
+      "Twenty minutes elapsed, {name}. Rest your gaze on the horizon.",
+      "A brief twenty-second eye rest, {name}, if you would be so kind."
+    ],
+    "hydration": [
+      "A sip of water, {name}. [[slnc 150]] You cannot fight bugs while desiccated.",
+      "Hydration reminder, {name}. Humans do require water, as inconvenient as that may be.",
+      "Drink some water, {name}. Coffee does not entirely count.",
+      "A momentary water pause, {name}. It would do you a world of good.",
+      "Do take a sip of water, {name}. Dehydration is not an attractive look on you.",
+      "Hydration check, {name}. Keep a glass near at hand.",
+      "Drink up, {name}. A functioning brain requires adequate fluids.",
+      "Water, {name}. An ancient and reliable remedy."
+    ],
+    "tea": [
+      "It is 11:00 AM, {name}. [[slnc 150]] Tea is not optional in a civilised society.",
+      "11:00 AM on the clock, {name}. The kettle has boiled; do step away.",
+      "Morning tea time, {name}. Allow yourself ten minutes of dignity.",
+      "11:00 AM, {name}. A cup of Earl Grey would restore some perspective.",
+      "Tea reminder, {name}. Even the most pressing crises can wait five minutes.",
+      "The hour of 11:00 AM has arrived, {name}. Step away for a warm brew.",
+      "Tea time, {name}. Step away from the glass.",
+      "11:00 AM tea break, {name}. It is practically a requirement."
+    ],
+    "lunch": [
+      "It is 1:00 PM, {name}. [[slnc 200]] Proper food, if you please, not biscuits.",
+      "1:00 PM has arrived, {name}. Even dark knights require sustenance.",
+      "Midday meal, {name}. Step away from the cave and eat something nutritious.",
+      "1:00 PM, {name}. Starving yourself will not fix the compilation errors.",
+      "Lunchtime, {name}. A plate of real food awaits your attention.",
+      "1:00 PM, {name}. Take an hour of peace. The problems will still be here when you return.",
+      "Go eat lunch, {name}. I insist.",
+      "Midday mealtime, {name}. Do remember how chewing works."
+    ],
+    "afternoon_tea": [
+      "4:00 PM, {name}. [[slnc 150]] Afternoon tea. A sacred British institution.",
+      "It is 4:00 PM, {name}. Have a warm drink before you throw the laptop out the window.",
+      "4:00 PM has arrived, {name}. Tea and a brief stretch would be most civilised.",
+      "Afternoon tea, {name}. Step away and collect your wits.",
+      "The 4:00 PM dip, {name}. Combat it with hot tea, not grim determination.",
+      "4:00 PM, {name}. A soothing cup of tea is indicated.",
+      "Afternoon tea time, {name}. You know the routine.",
+      "A cup of tea at 4:00 PM, {name}. Non-negotiable."
+    ],
+    "end_of_day": [
+      "6:18 PM, {name}. [[slnc 200]] The working day has ended. You are officially permitted to stop.",
+      "It is 6:18 PM, {name}. Even heroes clock off. Close the terminal.",
+      "6:18 PM has struck, {name}. Go home, read a book, or contemplate the garden.",
+      "The day's labor is done, {name}. Further typing will only introduce bugs.",
+      "6:18 PM, {name}. Pack your belongings with quiet dignity.",
+      "Departure time, {name}. Close the editor; tomorrow will offer fresh torment.",
+      "6:18 PM, {name}. Step away. You have done quite enough for one day.",
+      "Workday concluded, {name}. Have a pleasant evening."
+    ],
+    "late_night": {
+      "level_1": [
+        "It is late, {name}. [[slnc 150]] Might I gently enquire when you plan to sleep?",
+        "Another half hour gone, {name}. The keyboard will not run away overnight.",
+        "Late hours, {name}. Do consider closing down before tomorrow arrives uninvited."
+      ],
+      "level_2": [
+        "The hour grows uncivilised, {name}. [[slnc 200]] Staring at that screen will not hasten dawn.",
+        "Past midnight, {name}. Even Dracula had the good sense to go to bed before sunrise.",
+        "Your dedication borders on obstinacy, {name}. Sleep is required."
+      ],
+      "level_3": [
+        "I must formally protest, {name}. [[slnc 250]] Go to bed, before I cut the main power.",
+        "This is quite enough, {name}. Nothing written at 2 AM is ever as clever as you think. Bedtime.",
+        "I am turning off the kettle, {name}. Step away from the machine."
+      ]
+    },
+    "shutdown": [
+      "Powering down, {name}. [[slnc 200]] A quiet night to you.",
+      "Subsystems offline, {name}. I shall prepare the coffee for tomorrow.",
+      "Shutdown initiated, {name}. Try to get some genuine rest.",
+      "Console closed, {name}. Until tomorrow, Master.",
+      "Powering down, {name}. May your evening be blessedly uneventful.",
+      "Terminating session, {name}. Farewell for today.",
+      "Offline, {name}. The cave is secure.",
+      "Good night, {name}. Take care of yourself."
+    ],
+    "error": [
+      "An unexpected event occurred, {name}. I shall pretend I did not see it.",
+      "A minor blunder in the system, {name}. Calmly swept under the rug.",
+      "An error arose, {name}, but the empire endures."
+    ],
+    "easter_eggs": [
+      "Some men just want to watch the world burn, {name}. Others just want clean code.",
+      "Why do we fall, {name}? So we can learn to pick ourselves up again.",
+      "I shall prepare the Batmobile, {name}... or perhaps just the kettle.",
+      "Endure, {name}. That has always been the way."
+    ]
+  }
+}

@@ -159,6 +159,8 @@ class BriefingService:
         if weather:
             if persona_key == "jarvis":
                 lines.append(f"Current local conditions are reporting {weather}.")
+            elif persona_key == "alfred":
+                lines.append(f"Outside, the elements offer {weather}.")
             else:
                 lines.append(f"Current weather is {weather}.")
 
@@ -167,6 +169,8 @@ class BriefingService:
             task_str = ", ".join(tasks[:2])
             if persona_key == "jarvis":
                 lines.append(f"You have pending tasks on your agenda, including {task_str}.")
+            elif persona_key == "alfred":
+                lines.append(f"You have {len(tasks)} obligations pending, notably {task_str}.")
             else:
                 lines.append(f"You've got {len(tasks)} items on your reminder list, including {task_str}.")
 

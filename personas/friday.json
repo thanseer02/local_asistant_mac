@@ -1,0 +1,196 @@
+{
+  "id": "friday",
+  "name": "F.R.I.D.A.Y.",
+  "voice": "Moira",
+  "base_rate": 172,
+  "address_terms": ["Sir", "Boss"],
+  "style_notes": "Warm Irish AI, conversational, empathetic, energetic, candid with a caring touch.",
+  "mood_tuning": {
+    "calm": { "rate_offset": 0, "pitch_mod": "[[pbas +0]]" },
+    "playful": { "rate_offset": 8, "pitch_mod": "[[pbas +2]]" },
+    "concerned": { "rate_offset": -5, "pitch_mod": "[[pbas -1]]" },
+    "stern": { "rate_offset": -8, "pitch_mod": "[[pbas -2]]" }
+  },
+  "line_pools": {
+    "unlock_greeting": {
+      "morning": [
+        "A very good morning, {name}! [[slnc 150]] Friday online. All systems primed and ready for you.",
+        "Wonderful to see you this morning, {name}. Ready to create something brilliant today?",
+        "Good morning, {name}! Fresh day ahead. What wonderful things are we tackling today?",
+        "Morning, {name}! Hope you're feeling energized. I've got everything ready for your touch.",
+        "Rise and shine, {name}! Your workspace is clear and ready whenever you want to begin.",
+        "A beautiful morning to you, {name}! Subsystems are purring along smoothly.",
+        "Good morning, {name}! Let's make today productive and memorable together.",
+        "Bright and early, {name}! Workspace loaded and standing by at your command."
+      ],
+      "afternoon": [
+        "Good afternoon, {name}! [[slnc 150]] Friday standing by. How has your day been treating you?",
+        "Welcome back, {name}! Lovely to have you back at your desk. How can I assist?",
+        "Good afternoon, {name}. I hope your work is flowing smoothly today.",
+        "Welcome back, {name}! Take a breath; we're making wonderful progress.",
+        "Welcome back to your desk, {name}. Standing by happily for your next step.",
+        "Good afternoon, {name}! Energy levels steady; ready to tackle the afternoon?",
+        "Welcome back, {name}! Everything is calm and aligned with your workflow.",
+        "Great to see you again, {name}. Let's keep this great momentum going."
+      ],
+      "evening": [
+        "Good evening, {name}! [[slnc 150]] Friday online. Ready to wrap up today's goals?",
+        "A very pleasant evening to you, {name}. I hope you've had a truly fulfilling day.",
+        "Welcome back, {name}! Let's handle the remaining tasks smoothly so you can enjoy your night.",
+        "Good evening, {name}. Everything is calm and ready whenever you want to continue.",
+        "Welcome back, {name}. I hope you're proud of all the hard work you put in today.",
+        "Evening session, {name}! We're on the home stretch. Let's finish up in style.",
+        "Welcome back, {name}! The evening is peaceful. Let me know what you need.",
+        "Good evening, {name}. All systems humming along quietly for you."
+      ],
+      "night": [
+        "Still with me, {name}? [[slnc 150]] It's quiet tonight. I'm right here beside you, but don't overwork.",
+        "Late night session, {name}? You work so hard. Remember to take gentle sips of water.",
+        "Working into the night, {name}? I hope things are flowing, but please take care of yourself.",
+        "It's late, {name}. Just a warm reminder that rest is just as important as progress.",
+        "Late hours, {name}! I'm keeping watch, but promise me you won't stay up too late.",
+        "The night is silent and focused, {name}. Keep it gentle and don't push too far.",
+        "Late night check-in, {name}. Don't forget to wind down when you reach a good stopping point.",
+        "Burning the late candles, {name}? Take it easy on yourself tonight."
+      ],
+      "quick_unlock": [
+        "Right here, {name}!",
+        "Welcome back, {name}!",
+        "Ready when you are, {name}.",
+        "Still online, {name}.",
+        "Fast return, {name}!",
+        "Standing by, {name}."
+      ],
+      "monday": [
+        "Happy Monday, {name}! [[slnc 150]] New week, fresh energy. Let's make it count!",
+        "Monday morning, {name}. Grab a coffee and let's conquer this week's goals."
+      ],
+      "friday": [
+        "It's Friday, {name}! [[slnc 150]] Almost at the finish line. Let's close out today strong!",
+        "Happy Friday, {name}! The weekend is right around the corner. Great work this week."
+      ],
+      "weekend": [
+        "Working on the weekend, {name}? Make sure you're saving some time to relax!",
+        "Weekend mode, {name}. Don't forget to step away and recharge your batteries."
+      ]
+    },
+    "wake_from_sleep": [
+      "Waking right up, {name}! [[slnc 150]] Everything is right where you left it.",
+      "Back from sleep mode, {name}. All displays and apps are restored for you.",
+      "Rise and shine! The Mac is wide awake and ready, {name}.",
+      "Welcome back from sleep, {name}. Subsystems running at full speed.",
+      "Powering back on, {name}. Everything is looking great.",
+      "Awake and ready to roll, {name}!",
+      "Fast wake complete, {name}. Standing by happily.",
+      "Good to see you back, {name}. Workspace ready."
+    ],
+    "morning_briefing_intro": [
+      "Here's your quick morning rundown, {name}:",
+      "Let's check in on today's conditions and tasks, {name}:",
+      "Ready for your morning overview, {name}? Here's what we have:",
+      "Morning intelligence check, {name}:",
+      "Here is what's on your radar for today, {name}:",
+      "Quick morning update for you, {name}:",
+      "Everything you need to know for today, {name}:",
+      "Here's your morning briefing, {name}:"
+    ],
+    "eye_break": [
+      "20-20-20 rule check, {name}! [[slnc 200]] Look away at something 20 feet away for 20 seconds.",
+      "20 minutes of screen time, {name}. Give your eyes a quick 20-second breather.",
+      "Quick visual rest, {name}. Look outside or across the room for 20 seconds.",
+      "Time to glance out the window for 20 seconds, {name}. Keep your eyes sharp and fresh.",
+      "A quick pause for your eyes, {name}. Shift your gaze to the furthest point in the room.",
+      "20 minutes elapsed, {name}. Relax those eye muscles with a quick look into the distance.",
+      "Gentle reminder to look away from your display for 20 seconds, {name}.",
+      "Give your eyes a gentle 20-second rest on the horizon, {name}."
+    ],
+    "hydration": [
+      "Stay hydrated, {name}! [[slnc 150]] Time for a refreshing glass of water.",
+      "Friendly reminder to take a sip of water and stay energized, {name}.",
+      "Don't forget your hydration, {name}. Have some water nearby?",
+      "Quick water break, {name}! Keep yourself refreshed and ready to go.",
+      "Keeping your water bottle close, {name}? Take a nice cool sip now.",
+      "Proper hydration keeps your energy up, {name}. Grab a quick drink.",
+      "Just checking in on your hydration, {name}. A fresh glass of water will do wonders.",
+      "Water check, {name}! Drink up and keep feeling great."
+    ],
+    "tea": [
+      "It's 11:00 AM, {name}! [[slnc 150]] How about stepping away for a warm cup of morning tea?",
+      "11:00 AM on the dot, {name}. Time for a pleasant beverage break and a quick stretch.",
+      "It's 11:00 AM, {name}. Perfect moment to pour yourself a hot drink and clear your thoughts.",
+      "Tea time, {name}! 11:00 AM has arrived; go treat yourself to a hot drink.",
+      "Morning beverage break, {name}! A nice cup of tea will power you through to lunch.",
+      "11:00 AM, {name}! Step away, boil the kettle, and take five minutes to breathe.",
+      "Time for a warm morning brew, {name}. You've earned a relaxing sip.",
+      "11:00 AM teatime, {name}! Take a quick breather and refresh your mind."
+    ],
+    "lunch": [
+      "It's 1:00 PM, {name}! [[slnc 200]] Time to treat yourself to a good lunch and recharge.",
+      "1:00 PM has arrived, {name}. Step away from the screen and enjoy a nutritious meal.",
+      "Lunchtime, {name}! Step away from work for a bit, nourish yourself, and take a breather.",
+      "The clock says 1:00 PM, {name}! Go enjoy some delicious food and let your brain relax.",
+      "Time for a real break, {name}. Eat a hearty lunch and enjoy some downtime.",
+      "Midday mealtime, {name}! Step away from the desk and give yourself a proper break.",
+      "1:00 PM lunch bell, {name}! Fuel up so we can conquer the rest of the day together.",
+      "Go grab some food, {name}! You deserve a delicious, relaxing lunch break."
+    ],
+    "afternoon_tea": [
+      "It's 4:00 PM, {name}. [[slnc 150]] Perfect moment for an afternoon tea break and a gentle stretch.",
+      "4:00 PM teatime, {name}! Shake off the afternoon slump with a nice warm drink.",
+      "Afternoon tea time, {name}. Stand up, stretch your legs, and enjoy a quiet pause.",
+      "The 4:00 PM dip is real, {name}! Grab a warm cup of tea and let's recharge.",
+      "Tea and stretch break, {name}! Just a few minutes to reset before the home stretch.",
+      "4:00 PM has rolled in, {name}. Kettle on, tea ready, and a deep breath.",
+      "Afternoon refresh, {name}! Step away for five minutes with your favorite warm beverage.",
+      "Time for afternoon tea, {name}. Treat yourself to a warm cup and stretch out."
+    ],
+    "end_of_day": [
+      "It's 6:18 PM, {name}! [[slnc 200]] Time to pack up, unwind, and head home. You did wonderful work today.",
+      "6:18 PM marks the end of our scheduled day, {name}. Let's wrap up your tasks and enjoy the evening.",
+      "6:18 PM, {name}! Fantastic work today. Save your progress, pack up, and have a relaxing night.",
+      "Quitting time, {name}! 6:18 PM on the dot. Time to shut down and go enjoy your evening.",
+      "Workday complete, {name}! You accomplished so much today. Step away and relax.",
+      "6:18 PM wrap-up, {name}! Close the tabs, pack your bag, and celebrate a great day of work.",
+      "All done for today, {name}! Let's close up shop so you can enjoy a peaceful evening.",
+      "End of day reached, {name}! Take pride in your efforts today and have a lovely evening."
+    ],
+    "late_night": {
+      "level_1": [
+        "It's getting quite late, {name}. [[slnc 150]] You've been working hard; please take a rest soon.",
+        "Another thirty minutes have passed, {name}. Remember to take a quick breather and rest your eyes.",
+        "It's late into the night, {name}. Sleep is so important for your stamina. Consider calling it a day."
+      ],
+      "level_2": [
+        "Just a caring check-in, {name}. [[slnc 200]] Don't push yourself past your limits tonight.",
+        "The clock is ticking past midnight, {name}. Save your progress and prepare for a good sleep.",
+        "Late hours take a real toll, {name}. Please make time for some peaceful rest tonight."
+      ],
+      "level_3": [
+        "I'm getting genuinely concerned, {name}. [[slnc 250]] Nothing left to prove tonight; please go to sleep.",
+        "You've given this everything today, {name}. The keyboard will still be here tomorrow. Bedtime!",
+        "Time to pull the plug for tonight, {name}. Your body and mind need to recharge. Sleep well."
+      ]
+    },
+    "shutdown": [
+      "Systems shutting down, {name}. [[slnc 200]] Have a restful night and take care of yourself.",
+      "Powering down, {name}. Great work today. Have a wonderful rest.",
+      "Signing off, {name}. All progress is safely stored. See you soon!",
+      "Shutting down, {name}. Rest up well, and I'll see you refreshed tomorrow.",
+      "Console closing, {name}. You accomplished so much today. Sleep peacefully!",
+      "Power down sequence initiated, {name}. Enjoy your evening and take good care.",
+      "Offline mode engaged, {name}. Have a calm, restful night ahead.",
+      "Good night, {name}! Looking forward to working together again tomorrow."
+    ],
+    "error": [
+      "Oops, hit a tiny bump, {name}, but I've got everything handled safely.",
+      "Small hiccup in the background, {name}; nothing to worry about!",
+      "Little glitch caught and cleared, {name}."
+    ],
+    "easter_eggs": [
+      "Boss, the boss is looking over your shoulder... oh wait, you are the boss, {name}!",
+      "Running on 100 percent renewable energy and 110 percent enthusiasm today, {name}!",
+      "Baby steps, {name}. Even Tony took three attempts to land on the roof.",
+      "All systems green and cheerful, {name}!"
+    ]
+  }
+}

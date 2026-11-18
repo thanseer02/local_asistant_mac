@@ -77,46 +77,21 @@ class VoiceEngine:
             "greetings": {}
         }
 
-    def get_greeting(self, config: Dict[str, Any], hour: Optional[int] = None) -> str:
-        """Constructs a time-aware, non-repeating greeting tailored to the persona."""
-        if hour is None:
-            hour = datetime.now().hour
+    def get_greeting(self, config: Dict[str, Any], hour: Optional[int] = None, context: Optional[Dict[str, Any]] = None) -> str:
+        """Constructs a time-aware, non-repeating, personality-driven greeting."""
+        from .personality import personality_engine
+        ctx = dict(context or {})
+        ctx["name"] = config.get("user_name", "Sir")
+        msg, rate = personality_engine.pick("unlock_greeting", context=ctx, config=config)
+        return msg
 
-        persona = self.get_active_persona(config)
-        name = config.get("user_name", "Sir")
-        greetings = persona.get("greetings", {})
-
-        if 5 <= hour < 12:
-            pool = greetings.get("morning", ["Good morning, {name}!"])
-        elif 12 <= hour < 17:
-            pool = greetings.get("afternoon", ["Good afternoon, {name}!"])
-        elif 17 <= hour < 21:
-            pool = greetings.get("evening", ["Good evening, {name}!"])
-        else:
-            pool = greetings.get("night", ["Working late, {name}?"])
-
-        if isinstance(pool, list) and pool:
-            candidates = [g for g in pool if g != self._last_chosen_greeting] or pool
-            chosen = random.choice(candidates)
-            self._last_chosen_greeting = chosen
-            return chosen.format(name=name, title=name)
-        elif isinstance(pool, str):
-            return pool.format(name=name, title=name)
-
-        return f"Welcome back, {name}!"
-
-    def get_goodbye(self, config: Dict[str, Any]) -> str:
-        """Constructs a polite shutdown/farewell message tailored to the persona."""
-        persona = self.get_active_persona(config)
-        name = config.get("user_name", "Sir")
-        goodbyes = persona.get("goodbyes", [])
-
-        if isinstance(goodbyes, list) and goodbyes:
-            return random.choice(goodbyes).format(name=name, title=name)
-        elif isinstance(goodbyes, str):
-            return goodbyes.format(name=name, title=name)
-
-        return f"Goodbye, {name}. Have a restful evening."
+    def get_goodbye(self, config: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> str:
+        """Constructs a polite, non-repeating shutdown/farewell message tailored to the persona."""
+        from .personality import personality_engine
+        ctx = dict(context or {})
+        ctx["name"] = config.get("user_name", "Sir")
+        msg, rate = personality_engine.pick("shutdown", context=ctx, config=config)
+        return msg
 
     def play_hud_chime(self, config: Dict[str, Any]) -> None:
         """Plays the Marvel HUD chime sound effect before speaking if enabled."""
