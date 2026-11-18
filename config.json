@@ -33,6 +33,12 @@
     "bubble_max_duration": 10.0
   },
 
+  "audio_ducking": {
+    "enabled": true,
+    "duck_level": 0.25,
+    "duck_system_volume": true
+  },
+
   "tts": {
     "engine": "kokoro",
     "model_path": "models/kokoro/kokoro-v1.0.onnx",

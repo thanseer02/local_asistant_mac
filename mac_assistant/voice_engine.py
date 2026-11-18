@@ -14,6 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .audio_ducker import AudioDucker
 from .kokoro_engine import KokoroEngine
 from .text_humanizer import humanize, split_sentences
 
@@ -64,6 +65,9 @@ class VoiceEngine:
         self._recent_utterances: Dict[str, float] = {}
         self._recent_lock = threading.Lock()
         self._dedup_window_seconds = 5.0
+
+        # Audio ducking manager
+        self._ducker = AudioDucker()
 
         # Background speech worker thread
         self._worker_thread = threading.Thread(
@@ -150,6 +154,10 @@ class VoiceEngine:
                         pass
                 self._current_process = None
         self._is_speaking = False
+        try:
+            self._ducker.unduck()
+        except Exception as e:
+            logger.debug("Error restoring volume during speech interruption: %s", e)
 
     def speak(
         self,
@@ -281,8 +289,15 @@ class VoiceEngine:
         lipsync_thread.start()
 
         start_time = time.time()
+        duck_session = None
 
         try:
+            # Duck active music or media playback before speaking
+            try:
+                duck_session = self._ducker.duck(config)
+            except Exception as e:
+                logger.debug("Failed to duck audio: %s", e)
+
             kokoro = KokoroEngine.get_instance()
             use_kokoro = (engine_choice == "kokoro") and kokoro.is_model_available()
 
@@ -313,6 +328,12 @@ class VoiceEngine:
                 self._current_process = None
             self._is_speaking = False
             AvatarClient.speaking_end()
+
+            # Always restore music/media volume back to normal
+            try:
+                self._ducker.unduck(duck_session)
+            except Exception as e:
+                logger.error("Failed to restore audio volume after speaking: %s", e)
 
     def _play_kokoro_pipelined(
         self,

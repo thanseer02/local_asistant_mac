@@ -1,11 +1,13 @@
 {
   "current_persona": "friday",
   "history": [
+    "friday",
+    "friday",
     "friday"
   ],
   "last_boot_sec": 1794971694,
-  "last_session_id": "186b4",
+  "last_session_id": "default_session",
   "last_used_timestamps": {
-    "friday": 1794987423.4302
+    "friday": 1795005666.725173
   }
 }

@@ -51,6 +51,11 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "enabled": True,
         "sound_file": "hud_chime.wav"
     },
+    "audio_ducking": {
+        "enabled": True,
+        "duck_level": 0.25,
+        "duck_system_volume": True
+    },
     "morning_briefing": {
         "enabled": True,
         "include_weather": True,
