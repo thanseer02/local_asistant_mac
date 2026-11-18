@@ -101,7 +101,7 @@ class PersonaEngine:
         # Hard emergency fallback if directory was completely empty
         return {
             "id": "friday",
-            "name": "F.R.I.D.A.Y.",
+            "name": "Friday",
             "voice": "Moira",
             "base_rate": 172,
             "address_terms": ["Sir"],

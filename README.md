@@ -1,6 +1,6 @@
 # 🎙️ MacAssistant
 
-An intelligent, lightweight background voice daemon for macOS inspired by Marvel's **J.A.R.V.I.S.** and **F.R.I.D.A.Y.**.
+An intelligent, lightweight background voice daemon for macOS inspired by Marvel's **Jarvis** and **Friday**.
 
 MacAssistant monitors low-level macOS kernel events and schedules to deliver natural, time-aware audio briefings, health reminders, and automated workspace launches with **zero external dependencies** and **~0% CPU usage**.
 
@@ -9,8 +9,8 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 ## ✨ Features
 
 - 🦸 **Marvel Personas**:
-  - **J.A.R.V.I.S.**: Articulate, polite British butler cadence (`Daniel` voice).
-  - **F.R.I.D.A.Y.**: Warm, conversational Irish voice (`Moira` voice).
+  - **Jarvis**: Articulate, polite British butler cadence (`Daniel` voice).
+  - **Friday**: Warm, conversational Irish voice (`Moira` voice).
 - 🔊 **Iron Man HUD UI Chimes**: Plays an authentic Marvel sci-fi UI upward chime (`hud_chime.wav`) before speaking.
 - ⚡ **Low-Latency Wake Detection**: Instant (<0.5s) greeting on login, screen unlock (Touch ID/password), and screensaver exit via `notify(3)`.
 - 🌅 **Morning & Login Intelligence Briefing**:
@@ -100,7 +100,7 @@ MacAssistant/
    - Dedicated priority speech queue (`URGENT > BRIEFING > REMINDER > NORMAL`).
    - Supports instantaneous barge-in interruption for emergency or farewell utterances.
    - Suppresses or defers non-urgent speech during active video meetings (Teams, Zoom, Webex, FaceTime) or macOS Focus Mode.
-   - Personas: F.R.I.D.A.Y. (Irish `Moira` voice) and J.A.R.V.I.S. (British `Daniel` voice).
+   - Personas: Friday (Irish `Moira` voice) and Jarvis (British `Daniel` voice).
 
 5. **Extensibility & Memory (`briefing_service.py`, `skills/`, `memory_store.py`)**:
    - Parallel multi-source briefing with strict 2-second timeout.
