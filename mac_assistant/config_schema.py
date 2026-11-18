@@ -55,6 +55,8 @@ class AppConfigSchema(BaseModel):
     voice: str = "Moira"
     speech_rate: int = 172
     user_name: str = "Sir"
+    microphone_mode: str = "builtin"
+    input_device: Optional[str] = None
     login_delay_seconds: float = 0.5
     cooldown_seconds: float = 2.0
     hud_sound: HudSoundConfig = Field(default_factory=HudSoundConfig)

@@ -121,6 +121,10 @@ class ConversationRouter:
         if lower in ["stop", "quiet", "shut up", "hush", "be quiet", "stop speaking", "pause"]:
             return "stop", True, ""
 
+        # Mute microphone command
+        if lower in ["mute microphone", "mute mic", "turn off mic", "disable microphone"]:
+            return "mute_mic", True, "Microphone muted. Say unmute or press your hotkey to resume."
+
         # Persona switch
         if any(lower.startswith(p) for p in [
             "switch to jarvis", "change to jarvis", "use jarvis", "activate jarvis",
