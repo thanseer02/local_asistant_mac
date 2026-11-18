@@ -1,33 +1,51 @@
 {
   "assistant_persona": "friday",
+  "user_name": "Sir",
   "voice": "Moira",
   "speech_rate": 172,
-  "user_name": "Sir",
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
+  "listen_mode": "off",
+
   "hud_sound": {
     "enabled": true,
     "sound_file": "hud_chime.wav"
   },
-  "listen_mode": "off",
+
+  "morning_briefing": {
+    "enabled": true,
+    "include_weather": true,
+    "include_calendar": false,
+    "weather_location": ""
+  },
+
+  "git_briefing": {
+    "enabled": true,
+    "repositories": [
+      "/Users/tanseer/Documents/oopsss/MacAssistant"
+    ]
+  },
+
   "focus_guard": {
     "enabled": true,
     "apps": [
       "Microsoft Teams",
       "Teams",
-      "CptHost",
       "zoom.us",
+      "CptHost",
       "Cisco Webex Meetings",
       "Webex",
       "FaceTime"
     ]
   },
+
   "skills": {
     "shortcuts": true,
     "media_control": true,
     "system_health": true,
     "memory": true
   },
+
   "startup_apps": {
     "enabled": true,
     "open_antigravity": true,
@@ -40,18 +58,7 @@
       "https://music.youtube.com"
     ]
   },
-  "morning_briefing": {
-    "enabled": true,
-    "include_weather": true,
-    "include_calendar": false,
-    "weather_location": ""
-  },
-  "git_briefing": {
-    "enabled": true,
-    "repositories": [
-      "/Users/tanseer/Documents/oopsss/MacAssistant"
-    ]
-  },
+
   "eye_break_reminders": {
     "enabled": true,
     "interval_minutes": 20,
@@ -66,9 +73,12 @@
       "Sir, forgive the momentary pause. Please rest your eyes on the horizon for 20 seconds."
     ]
   },
+
   "hydration_reminders": {
     "enabled": true,
     "interval_minutes": 45,
+    "start_hour": 9,
+    "end_hour": 18,
     "friday_messages": [
       "Sir, stay hydrated! Time for a glass of water.",
       "Sir, friendly reminder to take a sip of water and stay energized.",
@@ -80,6 +90,7 @@
       "Sir, maintaining proper hydration sustains peak cognitive performance. Please take a sip of water."
     ]
   },
+
   "late_night_reminders": {
     "enabled": true,
     "start_hour": 22,
@@ -98,6 +109,7 @@
       "Sir, forgive the intrusion. It is well into the quiet hours of the night. Shall we save your progress and conclude for today?"
     ]
   },
+
   "scheduled_reminders": [
     {
       "time": "11:00",
@@ -120,6 +132,7 @@
       "jarvis_message": "Sir, the time is 6:18 PM. All critical operations have been safely handled. Shall we wrap up and head home for a relaxing evening?"
     }
   ],
+
   "personas": {
     "friday": {
       "voice": "Moira",
