@@ -9,6 +9,25 @@
     "enabled": true,
     "sound_file": "hud_chime.wav"
   },
+  "listen_mode": "off",
+  "focus_guard": {
+    "enabled": true,
+    "apps": [
+      "Microsoft Teams",
+      "Teams",
+      "CptHost",
+      "zoom.us",
+      "Cisco Webex Meetings",
+      "Webex",
+      "FaceTime"
+    ]
+  },
+  "skills": {
+    "shortcuts": true,
+    "media_control": true,
+    "system_health": true,
+    "memory": true
+  },
   "startup_apps": {
     "enabled": true,
     "open_antigravity": true,

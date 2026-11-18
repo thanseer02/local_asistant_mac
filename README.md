@@ -27,6 +27,11 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 - ⏰ **Daily Schedule Alerts**: Pre-set reminders for morning tea (11:00 AM), lunch (1:00 PM), afternoon tea (4:00 PM), and end of day (6:18 PM).
 - 🛑 **Shutdown / Logout Farewell**: Catches system `SIGTERM` on shutdown or restart to bid a polite farewell before powering down.
 - 🔄 **Live Hot-Reloading**: Any edit in `config.json` takes effect immediately without needing to restart the daemon.
+- ⚡ **Prioritized Speech Queue & Barge-In**: Thread-safe priority queue (`URGENT > BRIEFING > REMINDER > NORMAL`) with automatic stale reminder dropping (>60s) and instant interruption.
+- 🛡️ **Meeting & Focus Suppression (`FocusGuard`)**: Automatically suppresses and defers non-urgent speech when in Teams, Zoom, Webex, Google Meet, or macOS Focus/Do Not Disturb mode.
+- 🎙️ **Zero-Degradation Push-to-Talk**: Native Swift on-device speech input helper. Mic opens strictly on trigger and terminates immediately after utterance, completely preserving Bluetooth headphones high-fidelity A2DP stereo.
+- 🧠 **Persistent SQLite Memory Store**: Zero-dependency SQLite store (`~/Library/Application Support/MacAssistant/memory.db`) supporting "remember that", "what do you remember about", and "forget".
+- 🧩 **Pluggable Skills Registry**: Auto-discovering skills plugin framework supporting Apple Shortcuts (`shortcuts run`), Spotify/Music media playback, and system health queries.
 
 ---
 
