@@ -2,7 +2,8 @@
   "assistant_persona": "friday",
   "voice": "Moira",
   "speech_rate": 172,
-  "user_name": "Sir",
+  "user_name": "Tanseer",
+  "microphone_mode": "default",
   "login_delay_seconds": 0.5,
   "cooldown_seconds": 2,
   "hud_sound": {
