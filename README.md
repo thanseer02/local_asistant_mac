@@ -38,6 +38,8 @@ MacAssistant monitors low-level macOS kernel events and schedules to deliver nat
 
 ## 🏛️ Project Architecture
 
+MacAssistant follows a clean 5-tier architecture: **Kernel & Trigger Layer**, **Core Orchestration Layer**, **Business Logic & Temporal Engines**, **Voice & Speech Layer**, and **Persistence & Storage**.
+
 ```text
 MacAssistant/
 ├── assistant.py                   # Clean LaunchAgent entry point
@@ -52,18 +54,55 @@ MacAssistant/
 │   └── test_scheduler_strict.py   # Exactly-once & monotonic scheduler tests
 └── mac_assistant/                 # Core Architecture Package
     ├── __init__.py                # Package root
+    ├── daemon.py                  # Core event loop coordinating all layers (select.select)
     ├── config_manager.py          # Hot-reloading & safe JSON fallback
-    ├── voice_engine.py            # Prioritized speech queue, HUD player & barge-in
     ├── event_listener.py          # Low-level macOS notify(3) kernel listener
-    ├── scheduler.py               # Monotonic & atomic reminder scheduler
-    ├── app_launcher.py            # App & browser workspace launcher with deduplication
+    ├── scheduler.py               # Monotonic, persistent & atomic reminder scheduler
+    ├── voice_engine.py            # Prioritized speech queue, HUD player & barge-in
     ├── briefing_service.py        # Concurrent weather & calendar integration
     ├── focus_guard.py             # Focus & active meeting audio suppression
-    ├── memory_store.py            # SQLite long-term memory store
+    ├── app_launcher.py            # App & browser workspace launcher with deduplication
     ├── git_inspector.py           # Developer repository status checker
-    ├── skills/                    # Pluggable skills registry
-    └── daemon.py                  # Core event loop coordinating all layers
+    ├── memory_store.py            # SQLite long-term memory store
+    ├── push_to_talk.py            # Native Swift push-to-talk controller
+    ├── mac_voice_helper.swift     # Zero-dependency Swift AVFoundation speech helper
+    ├── mac_voice_helper_bin       # Compiled native speech helper binary
+    └── skills/                    # Pluggable skills registry
+        ├── __init__.py            # Skills package root
+        ├── registry.py            # Dynamic skill dispatcher
+        ├── shortcuts_skill.py     # Apple Shortcuts executor (shortcuts run)
+        ├── media_skill.py         # Spotify & Apple Music player controls
+        ├── system_health_skill.py # CPU, RAM, battery, & thermal inspector
+        └── memory_skill.py        # Natural language memory query/retrieval
 ```
+
+### Architectural Subsystems
+
+1. **Kernel Event Trigger Layer (`event_listener.py`)**:
+   - Subscribes directly to macOS kernel notification descriptors via `libSystem.B.dylib` `notify_register_file_descriptor()`.
+   - Listens for lock, unlock, and screensaver events (`com.apple.screenIsUnlocked`, `com.apple.screensaver.didstop`, etc.).
+   - Passes descriptors directly to the main daemon's `select.select()` call for pure event-driven wakeup.
+
+2. **Core Orchestration (`daemon.py` & `config_manager.py`)**:
+   - Coordinates the entire daemon loop with zero busy-waiting.
+   - Calculates dynamic sleep intervals: `select(descriptors, timeout=min(10s, seconds_until_next_event))`.
+   - Hot-reloads `config.json` dynamically and catches `SIGTERM`/`SIGINT` for an urgent farewell speech.
+
+3. **Temporal Intelligence & Scheduler (`scheduler.py`)**:
+   - Priority heap (`heapq`) tracking next due epochs for all scheduled and periodic alerts.
+   - Persists state atomically in `~/Library/Application Support/MacAssistant/scheduler_state.json` (`tempfile` + `os.replace`).
+   - Guarantees **exactly-once execution** for fixed-time daily alerts (11:00, 13:00, 16:00, 18:18).
+   - Enforces a 2-minute missed-event window and caps wake-from-sleep backlog at at most 1 reminder.
+
+4. **Speech Synthesis & Persona Management (`voice_engine.py` & `focus_guard.py`)**:
+   - Dedicated priority speech queue (`URGENT > BRIEFING > REMINDER > NORMAL`).
+   - Supports instantaneous barge-in interruption for emergency or farewell utterances.
+   - Suppresses or defers non-urgent speech during active video meetings (Teams, Zoom, Webex, FaceTime) or macOS Focus Mode.
+   - Personas: F.R.I.D.A.Y. (Irish `Moira` voice) and J.A.R.V.I.S. (British `Daniel` voice).
+
+5. **Extensibility & Memory (`briefing_service.py`, `skills/`, `memory_store.py`)**:
+   - Parallel multi-source briefing with strict 2-second timeout.
+   - Pluggable skills framework supporting Apple Shortcuts, media controls, system diagnostics, and persistent SQLite memory.
 
 ---
 
