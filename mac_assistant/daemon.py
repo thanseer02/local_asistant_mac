@@ -72,12 +72,18 @@ class AssistantDaemon:
 
     def _handle_ptt_command(self, transcript: str) -> None:
         """Executes spoken command through the skills registry and speaks response."""
+        from .avatar_client import AvatarClient
+        AvatarClient.thinking()
         config = ConfigManager.load()
         persona = config.get("assistant_persona", "friday")
         result = self.skills.dispatch(transcript, persona=persona, config=config)
+        if not result.handled:
+            AvatarClient.error()
         if result.response:
             self.engine.speak(result.response, config, priority=SpeechPriority.NORMAL)
             self.last_spoken_time = time.time()
+        else:
+            AvatarClient.idle()
 
     def _handle_shutdown(self, signum, frame) -> None:
         """Invoked when macOS sends SIGTERM during system shutdown or logout."""

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>MacAssistant VRM Avatar</title>
+  <title>MacAssistant Futuristic AI Avatar</title>
   <style>
     * {
       margin: 0;
@@ -27,6 +27,39 @@
       position: absolute;
       top: 0;
       left: 0;
+      pointer-events: none;
+    }
+
+    /* Subtle futuristic holographic scanlines & ambient vignette */
+    .hologram-hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 40%, rgba(0, 240, 255, 0.03) 0%, transparent 75%);
+    }
+
+    /* Ambient cybernetic rings at avatar base */
+    #hud-status-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0, 245, 255, 0.75);
+      background: rgba(10, 20, 35, 0.45);
+      border: 1px solid rgba(0, 245, 255, 0.25);
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.15);
+      opacity: 0;
+      transition: opacity 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+      pointer-events: none;
     }
   </style>
 
@@ -43,6 +76,8 @@
 
 <body>
   <div id="canvas-container"></div>
+  <div class="hologram-hud"></div>
+  <div id="hud-status-badge">AI ONLINE</div>
 
   <script type="module">
     import * as THREE from 'three';
@@ -51,53 +86,111 @@
 
     let currentVrm = null;
     let scene, camera, renderer, clock;
-    let avatarState = 'idle'; // idle, listening, thinking, speaking
-    let currentExpression = 'neutral';
+
+    // Animation States: idle, listening, thinking, speaking, notification, error, sleeping
+    let avatarState = 'idle';
+    let animationStyle = 'futuristic'; // futuristic | realistic
+
+    // Facial morph target state
     let targetMouthOpen = 0.0;
     let currentMouthOpen = 0.0;
     let targetVowel = 'aa';
+    let currentExpression = 'neutral';
+
+    // Blinking
     let lastBlinkTime = 0;
     let isBlinking = false;
-    let blinkDuration = 0.15;
+    let blinkDuration = 0.16;
     let blinkTimer = 0;
-    let targetFps = 24; // Lower fps when idle to save CPU
+
+    // Power saving & Frame pacing
+    let targetFps = 30; // 30fps default, 15fps sleeping, 60fps speaking
     let lastRenderTime = 0;
+    let isSleeping = false;
+
+    // Futuristic 3D holographic elements
+    let holoRingGroup = null;
+    let holoRingOuter = null;
+    let holoRingInner = null;
+    let statusBadge = null;
 
     function init() {
       const container = document.getElementById('canvas-container');
+      statusBadge = document.getElementById('hud-status-badge');
       const width = window.innerWidth;
       const height = window.innerHeight;
 
       clock = new THREE.Clock();
       scene = new THREE.Scene();
 
-      // Transparent renderer with alpha
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      // Transparent WebGL Renderer
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
       renderer.setClearColor(0x000000, 0);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       container.appendChild(renderer.domElement);
 
-      // Camera positioned for upper body portrait
-      camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 20.0);
-      camera.position.set(0.0, 1.35, 1.6);
+      // Camera positioned for conversational portrait
+      camera = new THREE.PerspectiveCamera(28, width / height, 0.1, 20.0);
+      camera.position.set(0.0, 1.35, 1.55);
       camera.lookAt(0.0, 1.30, 0.0);
 
-      // Lighting setup
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
-      dirLight.position.set(1.0, 2.0, 1.5).normalize();
-      scene.add(dirLight);
+      // Sophisticated Sci-Fi 3-point lighting setup
+      // Key light (crisp white)
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      keyLight.position.set(1.2, 2.2, 1.6).normalize();
+      scene.add(keyLight);
 
-      const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
+      // Ambient fill (soft ambient)
+      const ambLight = new THREE.AmbientLight(0xf2f7ff, 0.9);
       scene.add(ambLight);
 
-      const fillLight = new THREE.DirectionalLight(0xddeeff, 0.6);
-      fillLight.position.set(-1.0, 1.0, -1.0).normalize();
-      scene.add(fillLight);
+      // Futuristic Rim / Accent light (cyan / electric blue)
+      const rimLight = new THREE.DirectionalLight(0x00d4ff, 1.3);
+      rimLight.position.set(-1.8, 1.5, -1.2).normalize();
+      scene.add(rimLight);
+
+      // Under-glow spotlight (holographic pedestal reflection)
+      const underLight = new THREE.PointLight(0x00ffff, 0.7, 3.0);
+      underLight.position.set(0.0, 0.3, 0.4);
+      scene.add(underLight);
+
+      createFuturisticHoloElements();
 
       window.addEventListener('resize', onResize);
       animate();
+    }
+
+    function createFuturisticHoloElements() {
+      holoRingGroup = new THREE.Group();
+      holoRingGroup.position.set(0.0, 0.85, 0.0);
+
+      // Outer ring
+      const ringGeomOuter = new THREE.RingGeometry(0.55, 0.57, 64);
+      const ringMatOuter = new THREE.MeshBasicMaterial({
+        color: 0x00f0ff,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+      holoRingOuter = new THREE.Mesh(ringGeomOuter, ringMatOuter);
+      holoRingOuter.rotation.x = Math.PI / 2;
+      holoRingGroup.add(holoRingOuter);
+
+      // Inner segmented ring
+      const ringGeomInner = new THREE.RingGeometry(0.48, 0.495, 32);
+      const ringMatInner = new THREE.MeshBasicMaterial({
+        color: 0x7000ff,
+        transparent: true,
+        opacity: 0.25,
+        side: THREE.DoubleSide
+      });
+      holoRingInner = new THREE.Mesh(ringGeomInner, ringMatInner);
+      holoRingInner.rotation.x = Math.PI / 2;
+      holoRingGroup.add(holoRingInner);
+
+      scene.add(holoRingGroup);
     }
 
     function onResize() {
@@ -109,7 +202,7 @@
     }
 
     window.loadVRM = function (vrmUrl, scale = 1.0) {
-      console.log("Loading VRM from:", vrmUrl);
+      console.log("Loading VRM model:", vrmUrl);
       const loader = new GLTFLoader();
       loader.crossOrigin = 'anonymous';
       loader.register((parser) => new VRMLoaderPlugin(parser));
@@ -129,21 +222,25 @@
           vrm.scene.scale.set(scale, scale, scale);
           vrm.scene.position.set(0.0, 0.0, 0.0);
 
-          // Focus camera on head
+          // Focus camera dynamically on model's head
           if (vrm.humanoid) {
             const head = vrm.humanoid.getNormalizedBoneNode('head');
             if (head) {
               const headPos = new THREE.Vector3();
               head.getWorldPosition(headPos);
-              camera.position.set(headPos.x, headPos.y + 0.05, 1.3);
-              camera.lookAt(headPos.x, headPos.y - 0.02, 0.0);
+              camera.position.set(headPos.x, headPos.y + 0.02, 1.35);
+              camera.lookAt(headPos.x, headPos.y - 0.03, 0.0);
+              if (holoRingGroup) {
+                holoRingGroup.position.set(headPos.x, headPos.y - 0.55, 0.0);
+              }
             }
           }
-          console.log("VRM model loaded successfully.");
+
+          // Initial expression
+          window.setState('idle');
+          console.log("VRM model loaded and ready.");
         },
-        (progress) => {
-          // progress callback
-        },
+        undefined,
         (error) => {
           console.error("VRM loading failed:", error);
         }
@@ -152,22 +249,65 @@
 
     window.setState = function (state) {
       avatarState = state;
-      console.log("Avatar state updated to:", state);
-      if (state === 'speaking') {
-        targetFps = 60;
-        setExpression('happy', 0.4);
-      } else if (state === 'thinking') {
-        targetFps = 30;
-        setExpression('neutral', 1.0);
-      } else if (state === 'listening') {
-        targetFps = 45;
-        setExpression('surprised', 0.5);
-      } else {
-        targetFps = 24; // Idle power saving
-        setExpression('neutral', 1.0);
-        targetMouthOpen = 0.0;
+      isSleeping = (state === 'sleeping');
+      console.log("Avatar state updated:", state);
+
+      if (statusBadge) {
+        statusBadge.textContent = state.toUpperCase();
+        statusBadge.style.opacity = (state === 'idle') ? '0' : '0.85';
+      }
+
+      switch (state) {
+        case 'listening':
+          targetFps = 45;
+          setExpression('surprised', 0.6);
+          updateHoloColor(0x00f0ff, 0.7);
+          break;
+        case 'thinking':
+          targetFps = 30;
+          setExpression('neutral', 1.0);
+          updateHoloColor(0x9d00ff, 0.6);
+          break;
+        case 'speaking':
+          targetFps = 60;
+          setExpression('happy', 0.45);
+          updateHoloColor(0x00ffcc, 0.85);
+          break;
+        case 'notification':
+          targetFps = 45;
+          setExpression('surprised', 0.7);
+          updateHoloColor(0xffd700, 0.9);
+          break;
+        case 'error':
+          targetFps = 30;
+          setExpression('sad', 0.8);
+          updateHoloColor(0xff2a6d, 0.9);
+          break;
+        case 'sleeping':
+          targetFps = 15; // Low power sleep mode
+          setExpression('neutral', 0.0);
+          updateHoloColor(0x005577, 0.2);
+          break;
+        case 'idle':
+        default:
+          targetFps = 30;
+          setExpression('neutral', 1.0);
+          updateHoloColor(0x00f0ff, 0.35);
+          targetMouthOpen = 0.0;
+          break;
       }
     };
+
+    function updateHoloColor(hex, opacity) {
+      if (holoRingOuter && holoRingOuter.material) {
+        holoRingOuter.material.color.setHex(hex);
+        holoRingOuter.material.opacity = opacity;
+      }
+      if (statusBadge) {
+        statusBadge.style.color = '#' + hex.toString(16).padStart(6, '0');
+        statusBadge.style.borderColor = '#' + hex.toString(16).padStart(6, '0') + '55';
+      }
+    }
 
     window.setAmplitude = function (amplitude, vowel = 'aa') {
       targetMouthOpen = Math.min(1.0, Math.max(0.0, amplitude));
@@ -177,9 +317,10 @@
     window.setExpression = function (name, weight = 1.0) {
       currentExpression = name;
       if (!currentVrm || !currentVrm.expressionManager) return;
-      ['happy', 'surprised', 'neutral', 'relaxed', 'sad'].forEach(exp => {
+      const em = currentVrm.expressionManager;
+      ['happy', 'surprised', 'neutral', 'relaxed', 'sad', 'angry'].forEach(exp => {
         try {
-          currentVrm.expressionManager.setValue(exp, exp === name ? weight : 0.0);
+          em.setValue(exp, exp === name ? weight : 0.0);
         } catch (e) { }
       });
     };
@@ -189,9 +330,9 @@
       const em = currentVrm.expressionManager;
 
       // Smooth mouth interpolation
-      currentMouthOpen += (targetMouthOpen - currentMouthOpen) * Math.min(1.0, delta * 20.0);
+      currentMouthOpen += (targetMouthOpen - currentMouthOpen) * Math.min(1.0, delta * 24.0);
 
-      // Reset all mouth vowel shapes
+      // Reset all vowel blendshapes
       ['aa', 'ih', 'ou', 'ee', 'oh'].forEach(v => {
         try { em.setValue(v, 0.0); } catch (e) { }
       });
@@ -204,8 +345,15 @@
         }
       }
 
+      // Sleeping: keep eyes closed
+      if (isSleeping) {
+        try { em.setValue('blink', 1.0); } catch (e) { }
+        em.update();
+        return;
+      }
+
       // Natural eye blinking
-      if (!isBlinking && (elapsed - lastBlinkTime > 3.0 + Math.random() * 2.5)) {
+      if (!isBlinking && (elapsed - lastBlinkTime > 2.8 + Math.random() * 2.5)) {
         isBlinking = true;
         blinkTimer = 0;
         lastBlinkTime = elapsed;
@@ -234,34 +382,53 @@
       const h = currentVrm.humanoid;
       const spine = h.getNormalizedBoneNode('spine');
       const head = h.getNormalizedBoneNode('head');
-      const neck = h.getNormalizedBoneNode('neck');
 
-      // Subtle breathing motion
-      const breath = Math.sin(elapsed * 1.8) * 0.02;
+      // Breathing motion
+      const breathSpeed = isSleeping ? 0.9 : (avatarState === 'speaking' ? 2.5 : 1.6);
+      const breathAmp = isSleeping ? 0.012 : 0.022;
+      const breath = Math.sin(elapsed * breathSpeed) * breathAmp;
       if (spine) {
-        spine.rotation.x = breath * 0.4;
+        spine.rotation.x = breath;
       }
 
-      // Natural micro head movement
+      // State-specific micro head movement
       if (head) {
-        if (avatarState === 'listening') {
-          // Slight head tilt when listening
-          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.08, delta * 4.0);
-          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.04, delta * 4.0);
+        if (avatarState === 'sleeping') {
+          // Head relaxed downwards
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, 0.16, delta * 2.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.0, delta * 2.0);
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.05, delta * 2.0);
+        } else if (avatarState === 'listening') {
+          // Attentive tilt forward & toward user
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.08, delta * 5.0);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.05, delta * 5.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.0, delta * 5.0);
         } else if (avatarState === 'thinking') {
-          // Slight look up/away when thinking
-          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.12, delta * 3.0);
-          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.06, delta * 3.0);
+          // Contemplative look up and slightly away
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.14, delta * 3.5);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.08, delta * 3.5);
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, -0.03, delta * 3.5);
         } else if (avatarState === 'speaking') {
-          // Subtle rhythmic nodding while speaking
-          const nod = Math.sin(elapsed * 6.0) * 0.03;
-          const sway = Math.cos(elapsed * 3.0) * 0.02;
-          head.rotation.x = nod;
-          head.rotation.y = sway;
+          // Conversational cadence nods & sway
+          const nod = Math.sin(elapsed * 5.5) * 0.035;
+          const sway = Math.cos(elapsed * 2.8) * 0.02;
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, nod, delta * 8.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, sway, delta * 8.0);
+        } else if (avatarState === 'notification') {
+          // Quick attentive snap
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.06, delta * 6.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.0, delta * 6.0);
+        } else if (avatarState === 'error') {
+          // Subtle shake side to side
+          const shake = Math.sin(elapsed * 8.0) * 0.04;
+          head.rotation.y = shake;
+          head.rotation.x = 0.05;
         } else {
-          // Idle gentle drift
-          head.rotation.y = Math.sin(elapsed * 0.6) * 0.04;
-          head.rotation.x = Math.sin(elapsed * 0.9) * 0.02;
+          // Gentle idle drift
+          const idleX = Math.sin(elapsed * 0.8) * 0.02;
+          const idleY = Math.sin(elapsed * 0.5) * 0.035;
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, idleX, delta * 2.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, idleY, delta * 2.0);
           head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.0, delta * 2.0);
         }
       }
@@ -277,6 +444,12 @@
 
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
+
+      // Animate holographic rings
+      if (holoRingGroup) {
+        if (holoRingOuter) holoRingOuter.rotation.z += delta * 0.4;
+        if (holoRingInner) holoRingInner.rotation.z -= delta * 0.7;
+      }
 
       if (currentVrm) {
         updateExpressions(delta, elapsed);

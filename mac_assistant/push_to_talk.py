@@ -57,6 +57,10 @@ class PushToTalkController:
             logger.info("Push-to-talk started (capturing for %.1fs)...", duration)
             self.play_cue("hud_chime.wav")
 
+            # Signal listening state to avatar overlay
+            from .avatar_client import AvatarClient
+            AvatarClient.listening()
+
             if not HELPER_BIN.exists():
                 logger.warning("Native voice helper binary not found at %s", HELPER_BIN)
                 return

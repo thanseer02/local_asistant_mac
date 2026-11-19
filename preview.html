@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>MacAssistant 3D Avatar Interactive Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, #111a2e 0%, #060913 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      color: #fff;
+      display: flex;
+    }
+
+    #viewport {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    #sidebar {
+      width: 320px;
+      height: 100%;
+      background: rgba(10, 16, 28, 0.85);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(0, 240, 255, 0.2);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 10;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #00f0ff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid #00f0ff;
+      border-radius: 10px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8fa0c0;
+      margin-top: 8px;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    button:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: #00f0ff;
+      color: #00f0ff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+    }
+
+    button.active {
+      background: #00f0ff;
+      color: #000;
+      font-weight: 600;
+      border-color: #00f0ff;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #a0b2d6;
+    }
+
+    input[type=range] {
+      accent-color: #00f0ff;
+    }
+
+    #bubble-preview {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 320px;
+      background: rgba(15, 25, 45, 0.65);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      color: #fff;
+      font-size: 13.5px;
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #bubble-sender {
+      font-size: 10px;
+      font-weight: bold;
+      color: #00f0ff;
+      letter-spacing: 1px;
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./modules/ui/web/vendor/three.module.js",
+      "three/addons/": "./modules/ui/web/vendor/",
+      "@pixiv/three-vrm": "./modules/ui/web/vendor/three-vrm.module.js"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div id="viewport">
+    <div id="canvas-container"></div>
+    <div id="bubble-preview">
+      <div id="bubble-sender">FRIDAY</div>
+      <div id="bubble-text">Good afternoon, Sir! Systems are running with optimal efficiency.</div>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <h2>MacAssistant <span class="badge">VRM 3D</span></h2>
+    <div style="font-size:12px; color:#8fa0c0;">Model: Victoria Rubin (Human-like)</div>
+
+    <div class="section-title">Animation States</div>
+    <div class="btn-grid">
+      <button class="active" onclick="switchState('idle', this)">Idle</button>
+      <button onclick="switchState('listening', this)">Listening</button>
+      <button onclick="switchState('thinking', this)">Thinking</button>
+      <button onclick="switchState('speaking', this)">Speaking</button>
+      <button onclick="switchState('notification', this)">Notification</button>
+      <button onclick="switchState('error', this)">Error</button>
+      <button onclick="switchState('sleeping', this)">Sleeping</button>
+    </div>
+
+    <div class="section-title">Facial Expressions</div>
+    <div class="btn-grid">
+      <button onclick="setExpr('neutral')">Neutral</button>
+      <button onclick="setExpr('happy')">Happy</button>
+      <button onclick="setExpr('surprised')">Surprised</button>
+      <button onclick="setExpr('relaxed')">Relaxed</button>
+      <button onclick="setExpr('sad')">Sad</button>
+    </div>
+
+    <div class="section-title">Lip-Sync Testing</div>
+    <div class="btn-grid">
+      <button onclick="speakVowel('aa')">Vowel [AA]</button>
+      <button onclick="speakVowel('oh')">Vowel [OH]</button>
+      <button onclick="speakVowel('ee')">Vowel [EE]</button>
+      <button onclick="speakVowel('ih')">Vowel [IH]</button>
+      <button onclick="speakVowel('ou')">Vowel [OU]</button>
+    </div>
+
+    <div class="section-title">Camera Zoom / Orbit</div>
+    <div class="slider-group">
+      <div class="slider-label"><span>Zoom Distance</span><span id="zoom-val">1.35m</span></div>
+      <input type="range" id="zoom-slider" min="0.8" max="2.5" step="0.05" value="1.35"
+        oninput="updateZoom(this.value)">
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+    import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+
+    let currentVrm = null;
+    let scene, camera, renderer, clock;
+    let avatarState = 'idle';
+    let targetMouthOpen = 0.0;
+    let currentMouthOpen = 0.0;
+    let targetVowel = 'aa';
+    let lastBlinkTime = 0;
+    let isBlinking = false;
+    let blinkDuration = 0.16;
+    let blinkTimer = 0;
+    let isSleeping = false;
+
+    let holoRingGroup = null;
+    let holoRingOuter = null;
+    let holoRingInner = null;
+
+    function init() {
+      const container = document.getElementById('canvas-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      clock = new THREE.Clock();
+      scene = new THREE.Scene();
+
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(width, height);
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      container.appendChild(renderer.domElement);
+
+      camera = new THREE.PerspectiveCamera(28, width / height, 0.1, 20.0);
+      camera.position.set(0.0, 1.35, 1.35);
+      camera.lookAt(0.0, 1.30, 0.0);
+
+      // Lighting
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+      keyLight.position.set(1.2, 2.2, 1.6).normalize();
+      scene.add(keyLight);
+
+      const ambLight = new THREE.AmbientLight(0xf2f7ff, 0.95);
+      scene.add(ambLight);
+
+      const rimLight = new THREE.DirectionalLight(0x00d4ff, 1.4);
+      rimLight.position.set(-1.8, 1.5, -1.2).normalize();
+      scene.add(rimLight);
+
+      const underLight = new THREE.PointLight(0x00ffff, 0.8, 3.0);
+      underLight.position.set(0.0, 0.3, 0.4);
+      scene.add(underLight);
+
+      // Holo Rings
+      holoRingGroup = new THREE.Group();
+      holoRingGroup.position.set(0.0, 0.8, 0.0);
+
+      const ringOuter = new THREE.Mesh(
+        new THREE.RingGeometry(0.55, 0.57, 64),
+        new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
+      );
+      ringOuter.rotation.x = Math.PI / 2;
+      holoRingOuter = ringOuter;
+      holoRingGroup.add(ringOuter);
+
+      const ringInner = new THREE.Mesh(
+        new THREE.RingGeometry(0.48, 0.495, 32),
+        new THREE.MeshBasicMaterial({ color: 0x7000ff, transparent: true, opacity: 0.25, side: THREE.DoubleSide })
+      );
+      ringInner.rotation.x = Math.PI / 2;
+      holoRingInner = ringInner;
+      holoRingGroup.add(ringInner);
+
+      scene.add(holoRingGroup);
+
+      loadModel('./assets/vrm/default.vrm');
+
+      window.addEventListener('resize', onResize);
+      animate();
+    }
+
+    function onResize() {
+      const container = document.getElementById('canvas-container');
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function loadModel(url) {
+      const loader = new GLTFLoader();
+      loader.crossOrigin = 'anonymous';
+      loader.register((parser) => new VRMLoaderPlugin(parser));
+
+      loader.load(
+        url,
+        (gltf) => {
+          const vrm = gltf.userData.vrm;
+          if (currentVrm) {
+            scene.remove(currentVrm.scene);
+            VRMUtils.deepDispose(currentVrm.scene);
+          }
+          currentVrm = vrm;
+          scene.add(vrm.scene);
+          VRMUtils.rotateVRM0(vrm);
+
+          if (vrm.humanoid) {
+            const head = vrm.humanoid.getNormalizedBoneNode('head');
+            if (head) {
+              const headPos = new THREE.Vector3();
+              head.getWorldPosition(headPos);
+              camera.position.set(headPos.x, headPos.y + 0.02, 1.35);
+              camera.lookAt(headPos.x, headPos.y - 0.03, 0.0);
+              holoRingGroup.position.set(headPos.x, headPos.y - 0.55, 0.0);
+            }
+          }
+          console.log("Model loaded successfully.");
+        },
+        undefined,
+        (err) => console.error("Error loading VRM:", err)
+      );
+    }
+
+    window.switchState = function (state, btn) {
+      avatarState = state;
+      isSleeping = (state === 'sleeping');
+      document.querySelectorAll('.btn-grid button').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const bubble = document.getElementById('bubble-preview');
+      const text = document.getElementById('bubble-text');
+
+      if (state === 'speaking') {
+        text.innerText = "Good afternoon, Sir! Real-time lip synchronization is currently active.";
+        bubble.style.opacity = '1';
+        setExpr('happy', 0.5);
+      } else if (state === 'thinking') {
+        text.innerText = "Analyzing query parameters and preparing contextual synthesis...";
+        bubble.style.opacity = '0.9';
+        setExpr('neutral', 1.0);
+      } else if (state === 'listening') {
+        text.innerText = "Listening for your voice command...";
+        bubble.style.opacity = '0.9';
+        setExpr('surprised', 0.6);
+      } else if (state === 'notification') {
+        text.innerText = "Alert: Scheduled briefing and daily reminder check ready.";
+        bubble.style.opacity = '1';
+        setExpr('surprised', 0.7);
+      } else if (state === 'error') {
+        text.innerText = "Error: Voice intent not recognized.";
+        bubble.style.opacity = '1';
+        setExpr('sad', 0.8);
+      } else {
+        bubble.style.opacity = '0.7';
+        text.innerText = "Avatar in idle monitoring mode.";
+        setExpr('neutral', 1.0);
+        targetMouthOpen = 0.0;
+      }
+    };
+
+    window.setExpr = function (name, weight = 1.0) {
+      if (!currentVrm || !currentVrm.expressionManager) return;
+      ['happy', 'surprised', 'neutral', 'relaxed', 'sad'].forEach(exp => {
+        try { currentVrm.expressionManager.setValue(exp, exp === name ? weight : 0.0); } catch (e) { }
+      });
+    };
+
+    window.speakVowel = function (vowel) {
+      targetVowel = vowel;
+      targetMouthOpen = 0.85;
+      setTimeout(() => { targetMouthOpen = 0.0; }, 600);
+    };
+
+    window.updateZoom = function (val) {
+      camera.position.z = parseFloat(val);
+      document.getElementById('zoom-val').innerText = val + 'm';
+    };
+
+    function updateExpressions(delta, elapsed) {
+      if (!currentVrm || !currentVrm.expressionManager) return;
+      const em = currentVrm.expressionManager;
+
+      currentMouthOpen += (targetMouthOpen - currentMouthOpen) * Math.min(1.0, delta * 24.0);
+
+      ['aa', 'ih', 'ou', 'ee', 'oh'].forEach(v => {
+        try { em.setValue(v, 0.0); } catch (e) { }
+      });
+
+      if (currentMouthOpen > 0.02) {
+        try { em.setValue(targetVowel, currentMouthOpen); } catch (e) { }
+      }
+
+      if (isSleeping) {
+        try { em.setValue('blink', 1.0); } catch (e) { }
+        em.update();
+        return;
+      }
+
+      if (!isBlinking && (elapsed - lastBlinkTime > 3.0 + Math.random() * 2.5)) {
+        isBlinking = true;
+        blinkTimer = 0;
+        lastBlinkTime = elapsed;
+      }
+
+      if (isBlinking) {
+        blinkTimer += delta;
+        const half = blinkDuration / 2.0;
+        let w = 0.0;
+        if (blinkTimer < half) w = blinkTimer / half;
+        else if (blinkTimer < blinkDuration) w = 1.0 - (blinkTimer - half) / half;
+        else { isBlinking = false; w = 0.0; }
+        try { em.setValue('blink', w); } catch (e) { }
+      }
+
+      em.update();
+    }
+
+    function updateHumanoid(delta, elapsed) {
+      if (!currentVrm || !currentVrm.humanoid) return;
+      const h = currentVrm.humanoid;
+      const spine = h.getNormalizedBoneNode('spine');
+      const head = h.getNormalizedBoneNode('head');
+
+      const breath = Math.sin(elapsed * (isSleeping ? 1.0 : 1.8)) * (isSleeping ? 0.012 : 0.022);
+      if (spine) spine.rotation.x = breath;
+
+      if (head) {
+        if (avatarState === 'sleeping') {
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, 0.16, delta * 2.0);
+        } else if (avatarState === 'listening') {
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.08, delta * 5.0);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.05, delta * 5.0);
+        } else if (avatarState === 'thinking') {
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, 0.14, delta * 3.5);
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, -0.08, delta * 3.5);
+        } else if (avatarState === 'speaking') {
+          head.rotation.x = Math.sin(elapsed * 5.5) * 0.035;
+          head.rotation.y = Math.cos(elapsed * 2.8) * 0.02;
+        } else {
+          head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, Math.sin(elapsed * 0.8) * 0.02, delta * 2.0);
+          head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, Math.sin(elapsed * 0.5) * 0.035, delta * 2.0);
+          head.rotation.z = THREE.MathUtils.lerp(head.rotation.z, 0.0, delta * 2.0);
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      if (holoRingGroup) {
+        if (holoRingOuter) holoRingOuter.rotation.z += delta * 0.4;
+        if (holoRingInner) holoRingInner.rotation.z -= delta * 0.7;
+      }
+
+      if (currentVrm) {
+        updateExpressions(delta, elapsed);
+        updateHumanoid(delta, elapsed);
+        currentVrm.update(delta);
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>

@@ -1,19 +1,16 @@
 {
   "persona_mode": "random",
   "persona": "friday",
-  "persona_pool": [],
+  "assistant_persona": "friday",
+  "persona_pool": [
+    "friday",
+    "jarvis"
+  ],
   "persona_weights": {
-    "jarvis": 1.2,
-    "friday": 1.2,
-    "coach": 1.0,
-    "zen": 1.0,
-    "alfred": 1.0,
-    "noir": 1.0,
-    "sarcastic": 1.0,
-    "pirate": 0.8,
-    "sleepy": 0.8
+    "jarvis": 1.0,
+    "friday": 1.0
   },
-  "persona_history_size": 3,
+  "persona_history_size": 1,
   "announce_persona": true,
 
   "user_name": "Sir",
@@ -23,11 +20,18 @@
 
   "avatar": {
     "enabled": true,
+    "visible": true,
     "vrm_path": "assets/vrm/default.vrm",
     "position": "bottom-right",
+    "custom_x": null,
+    "custom_y": null,
     "scale": 1.0,
-    "width": 320,
-    "height": 400,
+    "width": 340,
+    "height": 420,
+    "draggable": true,
+    "display_index": 0,
+    "idle_timeout_seconds": 60,
+    "animation_style": "futuristic",
     "bubble_enabled": true,
     "bubble_min_duration": 3.0,
     "bubble_max_duration": 10.0
@@ -42,14 +46,7 @@
     "fillers_enabled": true,
     "persona_voices": {
       "jarvis": "bm_george",
-      "friday": "af_heart",
-      "alfred": "bm_lewis",
-      "coach": "am_adam",
-      "zen": "af_sky",
-      "noir": "bm_george",
-      "sarcastic": "am_michael",
-      "pirate": "bm_fable",
-      "sleepy": "af_bella"
+      "friday": "af_heart"
     }
   },
 

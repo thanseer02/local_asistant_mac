@@ -54,6 +54,21 @@ class AvatarClient:
         return cls.send_event("listening")
 
     @classmethod
+    def notification(cls) -> bool:
+        """Signals an alert, reminder, or notification has arrived."""
+        return cls.send_event("notification")
+
+    @classmethod
+    def error(cls) -> bool:
+        """Signals an error or unrecognized command."""
+        return cls.send_event("error")
+
+    @classmethod
+    def sleeping(cls) -> bool:
+        """Transitions avatar to low-power sleeping state."""
+        return cls.send_event("sleeping")
+
+    @classmethod
     def idle(cls) -> bool:
         """Transitions avatar back to normal idle state."""
         return cls.send_event("idle")
@@ -65,7 +80,7 @@ class AvatarClient:
 
     @classmethod
     def expression(cls, exp: str, weight: float = 1.0) -> bool:
-        """Sets avatar facial expression (e.g. happy, surprised, neutral)."""
+        """Sets avatar facial expression (e.g. happy, surprised, neutral, sad)."""
         return cls.send_event("expression", {"expression": exp, "weight": weight})
 
     @classmethod
@@ -74,9 +89,24 @@ class AvatarClient:
         return cls.send_event("message", {"text": text, "sender": sender})
 
     @classmethod
+    def set_visibility(cls, visible: bool) -> bool:
+        """Controls avatar window visibility."""
+        return cls.send_event("visibility", {"visible": visible})
+
+    @classmethod
+    def set_position(cls, position: str) -> bool:
+        """Sets avatar position to corner (bottom-right, bottom-left, top-right, top-left)."""
+        return cls.send_event("position", {"position": position})
+
+    @classmethod
     def hide(cls) -> bool:
         """Conceals avatar overlay."""
-        return cls.send_event("hide")
+        return cls.set_visibility(False)
+
+    @classmethod
+    def show(cls) -> bool:
+        """Shows avatar overlay."""
+        return cls.set_visibility(True)
 
     @classmethod
     def update_config(cls, config: Dict[str, Any]) -> bool:

@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """
-VRM 3D Avatar & Message Bubble Overlay Subprocess for MacAssistant.
-Renders:
-1. A borderless, click-through, floating 3D VRM avatar window using WKWebView, Three.js, and @pixiv/three-vrm.
-2. A queued glassmorphic message bubble window in the top-right corner that fades in with spoken messages and fades out cleanly.
+Desktop AI Assistant Companion Overlay for MacAssistant (Friday/JARVIS).
 
-Zero-dependency core architecture: driven over local Unix domain socket IPC (/tmp/macassistant_avatar.sock).
+Features:
+- Renders your AI companion character (assets/character/companion.png) directly using native AppKit.
+- 100% transparent background, floating, always-on-top, click-through.
+- Smooth spring entry from bottom-right corner when a new message/notification arrives.
+- Natural conversational breathing and bobbing while speaking.
+- Glassmorphic speech bubble floating beside the character while speaking.
+- GUARANTEED DEPARTURE: Once speech finishes (or max display duration expires), the companion
+  smoothly slides down and vanishes from the screen.
+- Sequential message queue: never overlaps or interrupts ongoing speech.
+- 0% idle CPU when hidden.
 """
 
 import argparse
@@ -20,7 +26,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# AppKit & WebKit bindings via PyObjC
+# AppKit & Foundation bindings via PyObjC
 try:
     import objc
     from AppKit import (
@@ -29,6 +35,9 @@ try:
         NSBackingStoreBuffered,
         NSColor,
         NSFont,
+        NSImage,
+        NSImageView,
+        NSImageScaleProportionallyUpOrDown,
         NSScreen,
         NSTextView,
         NSView,
@@ -48,12 +57,9 @@ try:
         NSRect,
         NSSize,
         NSTimer,
-        NSURL,
     )
-    from WebKit import WKUserContentController, WKWebView, WKWebViewConfiguration
 except ImportError as e:
-    print(f"Error importing PyObjC AppKit/WebKit: {e}")
-    print("Run: pip install pyobjc-framework-Cocoa pyobjc-framework-WebKit")
+    print(f"Error importing PyObjC AppKit: {e}")
     sys.exit(1)
 
 logging.basicConfig(
@@ -61,16 +67,14 @@ logging.basicConfig(
     format="[%(asctime)s] %(levelname)s [%(name)s]: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logger = logging.getLogger("MacAssistant.VRMOverlay")
+logger = logging.getLogger("MacAssistant.CompanionOverlay")
 
 SOCKET_PATH = "/tmp/macassistant_avatar.sock"
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-HTML_PATH = PROJECT_ROOT / "modules" / "ui" / "web" / "avatar.html"
-DEFAULT_VRM = PROJECT_ROOT / "assets" / "vrm" / "default.vrm"
+COMPANION_IMG = PROJECT_ROOT / "assets" / "character" / "companion.png"
 
 
 def is_socket_in_use(path: str) -> bool:
-    """Checks whether another live instance is actively responding on the socket."""
     if not os.path.exists(path):
         return False
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -83,144 +87,135 @@ def is_socket_in_use(path: str) -> bool:
         return False
 
 
-class MessageItem:
-    """Item representing a queued popup message bubble."""
+class QueuedMessage:
     def __init__(self, text: str, sender: str = "Assistant"):
         self.text = text
         self.sender = sender
-        # Duration proportional to length: ~45 words/min reading speed (~0.06s per char), min 3.0s, max 10.0s
-        self.display_duration = max(3.0, min(10.0, len(text) * 0.055 + 1.5))
+        # Estimated reading/speaking time: ~15 chars/sec + 2s baseline (min 3.5s, max 12.0s)
+        self.max_duration = max(3.5, min(12.0, len(text) * 0.07 + 2.0))
 
 
-class VRMOverlayController(NSObject):
-    """Manages the 3D VRM avatar window and queued top-right popup message bubbles."""
+class CompanionOverlayController(NSObject):
+    """Coordinates companion appearance, speaking animation, speech bubble, and clean departure."""
 
     def init(self):
-        self = objc.super(VRMOverlayController, self).init()
+        self = objc.super(CompanionOverlayController, self).init()
         if self is None:
             return None
 
         self.config: Dict[str, Any] = {
-            "vrm_path": str(DEFAULT_VRM),
             "enabled": True,
-            "position": "bottom-right",  # "bottom-right", "bottom-left", "top-right"
-            "scale": 1.0,
-            "width": 320,
-            "height": 400,
-            "bubble_enabled": True,
-            "bubble_min_duration": 3.0,
-            "bubble_max_duration": 10.0,
+            "width": 260,
+            "height": 390,
+            "bubble_width": 340,
+            "bubble_height": 130,
+            "display_index": 0,
+            "linger_seconds": 1.2,
         }
 
-        # Avatar Window & WebKit components
-        self.avatar_window: Optional[NSWindow] = None
-        self.webview: Optional[WKWebView] = None
+        # Windows & Views
+        self.char_window: Optional[NSWindow] = None
+        self.char_image_view: Optional[NSImageView] = None
 
-        # Message Bubble Window & Views
         self.bubble_window: Optional[NSWindow] = None
         self.bubble_effect_view: Optional[NSVisualEffectView] = None
         self.bubble_text_view: Optional[NSTextView] = None
 
-        # Message Queue & State
-        self.message_queue: List[MessageItem] = []
-        self.current_message: Optional[MessageItem] = None
-        self.bubble_state = "hidden"  # "hidden", "fading_in", "visible", "fading_out"
-        self.bubble_timer: Optional[NSTimer] = None
-        self.bubble_anim_timer: Optional[NSTimer] = None
+        # State machine: hidden, entering, speaking, exiting
+        self.state = "hidden"
+        self.message_queue: List[QueuedMessage] = []
+        self.current_message: Optional[QueuedMessage] = None
+        self.is_speech_active = False
 
-        # Avatar State
-        self.avatar_state = "idle"  # "idle", "listening", "thinking", "speaking"
+        # Animation parameters
+        self.anim_timer: Optional[NSTimer] = None
+        self.speak_anim_timer: Optional[NSTimer] = None
+        self.anim_progress = 0.0
+        self.base_char_origin = NSPoint(0, 0)
+        self.base_bubble_origin = NSPoint(0, 0)
+        self.slide_offset_y = 120.0
+        self.speak_step = 0.0
+
+        # Safety & Linger timers
+        self.linger_timer: Optional[NSTimer] = None
+        self.max_duration_timer: Optional[NSTimer] = None
 
         return self
 
     @objc.python_method
     def setupWindows(self):
-        """Constructs both the 3D Avatar window and the Message Bubble window."""
-        screen = NSScreen.mainScreen()
+        screens = NSScreen.screens()
+        idx = int(self.config.get("display_index", 0))
+        screen = screens[idx] if (screens and idx < len(screens)) else NSScreen.mainScreen()
         if not screen:
             logger.error("No screen found.")
             return
 
         visible = screen.visibleFrame()
 
-        # ----------------------------------------------------
-        # 1. VRM 3D Avatar Window (Bottom-Right / Configurable)
-        # ----------------------------------------------------
-        w = float(self.config.get("width", 320))
-        h = float(self.config.get("height", 400))
-        pos = self.config.get("position", "bottom-right")
+        cw = float(self.config.get("width", 260))
+        ch = float(self.config.get("height", 390))
+        bw = float(self.config.get("bubble_width", 340))
+        bh = float(self.config.get("bubble_height", 130))
 
-        if pos == "bottom-right":
-            ax = visible.origin.x + visible.size.width - w - 20
-            ay = visible.origin.y + 20
-        elif pos == "bottom-left":
-            ax = visible.origin.x + 20
-            ay = visible.origin.y + 20
-        else:  # top-right
-            ax = visible.origin.x + visible.size.width - w - 20
-            ay = visible.origin.y + visible.size.height - h - 30
+        # Bottom-right corner coordinates
+        cx = visible.origin.x + visible.size.width - cw - 20
+        cy = visible.origin.y + 15
 
-        avatar_rect = NSRect(NSPoint(ax, ay), NSSize(w, h))
-        self.avatar_window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
-            avatar_rect, 0, NSBackingStoreBuffered, False
-        )
-        self.avatar_window.setOpaque_(False)
-        self.avatar_window.setBackgroundColor_(NSColor.clearColor())
-        self.avatar_window.setHasShadow_(False)
-        self.avatar_window.setIgnoresMouseEvents_(True)  # Click-through
-        self.avatar_window.setLevel_(25)  # Always on top
+        # Speech bubble sits adjacent to the character
+        bx = cx - bw - 15
+        by = cy + ch - bh - 30
+
+        self.base_char_origin = NSPoint(cx, cy)
+        self.base_bubble_origin = NSPoint(bx, by)
 
         behavior = (
             NSWindowCollectionBehaviorCanJoinAllSpaces
             | NSWindowCollectionBehaviorFullScreenAuxiliary
             | NSWindowCollectionBehaviorStationary
         )
-        self.avatar_window.setCollectionBehavior_(behavior)
 
-        # WKWebView with transparent background and file URL access
-        wk_config = WKWebViewConfiguration.alloc().init()
-        wk_config.preferences().setValue_forKey_(True, "allowFileAccessFromFileURLs")
-        wk_config.setValue_forKey_(True, "allowUniversalAccessFromFileURLs")
-
-        self.webview = WKWebView.alloc().initWithFrame_configuration_(
-            self.avatar_window.contentView().bounds(), wk_config
+        # 1. Native Character Window (100% transparent, floating, click-through)
+        char_rect = NSRect(NSPoint(cx, cy - self.slide_offset_y), NSSize(cw, ch))
+        self.char_window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+            char_rect, 0, NSBackingStoreBuffered, False
         )
-        self.webview.setValue_forKey_(False, "drawsBackground")  # Fully transparent
-        self.avatar_window.contentView().addSubview_(self.webview)
+        self.char_window.setOpaque_(False)
+        self.char_window.setBackgroundColor_(NSColor.clearColor())
+        self.char_window.setHasShadow_(True)
+        self.char_window.setIgnoresMouseEvents_(True)
+        self.char_window.setLevel_(25)
+        self.char_window.setCollectionBehavior_(behavior)
+        self.char_window.setAlphaValue_(0.0)
 
-        # Load web/avatar.html
-        if HTML_PATH.exists():
-            html_url = NSURL.fileURLWithPath_(str(HTML_PATH.resolve()))
-            self.webview.loadFileURL_allowingReadAccessToURL_(
-                html_url, NSURL.fileURLWithPath_(str(PROJECT_ROOT.resolve()))
-            )
+        # Load character image into NSImageView
+        self.char_image_view = NSImageView.alloc().initWithFrame_(
+            self.char_window.contentView().bounds()
+        )
+        self.char_image_view.setImageScaling_(NSImageScaleProportionallyUpOrDown)
+
+        if COMPANION_IMG.exists():
+            image = NSImage.alloc().initWithContentsOfFile_(str(COMPANION_IMG.resolve()))
+            self.char_image_view.setImage_(image)
+            logger.info("Loaded companion character image: %s", COMPANION_IMG)
         else:
-            logger.error("Avatar HTML not found at %s", HTML_PATH)
+            logger.warning("Character image not found at %s", COMPANION_IMG)
 
-        self.avatar_window.orderFrontRegardless()
-        logger.info("VRM avatar window created at (%d, %d).", ax, ay)
+        self.char_window.contentView().addSubview_(self.char_image_view)
 
-        # ----------------------------------------------------
-        # 2. Top-Right Message Bubble Window
-        # ----------------------------------------------------
-        bw = 360.0
-        bh = 130.0
-        bx = visible.origin.x + visible.size.width - bw - 24
-        by = visible.origin.y + visible.size.height - bh - 28
-
-        bubble_rect = NSRect(NSPoint(bx, by), NSSize(bw, bh))
+        # 2. Glassmorphic Speech Bubble Window
+        bubble_rect = NSRect(NSPoint(bx, by - self.slide_offset_y), NSSize(bw, bh))
         self.bubble_window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             bubble_rect, 0, NSBackingStoreBuffered, False
         )
         self.bubble_window.setOpaque_(False)
         self.bubble_window.setBackgroundColor_(NSColor.clearColor())
         self.bubble_window.setHasShadow_(True)
-        self.bubble_window.setIgnoresMouseEvents_(True)  # Click-through
-        self.bubble_window.setLevel_(26)  # Slightly above avatar
+        self.bubble_window.setIgnoresMouseEvents_(True)
+        self.bubble_window.setLevel_(26)
         self.bubble_window.setCollectionBehavior_(behavior)
         self.bubble_window.setAlphaValue_(0.0)
 
-        # Visual Effect Blur Layer (Glassmorphism)
         self.bubble_effect_view = NSVisualEffectView.alloc().initWithFrame_(
             self.bubble_window.contentView().bounds()
         )
@@ -232,10 +227,9 @@ class VRMOverlayController(NSObject):
         self.bubble_effect_view.layer().setMasksToBounds_(True)
         self.bubble_effect_view.layer().setBorderWidth_(1.0)
         self.bubble_effect_view.layer().setBorderColor_(
-            NSColor.colorWithWhite_alpha_(1.0, 0.25).CGColor()
+            NSColor.colorWithRed_green_blue_alpha_(0.0, 0.95, 1.0, 0.4).CGColor()
         )
 
-        # Text View for message
         text_rect = NSRect(NSPoint(16, 12), NSSize(bw - 32, bh - 24))
         self.bubble_text_view = NSTextView.alloc().initWithFrame_(text_rect)
         self.bubble_text_view.setBackgroundColor_(NSColor.clearColor())
@@ -243,78 +237,30 @@ class VRMOverlayController(NSObject):
         self.bubble_text_view.setEditable_(False)
         self.bubble_text_view.setSelectable_(False)
         self.bubble_text_view.setTextColor_(NSColor.whiteColor())
-        self.bubble_text_view.setFont_(NSFont.systemFontOfSize_weight_(13.5, 0.2))
+        self.bubble_text_view.setFont_(NSFont.systemFontOfSize_weight_(13.5, 0.25))
 
         self.bubble_effect_view.addSubview_(self.bubble_text_view)
         self.bubble_window.contentView().addSubview_(self.bubble_effect_view)
-        self.bubble_window.orderFrontRegardless()
 
-        # Load initial VRM after short delay for webview readiness
-        timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
-            1.2, self, "onInitialVrmLoad:", None, False
-        )
-
-    def onInitialVrmLoad_(self, timer):
-        """Triggers load of default or configured VRM model into WebKit."""
-        vrm_path = Path(self.config.get("vrm_path", str(DEFAULT_VRM)))
-        if not vrm_path.is_absolute():
-            vrm_path = PROJECT_ROOT / vrm_path
-        scale = float(self.config.get("scale", 1.0))
-        self.loadVRM(str(vrm_path.resolve()), scale)
-
-    @objc.python_method
-    def loadVRM(self, vrm_path: str, scale: float = 1.0):
-        """Loads .vrm model into Three.js canvas."""
-        if not self.webview:
-            return
-        if not os.path.exists(vrm_path):
-            logger.warning("VRM model not found at %s. Waiting for model file.", vrm_path)
-            return
-
-        file_url = f"file://{os.path.abspath(vrm_path)}"
-        js = f"window.loadVRM('{file_url}', {scale});"
-        self.webview.evaluateJavaScript_completionHandler_(js, None)
-        logger.info("Triggered VRM load in webview: %s (scale=%.2f)", vrm_path, scale)
-
-    @objc.python_method
-    def setAvatarState(self, state: str):
-        """Sets avatar state: idle, listening, thinking, speaking."""
-        self.avatar_state = state
-        if self.webview:
-            js = f"window.setState('{state}');"
-            self.webview.evaluateJavaScript_completionHandler_(js, None)
-
-    @objc.python_method
-    def setLipSync(self, amplitude: float, vowel: str = "aa"):
-        """Drives mouth blendshape with audio loudness amplitude."""
-        if self.webview:
-            js = f"window.setAmplitude({amplitude:.3f}, '{vowel}');"
-            self.webview.evaluateJavaScript_completionHandler_(js, None)
-
-    @objc.python_method
-    def setExpression(self, expression: str, weight: float = 1.0):
-        """Sets facial expression blendshape."""
-        if self.webview:
-            js = f"window.setExpression('{expression}', {weight:.2f});"
-            self.webview.evaluateJavaScript_completionHandler_(js, None)
+        logger.info("Character companion overlay initialized. Hidden until message arrives.")
 
     # ----------------------------------------------------
-    # Message Bubble Queue Management
+    # Entrance, Speaking, and Departure Sequence
     # ----------------------------------------------------
     @objc.python_method
-    def queueMessage(self, text: str, sender: str = "Assistant"):
-        """Enqueues popup message to show in sequence."""
-        if not text or not text.strip():
+    def onIncomingMessage(self, text: str, sender: str = "Assistant"):
+        clean_text = text.strip()
+        if not clean_text:
             return
-        clean = text.strip()
-        item = MessageItem(clean, sender)
-        self.message_queue.append(item)
-        if self.bubble_state == "hidden":
-            self._showNextMessage()
+
+        msg = QueuedMessage(clean_text, sender)
+        self.message_queue.append(msg)
+
+        if self.state == "hidden":
+            self._startEntrance()
 
     @objc.python_method
-    def _showNextMessage(self):
-        """Pops next message and initiates slide-in / fade-in."""
+    def _startEntrance(self):
         if not self.message_queue:
             return
 
@@ -322,117 +268,172 @@ class VRMOverlayController(NSObject):
         prefix = f"[{self.current_message.sender.upper()}]\n" if self.current_message.sender else ""
         self.bubble_text_view.setString_(f"{prefix}{self.current_message.text}")
 
-        self.bubble_state = "fading_in"
-        self._startBubbleAnimTimer()
+        self.char_window.orderFrontRegardless()
+        self.bubble_window.orderFrontRegardless()
+
+        self.state = "entering"
+        self._ensureAnimTimer()
+        self._startSpeakingBobbingTimer()
+
+        # Maximum duration watchdog timer: guarantees dismissal even if TTS completion event is missed
+        if self.max_duration_timer:
+            self.max_duration_timer.invalidate()
+        self.max_duration_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+            self.current_message.max_duration, self, "onMaxDurationExpired:", None, False
+        )
+
+    def onMaxDurationExpired_(self, timer):
+        """Watchdog fired: speech has completed or exceeded maximum time. Force exit."""
+        self.max_duration_timer = None
+        logger.info("Message display duration reached. Beginning departure.")
+        self.is_speech_active = False
+        self._startExit()
 
     @objc.python_method
-    def _startBubbleAnimTimer(self):
-        """Runs smooth 60fps interpolation for bubble fade-in/out."""
-        if not self.bubble_anim_timer:
-            self.bubble_anim_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
-                0.016, self, "bubbleTick:", None, True
+    def _ensureAnimTimer(self):
+        if not self.anim_timer:
+            self.anim_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+                0.016, self, "animTick:", None, True
             )
 
-    def bubbleTick_(self, timer):
-        """Animates bubble window alpha and subtle slide."""
-        if not self.bubble_window:
-            return
+    @objc.python_method
+    def _startSpeakingBobbingTimer(self):
+        if not self.speak_anim_timer:
+            self.speak_anim_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+                0.03, self, "speakTick:", None, True
+            )
 
-        alpha = self.bubble_window.alphaValue()
+    def speakTick_(self, timer):
+        """Natural breathing and speaking micro-bobbing while active."""
+        if self.state in ("entering", "speaking"):
+            self.speak_step += 0.08
+            bob = math.sin(self.speak_step * 2.5) * 2.5
+            current_origin = self.char_window.frame().origin
+            self.char_window.setFrameOrigin_(NSPoint(current_origin.x, self.base_char_origin.y + bob))
 
-        if self.bubble_state == "fading_in":
-            new_alpha = min(1.0, alpha + 0.12)
-            self.bubble_window.setAlphaValue_(new_alpha)
-            if new_alpha >= 0.99:
-                self.bubble_state = "visible"
-                duration = self.current_message.display_duration if self.current_message else 4.0
-                if self.bubble_timer:
-                    self.bubble_timer.invalidate()
-                self.bubble_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
-                    duration, self, "onBubbleDurationExpired:", None, False
-                )
+    def animTick_(self, timer):
+        """Smooth sliding & alpha interpolation."""
+        if self.state == "entering":
+            self.anim_progress = min(1.0, self.anim_progress + 0.08)
+            t = self.anim_progress
+            eased = 1.0 - (1.0 - t) * (1.0 - t)
 
-        elif self.bubble_state == "fading_out":
-            new_alpha = max(0.0, alpha - 0.08)
-            self.bubble_window.setAlphaValue_(new_alpha)
-            if new_alpha <= 0.001:
-                self.bubble_state = "hidden"
-                self.bubble_window.setAlphaValue_(0.0)
-                if self.bubble_anim_timer:
-                    self.bubble_anim_timer.invalidate()
-                    self.bubble_anim_timer = None
-                # Check for next queued message
+            offset = (1.0 - eased) * self.slide_offset_y
+            self.char_window.setFrameOrigin_(
+                NSPoint(self.base_char_origin.x, self.base_char_origin.y - offset)
+            )
+            self.bubble_window.setFrameOrigin_(
+                NSPoint(self.base_bubble_origin.x, self.base_bubble_origin.y - offset)
+            )
+
+            self.char_window.setAlphaValue_(eased)
+            self.bubble_window.setAlphaValue_(eased)
+
+            if self.anim_progress >= 0.999:
+                self.state = "speaking"
+                self.anim_progress = 1.0
+                if not self.is_speech_active:
+                    self._checkSpeechFinished()
+
+        elif self.state == "exiting":
+            self.anim_progress = max(0.0, self.anim_progress - 0.07)
+            t = 1.0 - self.anim_progress
+            eased = t * t
+
+            offset = eased * self.slide_offset_y
+            self.char_window.setFrameOrigin_(
+                NSPoint(self.base_char_origin.x, self.base_char_origin.y - offset)
+            )
+            self.bubble_window.setFrameOrigin_(
+                NSPoint(self.base_bubble_origin.x, self.base_bubble_origin.y - offset)
+            )
+
+            self.char_window.setAlphaValue_(self.anim_progress)
+            self.bubble_window.setAlphaValue_(self.anim_progress)
+
+            if self.anim_progress <= 0.001:
+                self.state = "hidden"
+                self.char_window.orderOut_(None)
+                self.bubble_window.orderOut_(None)
+
+                if self.speak_anim_timer:
+                    self.speak_anim_timer.invalidate()
+                    self.speak_anim_timer = None
+
+                # Check if next message in queue
                 if self.message_queue:
-                    self._showNextMessage()
+                    self._startEntrance()
+                else:
+                    if self.anim_timer:
+                        self.anim_timer.invalidate()
+                        self.anim_timer = None
 
-    def onBubbleDurationExpired_(self, timer):
-        """Starts fade-out transition after display duration."""
-        self.bubble_timer = None
-        self.bubble_state = "fading_out"
-        self._startBubbleAnimTimer()
+    @objc.python_method
+    def onSpeechStarted(self, message: str = "", persona: str = "Assistant"):
+        self.is_speech_active = True
+        self.onIncomingMessage(message, persona)
+
+    @objc.python_method
+    def onSpeechEnded(self):
+        self.is_speech_active = False
+        self._checkSpeechFinished()
+
+    @objc.python_method
+    def _checkSpeechFinished(self):
+        if not self.is_speech_active and self.state in ("speaking", "entering"):
+            linger = float(self.config.get("linger_seconds", 1.2))
+            if self.linger_timer:
+                self.linger_timer.invalidate()
+            self.linger_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+                linger, self, "onLingerExpired:", None, False
+            )
+
+    def onLingerExpired_(self, timer):
+        self.linger_timer = None
+        self._startExit()
+
+    @objc.python_method
+    def _startExit(self):
+        if self.max_duration_timer:
+            self.max_duration_timer.invalidate()
+            self.max_duration_timer = None
+
+        if self.state != "hidden":
+            self.state = "exiting"
+            self._ensureAnimTimer()
 
     # ----------------------------------------------------
     # Command Dispatching
     # ----------------------------------------------------
-    def handleCommand_(self, cmd_data):
-        """Handles socket actions arriving from daemon."""
-        action = cmd_data.get("action")
+    def handleCommand_(self, cmd):
+        action = cmd.get("action")
         if not action:
             return
 
         if action == "speaking_start":
-            self.setAvatarState("speaking")
-            msg = cmd_data.get("message", "")
-            if msg:
-                self.queueMessage(msg, cmd_data.get("persona", "Assistant"))
+            msg = cmd.get("message", "")
+            persona = cmd.get("persona", "Assistant")
+            self.onSpeechStarted(msg, persona)
         elif action == "speaking_end":
-            self.setAvatarState("idle")
-            self.setLipSync(0.0)
-        elif action == "thinking":
-            self.setAvatarState("thinking")
-        elif action == "listening":
-            self.setAvatarState("listening")
-        elif action == "idle":
-            self.setAvatarState("idle")
-        elif action == "amplitude":
-            amp = float(cmd_data.get("amplitude", 0.0))
-            vowel = cmd_data.get("vowel", "aa")
-            self.setLipSync(amp, vowel)
-        elif action == "expression":
-            exp = cmd_data.get("expression", "neutral")
-            weight = float(cmd_data.get("weight", 1.0))
-            self.setExpression(exp, weight)
+            self.onSpeechEnded()
         elif action == "message":
-            text = cmd_data.get("text", "")
-            sender = cmd_data.get("sender", "Assistant")
+            text = cmd.get("text", "")
+            sender = cmd.get("sender", "Assistant")
             if text:
-                self.queueMessage(text, sender)
-        elif action == "config_update":
-            cfg = cmd_data.get("config", {})
-            self.updateConfig_(cfg)
-
-    def updateConfig_(self, new_cfg):
-        """Hot-reloads configuration properties."""
-        self.config.update(new_cfg)
-        vrm_path = Path(self.config.get("vrm_path", str(DEFAULT_VRM)))
-        if not vrm_path.is_absolute():
-            vrm_path = PROJECT_ROOT / vrm_path
-        scale = float(self.config.get("scale", 1.0))
-        self.loadVRM(str(vrm_path.resolve()), scale)
-        logger.info("VRM overlay configuration hot-reloaded.")
+                self.onIncomingMessage(text, sender)
+        elif action in ("hide", "dismiss"):
+            self._startExit()
 
 
 class SocketServerThread(threading.Thread):
-    """Background listener servicing Unix domain socket commands safely."""
-
-    def __init__(self, controller: VRMOverlayController):
-        super().__init__(daemon=True, name="VRMSocketServer")
+    def __init__(self, controller: CompanionOverlayController):
+        super().__init__(daemon=True, name="CompanionSocketServer")
         self.controller = controller
         self.running = True
 
     def run(self):
         if is_socket_in_use(SOCKET_PATH):
-            logger.warning("Another live VRMOverlay instance is currently using %s. Socket server exiting.", SOCKET_PATH)
+            logger.warning("Another overlay instance is using %s. Exiting listener.", SOCKET_PATH)
             return
 
         if os.path.exists(SOCKET_PATH):
@@ -445,7 +446,7 @@ class SocketServerThread(threading.Thread):
         server.bind(SOCKET_PATH)
         os.chmod(SOCKET_PATH, 0o777)
         server.listen(5)
-        logger.info("VRM socket listening on %s", SOCKET_PATH)
+        logger.info("Companion overlay socket listening on %s", SOCKET_PATH)
 
         while self.running:
             try:
@@ -468,7 +469,6 @@ class SocketServerThread(threading.Thread):
                     logger.debug("Socket connection error: %s", e)
 
     def _dispatch_to_main(self, payload: Dict[str, Any]):
-        """Dispatches command payload to AppKit main thread."""
         class Dispatcher(NSObject):
             def runOnMain_(self, arg):
                 controller, cmd = arg
@@ -480,69 +480,20 @@ class SocketServerThread(threading.Thread):
         )
 
 
-def run_demo(controller: VRMOverlayController):
-    """Executes automated demo: listening -> thinking -> speaking with message bubble -> idle."""
-    time.sleep(2.0)
-    logger.info("DEMO: [1/4] Triggering 'listening' state (head tilt)...")
-    controller.handleCommand_({"action": "listening"})
-
-    time.sleep(2.5)
-    logger.info("DEMO: [2/4] Triggering 'thinking' state (contemplative glance)...")
-    controller.handleCommand_({"action": "thinking"})
-
-    time.sleep(2.5)
-    logger.info("DEMO: [3/4] Triggering 'speaking' with message bubble and simulated blendshapes...")
-    demo_msg = "Good afternoon, Sir! All systems are nominal and your VRM avatar is fully operational."
-    controller.handleCommand_({"action": "speaking_start", "message": demo_msg, "persona": "Friday"})
-
-    # Simulate amplitude modulation
-    for _ in range(35):
-        amp = 0.3 + 0.6 * math.sin(time.time() * 12.0)
-        vowel = ["aa", "ih", "ou", "ee", "oh"][int(time.time() * 5) % 5]
-        controller.handleCommand_({"action": "amplitude", "amplitude": max(0.1, amp), "vowel": vowel})
-        time.sleep(0.1)
-
-    logger.info("DEMO: [4/4] Finishing speech and returning to idle...")
-    controller.handleCommand_({"action": "speaking_end"})
-
-    time.sleep(6.0)
-    logger.info("DEMO: Sequence complete. Terminating overlay.")
-    NSApplication.sharedApplication().terminate_(None)
-
-
 def main():
-    parser = argparse.ArgumentParser(description="MacAssistant VRM 3D Avatar & Message Bubble Overlay")
-    parser.add_argument("--demo", action="store_true", help="Run interactive VRM animation & message bubble demo")
-    parser.add_argument("--config", type=str, default=None, help="JSON string or path to config")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="MacAssistant Desktop AI Character Companion Overlay")
+    parser.parse_args()
 
     app = NSApplication.sharedApplication()
     app.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
 
-    controller = VRMOverlayController.alloc().init()
-
-    if args.config:
-        try:
-            if os.path.exists(args.config):
-                with open(args.config, "r", encoding="utf-8") as f:
-                    cfg_data = json.load(f).get("avatar", {})
-            else:
-                cfg_data = json.loads(args.config)
-            controller.config.update(cfg_data)
-        except Exception as e:
-            logger.warning("Could not parse config: %s", e)
-
+    controller = CompanionOverlayController.alloc().init()
     controller.setupWindows()
 
-    # Start socket listener
     sock_thread = SocketServerThread(controller)
     sock_thread.start()
 
-    if args.demo:
-        demo_thread = threading.Thread(target=run_demo, args=(controller,), daemon=True)
-        demo_thread.start()
-
-    logger.info("VRM Avatar & Message Bubble Overlay running.")
+    logger.info("Desktop AI Companion character overlay running.")
     app.run()
 
 
